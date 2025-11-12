@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Redirecting…</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: system-ui, sans-serif;
+      background: #f9fafb;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <p>Redirecting to your account…</p>
+
+  <script>
+    (function () {
+      const qs = new URLSearchParams(location.search);
+      const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+      if (qs.get('code') || hash.get('access_token')) {
+        const all = qs.toString() || hash.toString();
+        location.replace(`/auth/callback?${all}`);
+      } else {
+        // Default fallback — redirect to login or main app
+        location.replace("/login");
+      }
+    })();
+  </script>
+</body>
+</html>
