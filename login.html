@@ -57,6 +57,19 @@ const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
       return; 
     }
 
+    const redirectTo = `${location.origin}/auth/callback`;
+
+  if (mode === "signup") {
+    await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: redirectTo }
+    });
+  }
+// For magic-link flow (optional):
+// await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
+
+
     // ✅ Cloudflare Pages function path is /set-session
     const setResp = await fetch("/set-session", {
       method: "POST",
