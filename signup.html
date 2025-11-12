@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign up</title>
+  <link rel="stylesheet" href="/assets/css/account.css">
+</head>
+<body class="auth">
+  <div class="card" style="max-width:420px;margin:10vh auto;">
+    <h2>Sign up to Dealvox</h2>
+    <form id="authForm" data-mode="signup">
+      <div class="field">
+        <label>Email</label>
+        <input class="input" name="email" type="email" required />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input class="input" name="password" type="password" required />
+      </div>
+      <button class="pricing-btn accent" type="submit">Continue</button>
+      <p style="margin:.6rem 0 0;color:#6b7280">
+        Don’t have an account? <a href="/signup">Create one</a>
+      </p>
+    </form>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "{{ site.supabase_url }}";
+    const SUPABASE_ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY || "{{ site.supabase_anon }}";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, flowType: "pkce" }
+    });
+
+    const form = document.getElementById("authForm");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = form.email.value.trim();
+      const password = form.password.value;
+
+      const mode = form.dataset.mode; // "login" or "signup"
+      let res;
+      if (mode === "signup") {
+        res = await supabase.auth.signUp({ email, password });
+      } else {
+        res = await supabase.auth.signInWithPassword({ email, password });
+      }
+      if (res.error) { alert(res.error.message); return; }
+      const session = res.data.session;
+      if (!session) { alert("Check your email to confirm."); return; }
+
+      // Store tokens in HttpOnly cookies via an edge function:
+      await fetch("/functions/set-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token
+        })
+      });
+
+      const params = new URLSearchParams(location.search);
+      const redirect = params.get("redirect") || "/account";
+      location.href = redirect;
+    });
+  </script>
+</body>
+</html>
