@@ -1,63 +1,82 @@
-// /functions/_middleware.js
 export const onRequest = async ({ request, env, next }) => {
-  const url = new URL(request.url);
+  const url  = new URL(request.url);
   const path = url.pathname;
+  const debug = url.searchParams.get("debug") === "1";
 
-  // Public routes that should never be gated
-  const publicPrefixes = [
-    "/", "/login", "/signup", "/auth", "/set-session", "/logout", "/assets"
-  ];
-  if (publicPrefixes.some(p => path === p || path.startsWith(p + "/"))) {
-    return next();
-  }
+  // Public routes (never gated)
+  const publicPrefixes = ["/", "/login", "/signup", "/auth", "/set-session", "/logout", "/assets"];
+  if (publicPrefixes.some(p => path === p || path.startsWith(p + "/"))) return next();
 
-  // Only protect /account (and subpaths if any)
-  if (!path.startsWith("/account")) {
-    return next();
-  }
+  // Only guard /account
+  if (!path.startsWith("/account")) return next();
 
-  try {
-    const cookieHeader = request.headers.get("Cookie") || "";
+  // Parse cookies safely
+  const cookieHeader = request.headers.get("Cookie") || "";
+  const cookies = Object.fromEntries(
+    cookieHeader.split(";").map(c => {
+      const i = c.indexOf("=");
+      if (i === -1) return [c.trim(), ""];
+      return [c.slice(0, i).trim(), decodeURIComponent(c.slice(i + 1))];
+    })
+  );
 
-    // Parse cookies into a map
-    const cookies = Object.fromEntries(
-      cookieHeader.split(";").map(c => {
-        const i = c.indexOf("=");
-        return [c.slice(0, i).trim(), decodeURIComponent(c.slice(i + 1))];
-      })
-    );
+  // Accept BOTH naming styles
+  const token = cookies["sb_token"] || cookies["sb:token"] || null;
 
-    // ✅ Accept BOTH naming styles
-    const token = cookies["sb_token"] || cookies["sb:token"];
-
-    if (!token) {
-      return new Response(null, {
-        status: 302,
-        headers: { Location: `/login?redirect=${encodeURIComponent(path)}` }
-      });
-    }
-
-    // Verify the token with Supabase
-    const res = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        apikey: env.SUPABASE_ANON_KEY
-      }
+  // If debug=1, show exactly what the Worker sees
+  if (debug) {
+    const body = {
+      path,
+      has_sb_token: Boolean(cookies["sb_token"]),
+      has_sb_colon_token: Boolean(cookies["sb:token"]),
+      env_present: {
+        SUPABASE_URL: Boolean(env.SUPABASE_URL),
+        SUPABASE_ANON_KEY: Boolean(env.SUPABASE_ANON_KEY),
+      },
+      token_length: token?.length || 0,
+      cookie_keys: Object.keys(cookies),
+    };
+    return new Response(JSON.stringify(body, null, 2), {
+      headers: { "Content-Type": "application/json" }
     });
+  }
 
-    if (!res.ok) {
-      return new Response(null, {
-        status: 302,
-        headers: { Location: `/login?redirect=${encodeURIComponent(path)}` }
-      });
-    }
-
-    return next();
-  } catch (err) {
-    console.error("Middleware error:", err);
+  // No token? go login
+  if (!token) {
     return new Response(null, {
       status: 302,
       headers: { Location: `/login?redirect=${encodeURIComponent(path)}` }
     });
   }
+
+  // Verify with Supabase
+  let verifyStatus = 0;
+  try {
+    const supabaseUrl = (env.SUPABASE_URL || "").replace(/\/+$/,"");
+    const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: env.SUPABASE_ANON_KEY || ""
+      }
+    });
+    verifyStatus = res.status;
+
+    if (!res.ok) {
+      // Optional: enable one-time bypass for troubleshooting
+      if (url.searchParams.get("allow") === "1") return next();
+      return new Response(null, {
+        status: 302,
+        headers: { Location: `/login?redirect=${encodeURIComponent(path)}` }
+      });
+    }
+  } catch (e) {
+    // Optional: allow bypass with ?allow=1 to isolate the issue
+    if (url.searchParams.get("allow") === "1") return next();
+    return new Response(null, {
+      status: 302,
+      headers: { Location: `/login?redirect=${encodeURIComponent(path)}` }
+    });
+  }
+
+  return next();
 };
