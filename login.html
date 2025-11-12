@@ -24,16 +24,18 @@
       </p>
     </form>
   </div>
-
-  <script type="module">
+ <script>
+  window.SUPABASE_URL = "https://rtidfgnigtsxdszypkwr.supabase.co";
+  window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0aWRmZ25pZ3RzeGRzenlwa3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MjM5NjEsImV4cCI6MjA3ODQ5OTk2MX0.DtqhhfZlFOnQLYGy6qTtgaia38bTPB_pvNEQGhLt4T0";
+</script>
+<script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "{{ site.supabase_url }}";
-  const SUPABASE_ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY || "{{ site.supabase_anon }}";
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: false, flowType: "pkce" }
-  });
+  const supabase = createClient(
+    window.SUPABASE_URL,
+    window.SUPABASE_ANON_KEY,
+    { auth: { persistSession: false, flowType: "pkce" } }
+  );
 
   const form = document.getElementById("authForm");
 
