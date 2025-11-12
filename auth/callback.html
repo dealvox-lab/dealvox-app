@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Signing you in…</title>
+  <link rel="stylesheet" href="/assets/css/account.css">
+</head>
+<body>
+  <div class="card" style="max-width:520px;margin:10vh auto;text-align:center;">
+    <h2>Finishing sign-in…</h2>
+    <p class="muted">Please wait.</p>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    // Use the same approach you picked earlier (global vars or Jekyll vars):
+    const SUPABASE_URL = window.SUPABASE_URL || "{{ site.supabase_url }}";
+    const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "{{ site.supabase_anon }}";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, flowType: "pkce" }
+    });
+
+    (async () => {
+      try {
+        // Exchange the 'code' in the URL for a session
+        const { data, error } = await supabase.auth.exchangeCodeForSession(location.href);
+        if (error) throw error;
+
+        const session = data.session;
+        if (!session) throw new Error("No session returned");
+
+        // Set HttpOnly cookies via your Pages Function
+        const resp = await fetch("/set-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token
+          })
+        });
+        if (!resp.ok) throw new Error("Failed to set session cookies");
+
+        // Redirect (support ?redirect=… if provided)
+        const params = new URLSearchParams(location.search);
+        const redirect = params.get("redirect") || "/account";
+        location.replace(redirect);
+      } catch (e) {
+        console.error(e);
+        alert("Sign-in failed. Please try again.");
+        location.replace("/login");
+      }
+    })();
+  </script>
+</body>
+</html>
