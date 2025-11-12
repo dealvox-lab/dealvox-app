@@ -18,8 +18,9 @@
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-    const SUPABASE_URL = window.SUPABASE_URL || "{{ site.supabase_url }}";
-    const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "{{ site.supabase_anon }}";
+const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
+  auth: { persistSession: false, flowType: "implicit" }
+});
 
     if (!/^https?:\/\//.test(SUPABASE_URL)) {
       console.error("Missing or invalid SUPABASE_URL on callback page:", SUPABASE_URL);
