@@ -1,6 +1,3 @@
-window.SUPABASE_URL = "https://rtidfgnigtsxdszypkwr.supabase.co";
-window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0aWRmZ25pZ3RzeGRzenlwa3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MjM5NjEsImV4cCI6MjA3ODQ5OTk2MX0.DtqhhfZlFOnQLYGy6qTtgaia38bTPB_pvNEQGhLt4T0";
-
 export const onRequest = async ({ request, env, next }) => {
   const url  = new URL(request.url);
   const path = url.pathname;
@@ -27,6 +24,10 @@ export const onRequest = async ({ request, env, next }) => {
   const token = cookies["sb_token"] || cookies["sb:token"] || null;
 
   // If debug=1, show exactly what the Worker sees
+
+window.SUPABASE_URL = "https://rtidfgnigtsxdszypkwr.supabase.co";
+window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0aWRmZ25pZ3RzeGRzenlwa3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MjM5NjEsImV4cCI6MjA3ODQ5OTk2MX0.DtqhhfZlFOnQLYGy6qTtgaia38bTPB_pvNEQGhLt4T0";
+
   if (debug) {
     const body = {
       path,
