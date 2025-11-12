@@ -24,49 +24,60 @@
       </p>
     </form>
   </div>
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "{{ site.supabase_url }}";
+  const SUPABASE_ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY || "{{ site.supabase_anon }}";
 
-    const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "{{ site.supabase_url }}";
-    const SUPABASE_ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY || "{{ site.supabase_anon }}";
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, flowType: "pkce" }
+  });
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: false, flowType: "pkce" }
+  const form = document.getElementById("authForm");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = form.email.value.trim();
+    const password = form.password.value;
+    const mode = form.dataset.mode; // "login" | "signup"
+
+    let res;
+    if (mode === "signup") {
+      res = await supabase.auth.signUp({ email, password });
+    } else {
+      res = await supabase.auth.signInWithPassword({ email, password });
+    }
+    if (res.error) { alert(res.error.message); return; }
+
+    const session = res.data.session;
+    if (!session) { 
+      alert("Check your email to confirm your account, then sign in.");
+      return; 
+    }
+
+    // ✅ Cloudflare Pages function path is /set-session
+    const setResp = await fetch("/set-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token
+      }),
+      credentials: "include" // ensure cookies are stored
     });
 
-    const form = document.getElementById("authForm");
+    if (!setResp.ok) {
+      const txt = await setResp.text().catch(() => "");
+      console.error("set-session failed:", setResp.status, txt);
+      alert("Could not save session. Please try again.");
+      return;
+    }
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = form.email.value.trim();
-      const password = form.password.value;
-
-      const mode = form.dataset.mode; // "login" or "signup"
-      let res;
-      if (mode === "signup") {
-        res = await supabase.auth.signUp({ email, password });
-      } else {
-        res = await supabase.auth.signInWithPassword({ email, password });
-      }
-      if (res.error) { alert(res.error.message); return; }
-      const session = res.data.session;
-      if (!session) { alert("Check your email to confirm."); return; }
-
-      // Store tokens in HttpOnly cookies via an edge function:
-      await fetch("/functions/set-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          access_token: session.access_token,
-          refresh_token: session.refresh_token
-        })
-      });
-
-      const params = new URLSearchParams(location.search);
-      const redirect = params.get("redirect") || "/account";
-      location.href = redirect;
-    });
-  </script>
+    const params = new URLSearchParams(location.search);
+    const redirect = params.get("redirect") || "/account";
+    location.href = redirect;
+  });
+</script>
 </body>
 </html>
