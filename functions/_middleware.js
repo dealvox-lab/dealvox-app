@@ -1,26 +1,25 @@
 // /functions/_middleware.js
-export const onRequest = async (ctx) => {
-  const { request, env, next } = ctx;
+export const onRequest = async ({ request, env, next }) => {
   const url = new URL(request.url);
   const path = url.pathname;
 
-  // Paths that should never be gated
-  const publicPaths = [
-    "/", "/login", "/signup", "/auth/callback", "/set-session", "/logout",
-    "/assets", "/favicon.ico"
+  // Never gate these routes
+  const publicPrefixes = [
+    "/", "/login", "/signup", "/auth", "/set-session", "/logout", "/assets"
   ];
-  if (publicPaths.some(p => path === p || path.startsWith(p + "/"))) {
+  if (publicPrefixes.some(p => path === p || path.startsWith(p + "/"))) {
     return next();
   }
 
-  // Only protect /account (and subpaths if any)
+  // Only protect /account
   if (!path.startsWith("/account")) {
     return next();
   }
 
   try {
-    const cookies = request.headers.get("Cookie") || "";
-    const token = (/(?:^|;\s*)sb:token=([^;]+)/.exec(cookies) || [])[1];
+    const cookie = request.headers.get("Cookie") || "";
+    const tokenMatch = /(?:^|;\s*)sb_token=([^;]+)/.exec(cookie);
+    const token = tokenMatch?.[1];
 
     if (!token) {
       return new Response(null, {
@@ -32,8 +31,8 @@ export const onRequest = async (ctx) => {
     // Verify with Supabase
     const res = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
       headers: {
-        "Authorization": `Bearer ${token}`,
-        "apikey": env.SUPABASE_ANON_KEY
+        Authorization: `Bearer ${token}`,
+        apikey: env.SUPABASE_ANON_KEY
       }
     });
 
@@ -46,7 +45,6 @@ export const onRequest = async (ctx) => {
 
     return next();
   } catch (err) {
-    // Avoid Worker 1101 by catching and redirecting safely
     console.error("Middleware error:", err);
     return new Response(null, {
       status: 302,
