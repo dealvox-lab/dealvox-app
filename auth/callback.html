@@ -28,9 +28,11 @@ const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
       throw new Error("Invalid SUPABASE_URL");
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: false, flowType: "pkce" } // flowType only affects sign-in flow
-    });
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
+  auth: { persistSession: false, flowType: "implicit" }
+});
 
     async function setHttpOnlyCookies(access_token, refresh_token) {
       const resp = await fetch("/set-session", {
