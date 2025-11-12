@@ -1,84 +1,75 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Signing you in…</title>
-  <link rel="stylesheet" href="/assets/css/account.css">
-</head>
-<body>
-  <div class="card" style="max-width:520px;margin:10vh auto;text-align:center;">
-    <h2>Finishing sign-in…</h2>
-    <p class="muted">Please wait.</p>
-  </div>
-  <script>
-  window.SUPABASE_URL = "https://rtidfgnigtsxdszypkwr.supabase.co";
-  window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0aWRmZ25pZ3RzeGRzenlwa3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MjM5NjEsImV4cCI6MjA3ODQ5OTk2MX0.DtqhhfZlFOnQLYGy6qTtgaia38bTPB_pvNEQGhLt4T0";
-  </script>
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
-  auth: { persistSession: false, flowType: "implicit" }
-});
+  // Provide these as globals or via Jekyll variables
+  const SUPABASE_URL = window.SUPABASE_URL || "{{ site.supabase_url }}";
+  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "{{ site.supabase_anon }}";
 
-    if (!/^https?:\/\//.test(SUPABASE_URL)) {
-      console.error("Missing or invalid SUPABASE_URL on callback page:", SUPABASE_URL);
-      alert("Auth configuration error. Please contact support.");
-      throw new Error("Invalid SUPABASE_URL");
+  if (!/^https?:\/\//.test(SUPABASE_URL)) {
+    console.error("Missing/invalid SUPABASE_URL:", SUPABASE_URL);
+    alert("Auth configuration error. Please contact support.");
+    throw new Error("Invalid SUPABASE_URL");
+  }
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, flowType: "implicit" } // implicit is fine even if code path is used
+  });
+
+  async function setHttpOnlyCookies(access_token, refresh_token) {
+    const resp = await fetch("/set-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ access_token, refresh_token })
+    });
+    if (!resp.ok) {
+      const t = await resp.text().catch(() => "");
+      throw new Error("Failed to set session cookies: " + t);
     }
+  }
 
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  (async () => {
+    try {
+      const qs   = new URLSearchParams(location.search);
+      const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
 
-const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
-  auth: { persistSession: false, flowType: "implicit" }
-});
+      // Accept ALL variants:
+      const code_qs           = qs.get("code");                // PKCE
+      let access_qs           = qs.get("access_token");        // implicit (query)
+      let refresh_qs          = qs.get("refresh_token");
+      let access_hash         = hash.get("access_token");      // implicit (hash)
+      let refresh_hash        = hash.get("refresh_token");
 
-    async function setHttpOnlyCookies(access_token, refresh_token) {
-      const resp = await fetch("/set-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ access_token, refresh_token })
-      });
-      if (!resp.ok) throw new Error("Failed to set session cookies");
-    }
+      let access_token  = access_qs || access_hash;
+      let refresh_token = refresh_qs || refresh_hash;
 
-    (async () => {
-      try {
-        const qs   = new URLSearchParams(location.search);
-const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
-
-let access_token = hash.get("access_token");
-let refresh_token = hash.get("refresh_token");
-const code = qs.get("code");
-
-if (code) {
-  const { data, error } = await supabase.auth.exchangeCodeForSession(location.href);
-  if (error) throw error;
-  access_token  = data.session?.access_token;
-  refresh_token = data.session?.refresh_token;
-} else if (access_token) {
-  const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
-  if (error) throw error;
-  access_token  = data.session?.access_token || access_token;
-  refresh_token = data.session?.refresh_token || refresh_token;
-} else {
-  throw new Error("No code or tokens in callback URL");
-}
-
-// set HttpOnly cookies on your domain
-await fetch("/set-session", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  credentials: "include",
-  body: JSON.stringify({ access_token, refresh_token })
-});
-
-location.replace("/account");
-
+      if (code_qs) {
+        // PKCE path
+        const { data, error } = await supabase.auth.exchangeCodeForSession(location.href);
+        if (error) throw error;
+        access_token  = data.session?.access_token;
+        refresh_token = data.session?.refresh_token;
+      } else if (access_token) {
+        // Implicit path (hash OR query)
+        const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
+        if (error) throw error;
+        access_token  = data.session?.access_token || access_token;
+        refresh_token = data.session?.refresh_token || refresh_token;
+      } else {
+        throw new Error("No code or tokens found in callback URL");
       }
-    })();
-  </script>
-</body>
-</html>
+
+      if (!access_token) throw new Error("No access token after auth");
+
+      await setHttpOnlyCookies(access_token, refresh_token);
+
+      const params = new URLSearchParams(location.search);
+      const redirect = params.get("redirect") || "/account";
+      location.replace(redirect);
+    } catch (e) {
+      console.error("Callback error:", e);
+      alert("Sign-in failed. Please sign in again.");
+      location.replace("/login");
+    }
+  })();
+</script>
