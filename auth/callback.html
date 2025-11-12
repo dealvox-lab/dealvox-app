@@ -46,40 +46,37 @@ const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
 
     (async () => {
       try {
-        const search = new URLSearchParams(location.search);
-        const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+        const qs   = new URLSearchParams(location.search);
+const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
 
-        let access_token = hash.get("access_token");
-        let refresh_token = hash.get("refresh_token");
-        const code = search.get("code");
+let access_token = hash.get("access_token");
+let refresh_token = hash.get("refresh_token");
+const code = qs.get("code");
 
-        if (code) {
-          // PKCE path
-          const { data, error } = await supabase.auth.exchangeCodeForSession(location.href);
-          if (error) throw error;
-          access_token = data.session?.access_token;
-          refresh_token = data.session?.refresh_token;
-        } else if (access_token) {
-          // Hash tokens path (implicit flow)
-          const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
-          if (error) throw error;
-          access_token = data.session?.access_token || access_token;
-          refresh_token = data.session?.refresh_token || refresh_token;
-        } else {
-          throw new Error("No code or tokens in callback URL");
-        }
+if (code) {
+  const { data, error } = await supabase.auth.exchangeCodeForSession(location.href);
+  if (error) throw error;
+  access_token  = data.session?.access_token;
+  refresh_token = data.session?.refresh_token;
+} else if (access_token) {
+  const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
+  if (error) throw error;
+  access_token  = data.session?.access_token || access_token;
+  refresh_token = data.session?.refresh_token || refresh_token;
+} else {
+  throw new Error("No code or tokens in callback URL");
+}
 
-        if (!access_token) throw new Error("No access token after auth");
+// set HttpOnly cookies on your domain
+await fetch("/set-session", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  credentials: "include",
+  body: JSON.stringify({ access_token, refresh_token })
+});
 
-        await setHttpOnlyCookies(access_token, refresh_token);
+location.replace("/account");
 
-        const params = new URLSearchParams(location.search);
-        const redirect = params.get("redirect") || "/account";
-        location.replace(redirect);
-      } catch (e) {
-        console.error("Callback error:", e);
-        alert("Sign-in failed. Please sign in again.");
-        location.replace("/login");
       }
     })();
   </script>
