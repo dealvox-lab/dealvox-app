@@ -20,17 +20,17 @@
   <p>Redirecting to your account…</p>
 
   <script>
-    (function () {
-      const qs = new URLSearchParams(location.search);
-      const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
-      if (qs.get('code') || hash.get('access_token')) {
-        const all = qs.toString() || hash.toString();
-        location.replace(`/auth/callback?${all}`);
-      } else {
-        // Default fallback — redirect to login or main app
-        location.replace("/login");
-      }
-    })();
-  </script>
+  (function () {
+    const qs = new URLSearchParams(location.search);
+    const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+    if (qs.get('code') || hash.get('access_token')) {
+      const all = qs.toString() || hash.toString();
+      location.replace(`/auth/callback?${all}`);
+    } else {
+      location.replace('/login');
+    }
+  })();
+</script>
+
 </body>
 </html>
