@@ -18,40 +18,64 @@
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-    const supabase = createClient(
-    window.SUPABASE_URL,
-    window.SUPABASE_ANON_KEY,
-    { auth: { persistSession: false, flowType: "pkce" } }
-  );
+    const SUPABASE_URL = window.SUPABASE_URL || "{{ site.supabase_url }}";
+    const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "{{ site.supabase_anon }}";
+
+    if (!/^https?:\/\//.test(SUPABASE_URL)) {
+      console.error("Missing or invalid SUPABASE_URL on callback page:", SUPABASE_URL);
+      alert("Auth configuration error. Please contact support.");
+      throw new Error("Invalid SUPABASE_URL");
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, flowType: "pkce" } // flowType only affects sign-in flow
+    });
+
+    async function setHttpOnlyCookies(access_token, refresh_token) {
+      const resp = await fetch("/set-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ access_token, refresh_token })
+      });
+      if (!resp.ok) throw new Error("Failed to set session cookies");
+    }
 
     (async () => {
       try {
-        // Exchange the 'code' in the URL for a session
-        const { data, error } = await supabase.auth.exchangeCodeForSession(location.href);
-        if (error) throw error;
+        const search = new URLSearchParams(location.search);
+        const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
 
-        const session = data.session;
-        if (!session) throw new Error("No session returned");
+        let access_token = hash.get("access_token");
+        let refresh_token = hash.get("refresh_token");
+        const code = search.get("code");
 
-        // Set HttpOnly cookies via your Pages Function
-        const resp = await fetch("/set-session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            access_token: session.access_token,
-            refresh_token: session.refresh_token
-          })
-        });
-        if (!resp.ok) throw new Error("Failed to set session cookies");
+        if (code) {
+          // PKCE path
+          const { data, error } = await supabase.auth.exchangeCodeForSession(location.href);
+          if (error) throw error;
+          access_token = data.session?.access_token;
+          refresh_token = data.session?.refresh_token;
+        } else if (access_token) {
+          // Hash tokens path (implicit flow)
+          const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
+          if (error) throw error;
+          access_token = data.session?.access_token || access_token;
+          refresh_token = data.session?.refresh_token || refresh_token;
+        } else {
+          throw new Error("No code or tokens in callback URL");
+        }
 
-        // Redirect (support ?redirect=… if provided)
+        if (!access_token) throw new Error("No access token after auth");
+
+        await setHttpOnlyCookies(access_token, refresh_token);
+
         const params = new URLSearchParams(location.search);
         const redirect = params.get("redirect") || "/account";
         location.replace(redirect);
       } catch (e) {
-        console.error(e);
-        alert("Sign-in failed. Please try again.");
+        console.error("Callback error:", e);
+        alert("Sign-in failed. Please sign in again.");
         location.replace("/login");
       }
     })();
