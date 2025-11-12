@@ -50,13 +50,16 @@ export const onRequest = async ({ request, env, next }) => {
   }
 
   // Verify with Supabase
+  
+  window.SUPABASE_URL = "https://rtidfgnigtsxdszypkwr.supabase.co";
+  window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0aWRmZ25pZ3RzeGRzenlwa3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MjM5NjEsImV4cCI6MjA3ODQ5OTk2MX0.DtqhhfZlFOnQLYGy6qTtgaia38bTPB_pvNEQGhLt4T0";
   let verifyStatus = 0;
   try {
-    const supabaseUrl = (env.SUPABASE_URL || "").replace(/\/+$/,"");
+    const supabaseUrl = (window.SUPABASE_URL || "").replace(/\/+$/,"");
     const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
       headers: {
         Authorization: `Bearer ${token}`,
-        apikey: env.SUPABASE_ANON_KEY || ""
+        apikey: window.SUPABASE_ANON_KEY || ""
       }
     });
     verifyStatus = res.status;
