@@ -31,11 +31,9 @@
 <script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  const supabase = createClient(
-    window.SUPABASE_URL,
-    window.SUPABASE_ANON_KEY,
-    { auth: { persistSession: false, flowType: "pkce" } }
-  );
+const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
+  auth: { persistSession: false, flowType: "implicit" }
+});
 
   const form = document.getElementById("authForm");
 
