@@ -1,0 +1,45 @@
+---
+layout: default
+title: Account
+---
+
+{% include header.html %}
+
+<link rel="stylesheet" href="{{ 'assets/css/account.css' | relative_url }}">
+
+<section class="account-layout">
+  <!-- Fixed sidebar -->
+  <aside class="account-sidebar" aria-label="Account navigation">
+    <div class="sidebar-brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">Dealvox Account</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#account"       data-view="account"       class="nav-link">Account</a>
+      <a href="#prompt"        data-view="prompt"        class="nav-link">Prompt editor</a>
+      <a href="#api"           data-view="api"           class="nav-link">API settings</a>
+      <a href="#reports"       data-view="reports"       class="nav-link">Reports</a>
+      <a href="#spendings"     data-view="spendings"     class="nav-link">Spendings</a>
+      <a href="#billing"       data-view="billing"       class="nav-link">Billing</a>
+      <a href="#help"          data-view="help"          class="nav-link">Help</a>
+    </nav>
+
+    <!-- Mobile toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu" aria-expanded="false">
+      ☰ Menu
+    </button>
+  </aside>
+
+  <!-- Content area -->
+  <main id="accountContent" class="account-content" tabindex="-1" aria-live="polite" aria-busy="false">
+    <!-- JS loads partials here -->
+    <div class="loading">
+      <div class="spinner"></div>
+      <div>Loading…</div>
+    </div>
+  </main>
+</section>
+
+<script src="{{ 'assets/js/account.js' | relative_url }}"></script>
+<script src="{{ 'assets/js/nav.js' | relative_url }}"></script>
