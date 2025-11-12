@@ -1,3 +1,6 @@
+window.SUPABASE_URL = "https://rtidfgnigtsxdszypkwr.supabase.co";
+window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0aWRmZ25pZ3RzeGRzenlwa3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MjM5NjEsImV4cCI6MjA3ODQ5OTk2MX0.DtqhhfZlFOnQLYGy6qTtgaia38bTPB_pvNEQGhLt4T0";
+
 export const onRequest = async ({ request, env, next }) => {
   const url  = new URL(request.url);
   const path = url.pathname;
@@ -30,8 +33,8 @@ export const onRequest = async ({ request, env, next }) => {
       has_sb_token: Boolean(cookies["sb_token"]),
       has_sb_colon_token: Boolean(cookies["sb:token"]),
       env_present: {
-        SUPABASE_URL: Boolean(env.SUPABASE_URL),
-        SUPABASE_ANON_KEY: Boolean(env.SUPABASE_ANON_KEY),
+        SUPABASE_URL: Boolean(window.SUPABASE_URL),
+        SUPABASE_ANON_KEY: Boolean(window.SUPABASE_ANON_KEY),
       },
       token_length: token?.length || 0,
       cookie_keys: Object.keys(cookies),
@@ -51,8 +54,6 @@ export const onRequest = async ({ request, env, next }) => {
 
   // Verify with Supabase
   
-  window.SUPABASE_URL = "https://rtidfgnigtsxdszypkwr.supabase.co";
-  window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0aWRmZ25pZ3RzeGRzenlwa3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MjM5NjEsImV4cCI6MjA3ODQ5OTk2MX0.DtqhhfZlFOnQLYGy6qTtgaia38bTPB_pvNEQGhLt4T0";
   let verifyStatus = 0;
   try {
     const supabaseUrl = (window.SUPABASE_URL || "").replace(/\/+$/,"");
