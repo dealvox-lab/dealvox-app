@@ -3,7 +3,7 @@ export const onRequest = async ({ request, env, next }) => {
   const url = new URL(request.url);
   const path = url.pathname;
 
-  // Never gate these routes
+  // Public routes that should never be gated
   const publicPrefixes = [
     "/", "/login", "/signup", "/auth", "/set-session", "/logout", "/assets"
   ];
@@ -11,15 +11,24 @@ export const onRequest = async ({ request, env, next }) => {
     return next();
   }
 
-  // Only protect /account
+  // Only protect /account (and subpaths if any)
   if (!path.startsWith("/account")) {
     return next();
   }
 
   try {
-    const cookie = request.headers.get("Cookie") || "";
-    const tokenMatch = /(?:^|;\s*)sb_token=([^;]+)/.exec(cookie);
-    const token = tokenMatch?.[1];
+    const cookieHeader = request.headers.get("Cookie") || "";
+
+    // Parse cookies into a map
+    const cookies = Object.fromEntries(
+      cookieHeader.split(";").map(c => {
+        const i = c.indexOf("=");
+        return [c.slice(0, i).trim(), decodeURIComponent(c.slice(i + 1))];
+      })
+    );
+
+    // ✅ Accept BOTH naming styles
+    const token = cookies["sb_token"] || cookies["sb:token"];
 
     if (!token) {
       return new Response(null, {
@@ -28,7 +37,7 @@ export const onRequest = async ({ request, env, next }) => {
       });
     }
 
-    // Verify with Supabase
+    // Verify the token with Supabase
     const res = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
       headers: {
         Authorization: `Bearer ${token}`,
