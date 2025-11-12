@@ -24,18 +24,14 @@ export const onRequest = async ({ request, env, next }) => {
   const token = cookies["sb_token"] || cookies["sb:token"] || null;
 
   // If debug=1, show exactly what the Worker sees
-
-window.SUPABASE_URL = "https://rtidfgnigtsxdszypkwr.supabase.co";
-window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0aWRmZ25pZ3RzeGRzenlwa3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MjM5NjEsImV4cCI6MjA3ODQ5OTk2MX0.DtqhhfZlFOnQLYGy6qTtgaia38bTPB_pvNEQGhLt4T0";
-
   if (debug) {
     const body = {
       path,
       has_sb_token: Boolean(cookies["sb_token"]),
       has_sb_colon_token: Boolean(cookies["sb:token"]),
       env_present: {
-        SUPABASE_URL: Boolean(window.SUPABASE_URL),
-        SUPABASE_ANON_KEY: Boolean(window.SUPABASE_ANON_KEY),
+        SUPABASE_URL: Boolean(env.SUPABASE_URL),
+        SUPABASE_ANON_KEY: Boolean(env.SUPABASE_ANON_KEY),
       },
       token_length: token?.length || 0,
       cookie_keys: Object.keys(cookies),
@@ -54,14 +50,13 @@ window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXB
   }
 
   // Verify with Supabase
-  
   let verifyStatus = 0;
   try {
-    const supabaseUrl = (window.SUPABASE_URL || "").replace(/\/+$/,"");
+    const supabaseUrl = (env.SUPABASE_URL || "").replace(/\/+$/,"");
     const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
       headers: {
         Authorization: `Bearer ${token}`,
-        apikey: window.SUPABASE_ANON_KEY || ""
+        apikey: env.SUPABASE_ANON_KEY || ""
       }
     });
     verifyStatus = res.status;
