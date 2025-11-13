@@ -84,3 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const view = viewFromHash();
     loadView(view);
   });
+
+  // Initial load
+  loadView(viewFromHash());
+});
