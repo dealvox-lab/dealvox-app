@@ -36,6 +36,25 @@
   gap:10px;
   padding:6px 8px 10px;
 }
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-email {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: -2px;
+}
+
 .brand-dot{
   width:10px;height:10px;border-radius:50%;
   background:var(--accent);box-shadow:0 0 0 3px rgba(32,117,174,.18);
@@ -122,6 +141,43 @@
   padding:26px;border:1px dashed var(--border);
   border-radius:14px;background:#fff;color:var(--muted);
 }
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-email {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: -2px;
+}
+
+/* Logout button */
+.logout-btn {
+  margin-top: auto;
+  display: block;
+  padding: 12px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+.logout-btn:hover {
+  background: rgba(255,255,255,0.8);
+}
+
 
 /* Responsive */
 @media (max-width: 920px){
