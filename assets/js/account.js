@@ -10,13 +10,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Map logical view -> partial file
   const VIEW_FILES = {
-    account:   "/partials/account-profile.html",
-    prompt:    "/partials/account-prompt.html",
-    api:       "/partials/account-api.html",
-    reports:   "/partials/account-reports.html",
-    spendings: "/partials/account-spendings.html",
-    billing:   "/partials/account-billing.html",
-    help:      "/partials/account-help.html",
+    account:   "/assets/partials/account-profile.html",
+    prompt:    "/assets/partials/account-prompt.html",
+    api:       "/assets/partials/account-api.html",
+    reports:   "/assets/partials/account-reports.html",
+    spendings: "/assets/partials/account-spendings.html",
+    billing:   "/assets/partials/account-billing.html",
+    help:      "/assets/partials/account-help.html",
   };
 
   function setActiveLink(view) {
