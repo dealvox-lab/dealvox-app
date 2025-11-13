@@ -10,7 +10,6 @@
 
 /* Layout */
 .account-layout{
-  display:flex;
   min-height:calc(100vh - 72px); /* leave room for your global header */
   background:var(--bg);
 }
