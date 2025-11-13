@@ -1,17 +1,17 @@
-<link rel="stylesheet" href="/assets/css/account.css?v=7">
+<link rel="stylesheet" href="/assets/css/account.css?v=8">
 
 <section class="account-layout">
-  <!-- Fixed sidebar -->
+  <!-- Sidebar -->
   <aside class="account-sidebar" aria-label="Account navigation">
     <div class="sidebar-brand">
-  <div class="brand-logo-wrapper">
-    <img src="/assets/logo.png" alt="Dealvox logo">
-  </div>
-
-  <div class="brand-text">
-    <span id="accountEmail" class="brand-email">Loading…</span>
-  </div>
-</div>
+      <div class="brand-logo-wrapper">
+        <img src="/assets/logo.png" alt="Dealvox logo">
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Dealvox AI</span>
+        <span id="sidebarEmail" class="brand-email">Loading…</span>
+      </div>
+    </div>
 
     <nav class="sidebar-nav">
       <a href="#account"   data-view="account"   class="nav-link">Account</a>
@@ -23,9 +23,7 @@
       <a href="#help"      data-view="help"      class="nav-link">Help</a>
     </nav>
 
-    <!-- Logout button -->
     <a href="/logout" class="logout-btn">Logout</a>
-    
   </aside>
 
   <!-- Content area -->
@@ -34,11 +32,15 @@
         tabindex="-1"
         aria-live="polite"
         aria-busy="false">
-    <div id="accountView" class="loading">
-      <div class="spinner"></div>
-      <div>Loading…</div>
+
+    <!-- 👇 THIS is where your partial HTML must end up -->
+    <div id="accountView" class="account-inner">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div>Loading…</div>
+      </div>
     </div>
   </main>
 </section>
 
-<script src="/assets/js/account.js?v=7"></script>
+<script src="/assets/js/account.js?v=8"></script>
