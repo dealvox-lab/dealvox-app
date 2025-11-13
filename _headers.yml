@@ -1,0 +1,11 @@
+/assets/css/*
+  Content-Type: text/css; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/js/*
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/partials/*
+  Content-Type: text/html; charset=utf-8
+  Cache-Control: public, max-age=0, no-cache
