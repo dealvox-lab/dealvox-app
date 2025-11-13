@@ -1,10 +1,3 @@
-<main id="accountContent"
-      class="account-content"
-      tabindex="-1"
-      aria-live="polite"
-      aria-busy="false"
-    >
-
 <link rel="stylesheet" href="/assets/css/account.css">
 
 <section class="account-layout">
@@ -16,21 +9,27 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a href="#account"       data-view="account"       class="nav-link">Account</a>
-      <a href="#prompt"        data-view="prompt"        class="nav-link">Prompt editor</a>
-      <a href="#api"           data-view="api"           class="nav-link">API settings</a>
-      <a href="#reports"       data-view="reports"       class="nav-link">Reports</a>
-      <a href="#spendings"     data-view="spendings"     class="nav-link">Spendings</a>
-      <a href="#billing"       data-view="billing"       class="nav-link">Billing</a>
-      <a href="#help"          data-view="help"          class="nav-link">Help</a>
+      <a href="#account"   data-view="account"   class="nav-link">Account</a>
+      <a href="#prompt"    data-view="prompt"    class="nav-link">Prompt editor</a>
+      <a href="#api"       data-view="api"       class="nav-link">API settings</a>
+      <a href="#reports"   data-view="reports"   class="nav-link">Reports</a>
+      <a href="#spendings" data-view="spendings" class="nav-link">Spendings</a>
+      <a href="#billing"   data-view="billing"   class="nav-link">Billing</a>
+      <a href="#help"      data-view="help"      class="nav-link">Help</a>
     </nav>
+  </aside>
 
   <!-- Content area -->
-  <main id="accountContent" class="account-content" tabindex="-1" aria-live="polite" aria-busy="false">
-    <!-- JS loads partials here -->
-    <div class="loading">
+  <main id="accountContent"
+        class="account-content"
+        tabindex="-1"
+        aria-live="polite"
+        aria-busy="false">
+    <div id="accountView" class="loading">
       <div class="spinner"></div>
       <div>Loading…</div>
     </div>
   </main>
 </section>
+
+<script src="/assets/js/account.js"></script>
