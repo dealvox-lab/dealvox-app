@@ -37,15 +37,16 @@
   padding:6px 8px 10px;
 }
 
-.brand-logo img {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 6px;
-  border-radius: 10px;
+.sidebar-brand img,
+.brand-logo {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
   object-fit: contain;
+  margin-bottom: 8px;
+  border-radius: 10px;
 }
-
 
 .brand-text {
   display: flex;
