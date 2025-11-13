@@ -87,4 +87,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initial load
   loadView(viewFromHash());
+
+const emailEl = document.getElementById("sidebarEmail");
+
+  if (emailEl) {
+    (async () => {
+      try {
+        const res = await fetch("/debug-auth", {
+          credentials: "include"
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+
+        if (data.userSummary && data.userSummary.email) {
+          emailEl.textContent = data.userSummary.email;
+        } else {
+          emailEl.textContent = "";
+        }
+      } catch (e) {
+        console.error("Email load failed:", e);
+        emailEl.textContent = "";
+      }
+    })();
+  }
+  
 });
