@@ -94,6 +94,10 @@
   min-width:0;
 }
 
+.account-content:focus {
+  outline: none;
+}
+
 .account-inner {
   max-width: 1100px;
   margin: 0 auto;
