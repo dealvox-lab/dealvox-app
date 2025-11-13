@@ -39,15 +39,12 @@
 
 .brand-logo-wrapper img {
   width: 100%;
-  height: auto;
   max-width: 100%;
+  height: auto;
   display: block;
   object-fit: contain;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 8px;
+  border-radius: 10px;
 }
 
 .brand-email {
