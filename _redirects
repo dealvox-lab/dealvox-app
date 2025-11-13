@@ -1,0 +1,2 @@
+# Do not append slashes under assets/partials
+/assets/partials/*  /assets/partials/:splat  200
