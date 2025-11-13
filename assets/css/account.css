@@ -30,7 +30,6 @@
 }
 
 .sidebar-brand{
-  display:flex;
   align-items:center;
   gap:10px;
   padding:6px 8px 10px;
