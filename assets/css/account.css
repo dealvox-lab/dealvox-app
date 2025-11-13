@@ -10,8 +10,10 @@
 
 /* Layout */
 .account-layout{
-  min-height:calc(100vh - 72px); /* leave room for your global header */
-  background:var(--bg);
+  display:flex;                /* 👈 this is the missing piece */
+  align-items: flex-start;
+  min-height: calc(100vh - 72px); /* leave room for your global header */
+  background: var(--bg);
 }
 
 /* Sidebar */
