@@ -1,5 +1,5 @@
 # Serve static assets exactly as they are
-/assets/*          /assets/:splat         200
-/assets/partials/* /assets/partials/:splat 200
-/favicon.ico       /favicon.ico           200
-/robots.txt        /robots.txt            200
+/assets/*          /assets/:splat         200!
+/assets/partials/* /assets/partials/:splat 200!
+/favicon.ico       /favicon.ico           200!
+/robots.txt        /robots.txt            200!
