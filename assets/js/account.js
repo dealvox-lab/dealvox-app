@@ -85,6 +85,20 @@ document.addEventListener("DOMContentLoaded", () => {
     loadView(view);
   });
 
+  // Load email into sidebar
+const emailEl = document.getElementById("accountEmail");
+
+(async () => {
+  try {
+    const res = await fetch("/functions/debug-auth.js"); // or your /auth/me endpoint
+    const data = await res.json();
+    emailEl.textContent = data.email || "";
+  } catch (e) {
+    emailEl.textContent = "";
+  }
+})();
+
+
   // Initial load
   loadView(viewFromHash());
 });
