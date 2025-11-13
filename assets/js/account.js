@@ -1,15 +1,11 @@
-// assets/js/account.js
-// Simple client-side router that loads partials into #accountContent
 document.addEventListener("DOMContentLoaded", () => {
-  const content   = document.getElementById("accountContent");
-  const links     = document.querySelectorAll(".sidebar-nav .nav-link");
+  const content = document.getElementById("accountContent");
+  const links = document.querySelectorAll(".sidebar-nav .nav-link");
   const toggleBtn = document.getElementById("sidebarToggle");
 
-  // Base path from HTML (account.html):
-  // <main id="accountContent" data-base="{{ '' | relative_url }}">
-  const BASE = (content?.dataset.base || "").replace(/\/$/, ""); // strip trailing slash
+  // base path from Jekyll (handles baseurl on custom domains)
+  const BASE = (content?.dataset.base || "").replace(/\/$/, "");
 
-  // Map views -> partial paths (base-path safe)
   const PARTIALS = {
     account:   `${BASE}/assets/partials/account-profile.html`,
     prompt:    `${BASE}/assets/partials/account-prompt.html`,
@@ -20,52 +16,66 @@ document.addEventListener("DOMContentLoaded", () => {
     help:      `${BASE}/assets/partials/account-help.html`,
   };
 
-  function setActive(view) {
+  function setActive(view){
     links.forEach(a => a.classList.toggle("active", a.dataset.view === view));
   }
 
-  async function loadView(view) {
-    const url = PARTIALS[view] || PARTIALS.account;
-    if (!content) return;
+  async function fetchPartial(url){
+    // Try literal file first
+    let res = await fetch(url, { cache: "no-store" });
 
-    content.setAttribute("aria-busy", "true");
+    // Safety net: if platform redirects to a path (308 → trailing slash),
+    // normalize back to the .html file and retry once.
+    if (res.redirected && /\.html\/$/.test(res.url)) {
+      const fixed = res.url.replace(/\/$/, "");
+      res = await fetch(fixed, { cache: "no-store" });
+    }
+    return res;
+  }
+
+  async function loadView(view){
+    const url = PARTIALS[view] || PARTIALS.account;
+    content.setAttribute("aria-busy","true");
     content.innerHTML = `
-      <div class="loading">
-        <div class="spinner"></div>
-        <div>Loading…</div>
-      </div>
+      <div class="loading"><div class="spinner"></div><div>Loading…</div></div>
     `;
 
-    try {
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    try{
+      const res = await fetchPartial(url);
+      if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       const html = await res.text();
       content.innerHTML = html;
       setActive(view);
-      content.focus?.({ preventScroll: true });
-    } catch (err) {
+      content.focus({ preventScroll:true });
+    }catch(err){
       console.error("Load error:", err);
       content.innerHTML = `<div class="empty">Couldn’t load this section. Please try again.</div>`;
-    } finally {
-      content.setAttribute("aria-busy", "false");
+    }finally{
+      content.setAttribute("aria-busy","false");
     }
   }
 
-  // Handle clicks (hash navigation)
   links.forEach(a => {
     a.addEventListener("click", e => {
       e.preventDefault();
-      const view = a.dataset.view || "account";
+      const view = a.dataset.view;
       history.pushState({ view }, "", `#${view}`);
       loadView(view);
     });
   });
 
-  // Back/forward support
   window.addEventListener("popstate", () => {
-    const view = (location.hash.replace("#", "") || "account");
+    const view = (location.hash.replace("#","") || "account");
     loadView(view);
   });
+
+  if(toggleBtn){
+    toggleBtn.addEventListener("click", () => {
+      const expanded = toggleBtn.getAttribute("aria-expanded") === "true";
+      toggleBtn.setAttribute("aria-expanded", String(!expanded));
+      document.querySelector(".sidebar-nav").classList.toggle("open");
+    });
+  }
 
   // Mobile toggle (optional: collapse nav)
   if (toggleBtn) {
@@ -75,8 +85,8 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelector(".sidebar-nav")?.classList.toggle("open");
     });
   }
-
-  // Initial view from hash
-  const initial = (location.hash.replace("#", "") || "account");
+                          
+  const initial = (location.hash.replace("#","") || "account");
   loadView(initial);
 });
+
