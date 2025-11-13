@@ -4,9 +4,14 @@
   <!-- Fixed sidebar -->
   <aside class="account-sidebar" aria-label="Account navigation">
     <div class="sidebar-brand">
-      <span class="brand-dot"></span>
-      <span class="brand-name">Dealvox Account</span>
-    </div>
+  <div class="brand-logo-wrapper">
+    <img src="/assets/logo.png" alt="Dealvox logo">
+  </div>
+
+  <div class="brand-text">
+    <span id="accountEmail" class="brand-email">Loading…</span>
+  </div>
+</div>
 
     <nav class="sidebar-nav">
       <a href="#account"   data-view="account"   class="nav-link">Account</a>
@@ -17,6 +22,10 @@
       <a href="#billing"   data-view="billing"   class="nav-link">Billing</a>
       <a href="#help"      data-view="help"      class="nav-link">Help</a>
     </nav>
+
+    <!-- Logout button -->
+    <a href="/logout" class="logout-btn">Logout</a>
+    
   </aside>
 
   <!-- Content area -->
