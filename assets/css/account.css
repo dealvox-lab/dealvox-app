@@ -37,7 +37,7 @@
   padding:6px 8px 10px;
 }
 
-.brand-logo {
+.brand-logo img {
   width: 100%;
   max-width: 100%;
   height: auto;
@@ -143,24 +143,6 @@
 .empty{
   padding:26px;border:1px dashed var(--border);
   border-radius:14px;background:#fff;color:var(--muted);
-}
-
-.brand-logo {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
-  border-radius: 8px;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.brand-email {
-  font-size: 0.8rem;
-  color: var(--muted);
-  margin-top: -2px;
 }
 
 /* Logout button */
