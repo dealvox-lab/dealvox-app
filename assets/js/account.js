@@ -85,20 +85,29 @@ document.addEventListener("DOMContentLoaded", () => {
     loadView(view);
   });
 
-  // Load email into sidebar
+ // Load email into sidebar
 const emailEl = document.getElementById("accountEmail");
 
 (async () => {
   try {
-    const res = await fetch("/functions/debug-auth.js"); // or your /auth/me endpoint
+    const res = await fetch("/debug-auth", {
+      credentials: "include" // very important so cookies are sent
+    });
+
+    // (optional, for debugging)
+    // const text = await res.text();
+    // console.log(text); return;
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    emailEl.textContent = data.email || "";
+
+    if (data.userSummary && data.userSummary.email) {
+      emailEl.textContent = data.userSummary.email;
+    } else {
+      emailEl.textContent = "";
+    }
   } catch (e) {
+    console.error("Email load failed:", e);
     emailEl.textContent = "";
   }
 })();
-
-
-  // Initial load
-  loadView(viewFromHash());
-});
