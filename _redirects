@@ -1,2 +1,14 @@
-# Do not append slashes under assets/partials
-/assets/partials/*  /assets/partials/:splat  200
+# Serve any assets exactly as files
+/assets/*                /assets/:splat                    200
+/assets/partials/*       /assets/partials/:splat           200
+/assets/css/*            /assets/css/:splat                 200
+/assets/js/*             /assets/js/:splat                  200
+
+# (optional) Other explicit files
+/favicon.ico             /favicon.ico                       200
+/robots.txt              /robots.txt                        200
+/sitemap.xml             /sitemap.xml                       200
+
+# Finally, your catch-all SPA fallback (if you have one)
+# Keep this LAST so it doesn't swallow assets!
+/*                       /index.html                        200
