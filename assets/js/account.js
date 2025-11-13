@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Map views -> partial paths (base-path safe)
   const PARTIALS = {
-    account:   `${BASE}/assets/partials/profile.html`,
+    account:   `${BASE}/assets/partials/account-profile.html`,
     prompt:    `${BASE}/assets/partials/account-prompt.html`,
     api:       `${BASE}/assets/partials/account-api.html`,
     reports:   `${BASE}/assets/partials/account-reports.html`,
