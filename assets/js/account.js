@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const viewEl = document.getElementById("accountView");
   const links = document.querySelectorAll(".sidebar-nav .nav-link");
 
+  // Sidebar email element
+  const emailEl = document.getElementById("sidebarEmail");
+
   // Map logical view -> partial file
   const VIEW_FILES = {
     account:   "/partials/account-profile.html",
@@ -24,8 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadView(view) {
     const file = VIEW_FILES[view];
+
     if (!file) {
-      // Fallback: show an empty state
       viewEl.innerHTML = `
         <div class="empty">
           Unknown section: <strong>${view}</strong>
@@ -42,17 +45,23 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>`;
 
       const res = await fetch(file, { cache: "no-cache" });
+
+      // 🔍 TEMPORARY DEBUG: log what we actually got
+      const text = await res.text();
+      console.log("Loaded view:", view, "from", res.url, "status", res.status);
+      console.log("First 120 chars:", text.slice(0, 120));
+      // END DEBUG
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const html = await res.text();
 
-      viewEl.innerHTML = html;
+      // If the response looks like our redirect page instead of a partial,
+      // you'll see "Redirecting to your account…" in the console log above.
+
+      viewEl.innerHTML = text;
       setActiveLink(view);
-      // Keep hash in sync so /account#billing works on reload
       if (location.hash !== "#" + view) {
-        history.replaceState(null, "", "#"+view);
+        history.replaceState(null, "", "#" + view);
       }
-
-      // Move focus for accessibility
       contentEl.focus();
     } catch (err) {
       console.error("Failed to load view", view, err);
@@ -65,7 +74,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Click handlers for sidebar
+  function viewFromHash() {
+    const hash = (location.hash || "").replace("#", "");
+    return hash && VIEW_FILES[hash] ? hash : "account";
+  }
+
   links.forEach(a => {
     a.addEventListener("click", (e) => {
       e.preventDefault();
@@ -74,22 +87,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Support direct links like /account#billing
-  function viewFromHash() {
-    const hash = (location.hash || "").replace("#", "");
-    return hash && VIEW_FILES[hash] ? hash : "account";
-  }
-
   window.addEventListener("hashchange", () => {
-    const view = viewFromHash();
-    loadView(view);
+    loadView(viewFromHash());
   });
 
-  // Initial load
-  loadView(viewFromHash());
-
-const emailEl = document.getElementById("sidebarEmail");
-
+  // Load sidebar email
   if (emailEl) {
     (async () => {
       try {
@@ -97,9 +99,7 @@ const emailEl = document.getElementById("sidebarEmail");
           credentials: "include"
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
         const data = await res.json();
-
         if (data.userSummary && data.userSummary.email) {
           emailEl.textContent = data.userSummary.email;
         } else {
@@ -111,5 +111,7 @@ const emailEl = document.getElementById("sidebarEmail");
       }
     })();
   }
-  
+
+  // Initial load
+  loadView(viewFromHash());
 });
