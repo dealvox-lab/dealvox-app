@@ -1,3 +1,2 @@
 # Serve static assets exactly as they are
 /assets/*          /assets/:splat         200
-/assets/partials/* /assets/partials/:splat 200
