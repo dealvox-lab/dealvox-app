@@ -10,8 +10,14 @@ export const onRequestPost = async ({ request, env }) => {
           const i = c.indexOf("=");
           return [c.slice(0, i).trim(), decodeURIComponent(c.slice(i + 1))];
         })
-        .filter(([k]) => k) // skip empties
+        .filter(([k]) => k)
     );
+
+    const access =
+      cookies["sb_token"] ||
+      cookies["sb:token"] ||
+      cookies["sb-token"] ||
+      null;
 
     const refresh =
       cookies["sb_refresh"] ||
@@ -22,42 +28,47 @@ export const onRequestPost = async ({ request, env }) => {
     if (!refresh) {
       return new Response(
         JSON.stringify({ error: "no_refresh_token" }),
-        {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        }
+        { status: 401, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    // Supabase wants: POST /auth/v1/token?grant_type=refresh_token
-    // headers: apikey, Content-Type: application/json
-    // body: { "refresh_token": "<token>" }
-    const url = `${env.SUPABASE_URL.replace(/\/+$/, "")}/auth/v1/token?grant_type=refresh_token`;
+    const supabaseUrl = (env.SUPABASE_URL || "").replace(/\/+$/, "");
+    if (!supabaseUrl || !env.SUPABASE_ANON_KEY) {
+      return new Response(
+        JSON.stringify({ error: "supabase_env_missing" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const url = `${supabaseUrl}/auth/v1/token?grant_type=refresh_token`;
 
     const res = await fetch(url, {
       method: "POST",
       headers: {
         apikey: env.SUPABASE_ANON_KEY,
         "Content-Type": "application/json",
+        // Some examples include Authorization with the *old* access token.
+        // It doesn't hurt, so we send it when available:
+        ...(access ? { Authorization: `Bearer ${access}` } : {})
       },
-      body: JSON.stringify({ refresh_token: refresh }),
+      body: JSON.stringify({ refresh_token: refresh })
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      // Bubble up Supabase error to logs
+      // Pass through Supabase error so we can see it in the browser console.
       return new Response(JSON.stringify(data), {
         status: res.status,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" }
       });
     }
 
-    const newAccess = data.access_token;
+    const newAccess  = data.access_token;
     const newRefresh = data.refresh_token;
 
     const headers = new Headers({
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     });
 
     if (newAccess) {
@@ -80,7 +91,7 @@ export const onRequestPost = async ({ request, env }) => {
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
-      headers,
+      headers
     });
   } catch (err) {
     return new Response(
