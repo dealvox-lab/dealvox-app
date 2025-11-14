@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Map logical view -> partial file
   const VIEW_FILES = {
     account:   "/assets/partials/account-profile.html",
-    prompt:    "/assets/partials/account-prompt.html",
+    assistant:    "/assets/partials/account-assistant.html",
     api:       "/assets/partials/account-api.html",
     reports:   "/assets/partials/account-reports.html",
     spendings: "/assets/partials/account-spendings.html",
