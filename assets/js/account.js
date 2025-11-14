@@ -55,18 +55,16 @@ function supabaseHeaders(accessToken) {
   };
 }
 
-// Handle 401 from Supabase REST, refresh if JWT expired, and return new auth or null
+// Handle 401 from Supabase REST: always try a refresh once
 async function handleJwt401(res, contextLabel) {
   const bodyText = await res.text();
   console.warn(`401 from Supabase (${contextLabel}):`, bodyText);
 
-  if (!/JWT expired/i.test(bodyText)) {
-    // Some other 401 (not just expiry)
+  const ok = await refreshToken();
+  if (!ok) {
+    console.warn("Token refresh failed in handleJwt401");
     return null;
   }
-
-  const ok = await refreshToken();
-  if (!ok) return null;
 
   try {
     const auth = await getAuthInfo();
@@ -77,6 +75,7 @@ async function handleJwt401(res, contextLabel) {
     return null;
   }
 }
+
 
 // ---------- View-specific initializer: Account / Profile ----------
 
