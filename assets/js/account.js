@@ -44,47 +44,53 @@ async function initAccountProfileView() {
     emailEl.value = userEmail;
   }
 
-  // 2) Create Supabase client *as this user*
-  if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY || !window.supabase) {
-    console.warn("Supabase globals not found");
+  const supabaseUrl  = window.SUPABASE_URL;
+  const supabaseAnon = window.SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnon) {
+    console.warn("SUPABASE_URL or SUPABASE_ANON_KEY not set on window");
+    if (statusEl) statusEl.textContent = "Profile service not configured.";
     return;
   }
 
-  const sb = window.supabase.createClient(
-    window.SUPABASE_URL,
-    window.SUPABASE_ANON_KEY,
-    { auth: { persistSession: false } }
-  );
+  const baseRestUrl = `${supabaseUrl.replace(/\/+$/, "")}/rest/v1/profiles`;
 
-  // Attach user token so RLS sees auth.uid()
-  await sb.auth.setSession({
-    access_token: accessToken,
-    // refresh_token is required by the type, but we don't use refresh in this flow
-    refresh_token: accessToken
-  });
+  const commonHeaders = {
+    apikey: supabaseAnon,
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
+  };
 
-  // 3) Load existing profile (if any)
+  // 2) Load existing profile (if any)
   try {
     if (statusEl) statusEl.textContent = "Loading…";
 
-    const { data, error } = await sb
-      .from("profiles")
-      .select("first_name, last_name, job_title, company_name, email")
-      .eq("id", userId)
-      .maybeSingle();
+    const params = new URLSearchParams();
+    params.set(
+      "select",
+      "first_name,last_name,job_title,company_name,email"
+    );
+    params.set("id", `eq.${userId}`);
 
-    if (error) {
-      console.error("Profile load error:", error);
+    const res = await fetch(`${baseRestUrl}?${params.toString()}`, {
+      headers: commonHeaders,
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error("Profile load HTTP error:", res.status, txt);
       if (statusEl) statusEl.textContent = "Could not load profile.";
-    } else if (data) {
-      if (firstNameEl) firstNameEl.value = data.first_name || "";
-      if (lastNameEl)  lastNameEl.value  = data.last_name  || "";
-      if (jobTitleEl)  jobTitleEl.value  = data.job_title  || "";
-      if (companyEl)   companyEl.value   = data.company_name || "";
-      if (emailEl && data.email && !emailEl.value) emailEl.value = data.email;
-      if (statusEl) statusEl.textContent = "";
     } else {
-      // no row yet – blank form
+      const rows = await res.json();
+      const data = rows[0];
+
+      if (data) {
+        if (firstNameEl) firstNameEl.value = data.first_name || "";
+        if (lastNameEl)  lastNameEl.value  = data.last_name  || "";
+        if (jobTitleEl)  jobTitleEl.value  = data.job_title  || "";
+        if (companyEl)   companyEl.value   = data.company_name || "";
+        if (emailEl && data.email && !emailEl.value) emailEl.value = data.email;
+      }
       if (statusEl) statusEl.textContent = "";
     }
   } catch (e) {
@@ -92,7 +98,7 @@ async function initAccountProfileView() {
     if (statusEl) statusEl.textContent = "Could not load profile.";
   }
 
-  // 4) Save handler – upsert (create if first time, update later)
+  // 3) Save handler – upsert (create if first time, update later)
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!saveBtn) return;
@@ -109,21 +115,33 @@ async function initAccountProfileView() {
       company_name: companyEl  ? (companyEl.value.trim()   || null) : null,
     };
 
-    const { error } = await sb
-      .from("profiles")
-      .upsert(payload, { onConflict: "id" });
+    try {
+      const res = await fetch(baseRestUrl, {
+        method: "POST",
+        headers: {
+          ...commonHeaders,
+          // Upsert behaviour
+          Prefer: "return=minimal, resolution=merge-duplicates",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    if (error) {
-      console.error("Profile save error:", error);
+      if (!res.ok) {
+        const txt = await res.text();
+        console.error("Profile save HTTP error:", res.status, txt);
+        if (statusEl) statusEl.textContent = "Save failed. Try again.";
+      } else {
+        if (statusEl) statusEl.textContent = "Saved.";
+        setTimeout(() => {
+          if (statusEl) statusEl.textContent = "";
+        }, 2000);
+      }
+    } catch (err) {
+      console.error("Profile save error:", err);
       if (statusEl) statusEl.textContent = "Save failed. Try again.";
-    } else {
-      if (statusEl) statusEl.textContent = "Saved.";
-      setTimeout(() => {
-        if (statusEl) statusEl.textContent = "";
-      }, 2000);
+    } finally {
+      saveBtn.disabled = false;
     }
-
-    saveBtn.disabled = false;
   });
 }
 
