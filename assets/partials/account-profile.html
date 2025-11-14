@@ -1,21 +1,34 @@
 <div class="grid-2">
   <div class="card">
     <h2>Profile</h2>
-    <p>Manage your company details and contact info.</p>
-    <div class="field">
-      <label>Company name</label>
-      <input class="input" placeholder="Acme Inc.">
-    </div>
-    <div class="field">
-      <label>Contact email</label>
-      <input class="input" type="email" placeholder="you@company.com">
-    </div>
-    <div class="field">
-      <label>Timezone</label>
-      <select class="input">
-        <option>UTC</option><option>America/New_York</option><option>Europe/Zurich</option>
-      </select>
-    </div>
+    <p>Manage your personal and company details.</p>
+
+    <form id="profileForm">
+      <div class="field">
+        <label for="profileFirstName">First name</label>
+        <input id="profileFirstName" class="input" autocomplete="given-name">
+      </div>
+
+      <div class="field">
+        <label for="profileLastName">Last name</label>
+        <input id="profileLastName" class="input" autocomplete="family-name">
+      </div>
+
+      <div class="field">
+        <label for="profileJobTitle">Job title</label>
+        <input id="profileJobTitle" class="input" placeholder="Head of Sales">
+      </div>
+
+      <div class="field">
+        <label for="profileCompanyName">Company name</label>
+        <input id="profileCompanyName" class="input" placeholder="Acme Inc.">
+      </div>
+
+      <button type="submit" class="btn-primary" id="profileSaveBtn">
+        Save changes
+      </button>
+      <span id="profileStatus" class="muted"></span>
+    </form>
   </div>
 
   <div class="card">
@@ -27,7 +40,10 @@
     </div>
     <div class="field">
       <label>Two-factor authentication</label>
-      <select class="input"><option>Off</option><option>Authenticator App</option></select>
+      <select class="input">
+        <option>Off</option>
+        <option>Authenticator App</option>
+      </select>
     </div>
   </div>
 </div>
