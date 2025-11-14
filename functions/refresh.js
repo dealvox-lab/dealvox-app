@@ -1,42 +1,55 @@
 // /functions/refresh.js
+
 export const onRequestPost = async ({ request, env }) => {
   try {
     const cookieHeader = request.headers.get("Cookie") || "";
     const cookies = Object.fromEntries(
-      cookieHeader.split(";").map((c) => {
-        const i = c.indexOf("=");
-        return [c.slice(0, i).trim(), decodeURIComponent(c.slice(i + 1))];
-      })
+      cookieHeader
+        .split(";")
+        .map((c) => {
+          const i = c.indexOf("=");
+          return [c.slice(0, i).trim(), decodeURIComponent(c.slice(i + 1))];
+        })
+        .filter(([k]) => k) // skip empties
     );
 
-    const refresh = cookies["sb_refresh"] || cookies["sb:refresh"];
+    const refresh =
+      cookies["sb_refresh"] ||
+      cookies["sb:refresh"] ||
+      cookies["sb-refresh"] ||
+      null;
+
     if (!refresh) {
-      return new Response(JSON.stringify({ error: "no_refresh_token" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" }
-      });
+      return new Response(
+        JSON.stringify({ error: "no_refresh_token" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
-    // MUST send {} as body!
-    const res = await fetch(
-      `${env.SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${refresh}`,
-          "apikey": env.SUPABASE_ANON_KEY,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({}) // <= REQUIRED
-      }
-    );
+    // Supabase wants: POST /auth/v1/token?grant_type=refresh_token
+    // headers: apikey, Content-Type: application/json
+    // body: { "refresh_token": "<token>" }
+    const url = `${env.SUPABASE_URL.replace(/\/+$/, "")}/auth/v1/token?grant_type=refresh_token`;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        apikey: env.SUPABASE_ANON_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh_token: refresh }),
+    });
 
     const data = await res.json();
 
     if (!res.ok) {
+      // Bubble up Supabase error to logs
       return new Response(JSON.stringify(data), {
         status: res.status,
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -44,31 +57,34 @@ export const onRequestPost = async ({ request, env }) => {
     const newRefresh = data.refresh_token;
 
     const headers = new Headers({
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     });
 
     if (newAccess) {
       headers.append(
         "Set-Cookie",
-        `sb:token=${newAccess}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600`
+        `sb:token=${encodeURIComponent(
+          newAccess
+        )}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600`
       );
     }
 
     if (newRefresh) {
       headers.append(
         "Set-Cookie",
-        `sb:refresh=${newRefresh}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000`
+        `sb:refresh=${encodeURIComponent(
+          newRefresh
+        )}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000`
       );
     }
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
-      headers
+      headers,
     });
-
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: err.message }),
+      JSON.stringify({ error: String(err) }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
