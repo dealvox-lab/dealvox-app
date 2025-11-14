@@ -1,85 +1,64 @@
 // /functions/debug-auth.js
 
-function decodeJwt(token) {
-  try {
-    const parts = token.split(".");
-    if (parts.length < 2) return null;
-    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = payload + "===".slice((payload.length + 3) % 4);
-    const json = atob(padded);
-    return JSON.parse(json);
-  } catch (e) {
-    return null;
-  }
-}
-
 export const onRequestGet = async ({ request, env }) => {
   const cookieHeader = request.headers.get("Cookie") || "";
   const cookies = Object.fromEntries(
-    cookieHeader.split(";").map((c) => {
-      const i = c.indexOf("=");
-      return [c.slice(0, i).trim(), decodeURIComponent(c.slice(i + 1))];
-    })
+    cookieHeader
+      .split(";")
+      .map((c) => {
+        const i = c.indexOf("=");
+        return [c.slice(0, i).trim(), decodeURIComponent(c.slice(i + 1))];
+      })
+      .filter(([k]) => k)
   );
 
-  const token = cookies["sb_token"] || cookies["sb:token"] || null;
-  const refresh = cookies["sb_refresh"] || cookies["sb:refresh"] || null;
+  const token =
+    cookies["sb_token"] ||
+    cookies["sb:token"] ||
+    cookies["sb-token"] ||
+    null;
 
   let verifyStatus = null;
-  let errorText = null;
-  let userSummary = null;
-  let email = null;
-  let jwtPayload = null;
+  let userSummary  = null;
+  let errorText    = null;
 
-  if (token) {
-    jwtPayload = decodeJwt(token);
-    if (jwtPayload) {
-      email =
-        jwtPayload.email ||
-        (jwtPayload.user_metadata && jwtPayload.user_metadata.email) ||
-        null;
-      userSummary = {
-        id: jwtPayload.sub || null,
-        email,
-      };
-    }
-
-    // Optional REST verification when env vars are set
-    if (env.SUPABASE_URL && env.SUPABASE_ANON_KEY) {
-      try {
-        const resp = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            apikey: env.SUPABASE_ANON_KEY,
-          },
-        });
-        verifyStatus = resp.status;
-        if (resp.ok) {
-          const user = await resp.json();
-          userSummary = { id: user.id, email: user.email };
-          email = user.email;
-        } else {
-          errorText = await resp.text().catch(() => null);
+  if (token && env.SUPABASE_URL && env.SUPABASE_ANON_KEY) {
+    try {
+      const supabaseUrl = (env.SUPABASE_URL || "").replace(/\/+$/, "");
+      const resp = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          apikey: env.SUPABASE_ANON_KEY
         }
-      } catch (err) {
-        errorText = String(err);
+      });
+
+      verifyStatus = resp.status;
+
+      if (resp.ok) {
+        const user = await resp.json();
+        userSummary = { id: user.id, email: user.email };
+      } else {
+        errorText = await resp.text().catch(() => null);
       }
+    } catch (e) {
+      errorText = String(e);
     }
   }
 
   return new Response(
     JSON.stringify(
       {
-        has_sb_token: Boolean(token),
-        verifyStatus,
-        email,
+        // what account.js needs:
+        accessToken: token,
         userSummary,
-        jwtPayload,
+
+        // debug info
+        has_sb_token: Boolean(cookies["sb_token"]),
+        has_sb_colon_token: Boolean(cookies["sb:token"]),
+        verifyStatus,
         errorText,
         supabaseUrlSet: Boolean(env.SUPABASE_URL),
-        anonKeySet: Boolean(env.SUPABASE_ANON_KEY),
-        accessToken: token,
-        refreshToken: refresh,
+        anonKeySet: Boolean(env.SUPABASE_ANON_KEY)
       },
       null,
       2
