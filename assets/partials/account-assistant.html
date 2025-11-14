@@ -1,12 +1,77 @@
 <div class="card">
-  <h2>Prompt editor</h2>
-  <p>Create and test prompts for your voice agents.</p>
-  <div class="field">
-    <label>System prompt</label>
-    <textarea class="input" rows="8" placeholder="You are a polite, concise sales assistant..."></textarea>
-  </div>
-  <div class="field">
-    <label>Test input</label>
-    <input class="input" placeholder="Ask something to simulate a call…">
-  </div>
+  <h2>Assistant</h2>
+  <p>Configure your AI sales assistant’s identity, language, and prompts.</p>
+
+  <form id="assistantForm">
+    <div class="grid-2">
+      <div>
+        <div class="field">
+          <label for="asstAgentName">Assistant name</label>
+          <input id="asstAgentName" class="input" placeholder="Jake">
+        </div>
+
+        <div class="field">
+          <label for="asstAgentId">Agent ID</label>
+          <input id="asstAgentId" class="input" placeholder="auto-generated if empty">
+        </div>
+
+        <div class="field">
+          <label for="asstLanguage">Language</label>
+          <select id="asstLanguage" class="input">
+            <option value="en-US">English (US)</option>
+            <option value="en-GB">English (UK)</option>
+            <option value="de-DE">German</option>
+            <option value="fr-FR">French</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="asstVersion">Version</label>
+          <input id="asstVersion" class="input" type="number" min="1" step="1" value="1">
+        </div>
+
+        <div class="field">
+          <label for="asstLlmId">LLM ID</label>
+          <input id="asstLlmId" class="input" placeholder="llm_234sdertfsdsfsdf">
+        </div>
+
+        <div class="field">
+          <label for="asstPromptLlm">Prompt LLM</label>
+          <input id="asstPromptLlm" class="input" placeholder="GPT 5.1">
+        </div>
+
+        <div class="field" style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+          <input id="asstPublished" type="checkbox">
+          <label for="asstPublished" style="margin:0;">Published</label>
+        </div>
+      </div>
+
+      <div>
+        <div class="field">
+          <label for="asstWebhookUrl">Webhook URL</label>
+          <input id="asstWebhookUrl" class="input" placeholder="https://hook.us1.make.com/...">
+        </div>
+
+        <div class="field">
+          <label for="asstIntroPrompt">Intro prompt</label>
+          <textarea id="asstIntroPrompt" class="input" rows="3"
+            placeholder='Say "Hello {{name}}, I’m Kate". If the {{name}} is empty, say "Hello there, I&apos;m Kate"'></textarea>
+        </div>
+
+        <div class="field">
+          <label for="asstPrompt">Main prompt</label>
+          <textarea id="asstPrompt" class="input" rows="7"
+            placeholder="Behavior, tone and delivery instructions…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;display:flex;align-items:center;gap:10px;">
+      <button type="submit" class="btn-primary" id="asstSaveBtn">
+        Save assistant
+      </button>
+      <span id="asstStatus" class="muted"></span>
+    </div>
+  </form>
 </div>
+
