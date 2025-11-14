@@ -1,33 +1,39 @@
 <div class="card">
   <h2>Assistant</h2>
-  <p>Configure your AI sales assistant’s identity, language, and prompts.</p>
+  <p>Configure your AI assistant identity, language, prompts, and integration.</p>
 
   <form id="assistantForm">
     <div class="grid-2">
+
+      <!-- LEFT COLUMN -->
       <div>
+
         <div class="field">
-          <label for="asstAgentName">Assistant name</label>
+          <label for="asstAgentId">Agent ID</label>
+          <input id="asstAgentId" class="input" placeholder="oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD">
+        </div>
+
+        <div class="field">
+          <label for="asstAgentName">Agent name</label>
           <input id="asstAgentName" class="input" placeholder="Jake">
         </div>
 
         <div class="field">
-          <label for="asstAgentId">Agent ID</label>
-          <input id="asstAgentId" class="input" placeholder="auto-generated if empty">
-        </div>
-
-        <div class="field">
-          <label for="asstLanguage">Language</label>
-          <select id="asstLanguage" class="input">
-            <option value="en-US">English (US)</option>
-            <option value="en-GB">English (UK)</option>
-            <option value="de-DE">German</option>
-            <option value="fr-FR">French</option>
+          <label for="asstPublished">Is published</label>
+          <select id="asstPublished" class="input">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
           </select>
         </div>
 
         <div class="field">
+          <label for="asstLanguage">Language</label>
+          <input id="asstLanguage" class="input" placeholder="en-US">
+        </div>
+
+        <div class="field">
           <label for="asstVersion">Version</label>
-          <input id="asstVersion" class="input" type="number" min="1" step="1" value="1">
+          <input id="asstVersion" type="number" class="input" placeholder="1" min="1" value="1">
         </div>
 
         <div class="field">
@@ -40,38 +46,38 @@
           <input id="asstPromptLlm" class="input" placeholder="GPT 5.1">
         </div>
 
-        <div class="field" style="display:flex;align-items:center;gap:8px;margin-top:10px;">
-          <input id="asstPublished" type="checkbox">
-          <label for="asstPublished" style="margin:0;">Published</label>
-        </div>
       </div>
 
+      <!-- RIGHT COLUMN -->
       <div>
+
         <div class="field">
-          <label for="asstWebhookUrl">Webhook URL</label>
-          <input id="asstWebhookUrl" class="input" placeholder="https://hook.us1.make.com/...">
+          <label for="asstPrompt">Prompt</label>
+          <textarea id="asstPrompt" class="input" rows="8"
+            placeholder="0. When you ask any question, give the user time and opportunity to answer first. 
+1. Tone & Delivery - Always be polite, professional, and friendly. - Maintain a slightly persistent but never pushy or cheeky style. - Keep responses short, clear, and natural."></textarea>
         </div>
 
         <div class="field">
           <label for="asstIntroPrompt">Intro prompt</label>
-          <textarea id="asstIntroPrompt" class="input" rows="3"
+          <textarea id="asstIntroPrompt" class="input" rows="4"
             placeholder='Say "Hello {{name}}, I’m Kate". If the {{name}} is empty, say "Hello there, I&apos;m Kate"'></textarea>
         </div>
 
         <div class="field">
-          <label for="asstPrompt">Main prompt</label>
-          <textarea id="asstPrompt" class="input" rows="7"
-            placeholder="Behavior, tone and delivery instructions…"></textarea>
+          <label for="asstWebhookUrl">Webhook URL</label>
+          <input id="asstWebhookUrl" class="input"
+            placeholder="https://hook.us1.make.com/5cph7auigg7iyb1u3ibr9qdcrdbdb4f7">
         </div>
+
       </div>
     </div>
 
-    <div style="margin-top:16px;display:flex;align-items:center;gap:10px;">
+    <div style="margin-top:18px;display:flex;align-items:center;gap:12px;">
       <button type="submit" class="btn-primary" id="asstSaveBtn">
-        Save assistant
+        Save Assistant
       </button>
       <span id="asstStatus" class="muted"></span>
     </div>
   </form>
 </div>
-
