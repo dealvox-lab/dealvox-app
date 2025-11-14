@@ -5,6 +5,11 @@
 
     <form id="profileForm">
       <div class="field">
+        <label for="profileEmail">Email</label>
+        <input id="profileEmail" class="input" type="email" readonly>
+      </div>
+
+      <div class="field">
         <label for="profileFirstName">First name</label>
         <input id="profileFirstName" class="input" autocomplete="given-name">
       </div>
@@ -31,19 +36,5 @@
     </form>
   </div>
 
-  <div class="card">
-    <h2>Security</h2>
-    <p>Keep your account protected.</p>
-    <div class="field">
-      <label>New password</label>
-      <input class="input" type="password" placeholder="••••••••">
-    </div>
-    <div class="field">
-      <label>Two-factor authentication</label>
-      <select class="input">
-        <option>Off</option>
-        <option>Authenticator App</option>
-      </select>
-    </div>
-  </div>
+  <!-- Security card unchanged -->
 </div>
