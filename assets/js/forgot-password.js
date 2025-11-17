@@ -13,13 +13,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const email = emailEl.value.trim();
     if (!email) {
       statusEl.textContent = "Please enter your email.";
+      statusEl.classList.remove("success");
+      statusEl.classList.add("error");
       return;
     }
 
     statusEl.textContent = "Sending reset link…";
+    statusEl.classList.remove("error", "success");
 
     try {
-      const res = await fetch("/forgot-password", {
+      const res = await fetch("/api/forgot-password", {   // 👈 changed path
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -28,15 +31,22 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok || !data.ok) {
+        console.error("Forgot password API error:", res.status, data);
         statusEl.textContent = "Could not send reset link. Try again.";
+        statusEl.classList.remove("success");
+        statusEl.classList.add("error");
         return;
       }
 
       statusEl.textContent = "Check your inbox for the reset link.";
+      statusEl.classList.remove("error");
+      statusEl.classList.add("success");
       emailEl.value = "";
     } catch (err) {
+      console.error("Forgot password JS error:", err);
       statusEl.textContent = "Something went wrong. Try again.";
-      console.error(err);
+      statusEl.classList.remove("success");
+      statusEl.classList.add("error");
     }
   });
 });
