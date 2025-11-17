@@ -21,12 +21,11 @@ export const onRequestPost = async ({ request, env }) => {
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
-
-    console.log("SUPABASE URL USED:", `${supabaseUrl}/auth/v1/reset-password-for-email`);
-
+    
     const origin = new URL(request.url).origin;
     const redirectTo = `${origin}/reset-password`;
 
+    console.log("RESET URL:", `${supabaseUrl}/auth/v1/reset-password-for-email`);
     const res = await fetch(`${supabaseUrl}/auth/v1/reset-password-for-email`, {
       method: "POST",
       headers: {
@@ -55,10 +54,13 @@ export const onRequestPost = async ({ request, env }) => {
       );
     }
 
-    return new Response(
-      JSON.stringify({ ok: true }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+return new Response(
+  JSON.stringify({ 
+    error: "supabase_error",
+    details: parsed,
+    debug_url: `${supabaseUrl}/auth/v1/reset-password-for-email`
+  }),
+    
   } catch (err) {
     console.error("forgot-password function error:", err);
     return new Response(
