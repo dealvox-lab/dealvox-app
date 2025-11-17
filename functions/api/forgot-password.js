@@ -36,24 +36,25 @@ export const onRequestPost = async ({ request, env }) => {
       );
     }
 
-    // 3) Build redirect + endpoint URL
+    // 3) Build redirect URL and endpoint
     const origin = new URL(request.url).origin;
     const redirectTo = `${origin}/reset-password`;
 
-    // ✅ Correct Supabase endpoint for password reset email
-    const endpoint = `${supabaseUrl}/auth/v1/recover`;
+    // 🔑 Supabase expects redirect_to as QUERY PARAM on /auth/v1/recover
+    const endpoint =
+      `${supabaseUrl}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`;
 
     console.log("FORGOT PW: endpoint =", endpoint);
     console.log("FORGOT PW: redirect_to =", redirectTo);
 
-    // 4) Call Supabase Auth
+    // 4) Call Supabase Auth – ONLY email in body
     const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         apikey: anonKey,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, redirect_to: redirectTo }),
+      body: JSON.stringify({ email }),
     });
 
     const text = await res.text();
@@ -67,7 +68,6 @@ export const onRequestPost = async ({ request, env }) => {
     }
 
     if (!res.ok) {
-      // Surface exact error to frontend (still with debug_url)
       return new Response(
         JSON.stringify({
           error: "supabase_error",
@@ -81,7 +81,7 @@ export const onRequestPost = async ({ request, env }) => {
       );
     }
 
-    // 6) Success
+    // 5) Success
     return new Response(
       JSON.stringify({ ok: true }),
       {
