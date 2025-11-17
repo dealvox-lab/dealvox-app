@@ -26,14 +26,37 @@ export const onRequestPost = async ({ request, env }) => {
     const origin = new URL(request.url).origin;
     const redirectTo = `${origin}/reset-password`;
 
-    const res = await fetch(`${supabaseUrl}/auth/v1/reset-password-for-email`, {
-      method: "POST",
-      headers: {
-        apikey: anonKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, redirect_to: redirectTo }),
-    });
+   const res = await fetch(`${supabaseUrl}/auth/v1/reset-password-for-email`, {
+  method: "POST",
+  headers: {
+    apikey: anonKey,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ email, redirect_to: redirectTo }),
+});
+
+// DEBUGGING — capture everything
+const text = await res.text();
+console.log("SUPABASE RESET RESPONSE:", res.status, text);
+
+let data = null;
+try {
+  data = JSON.parse(text);
+} catch (_) {
+  data = text;
+}
+
+if (!res.ok) {
+  return new Response(
+    JSON.stringify({ error: "supabase_error", details: data }),
+    { status: res.status, headers: { "Content-Type": "application/json" } }
+  );
+}
+
+return new Response(
+  JSON.stringify({ ok: true }),
+  { status: 200, headers: { "Content-Type": "application/json" } }
+);
 
     const data = await res.json().catch(() => ({}));
 
