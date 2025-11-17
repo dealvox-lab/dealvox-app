@@ -1,97 +1,47 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sign up</title>
-  <link rel="stylesheet" href="/assets/css/account.css">
+  <meta charset="utf-8">
+  <title>Create account – Dealvox AI</title>
+  <link rel="stylesheet" href="/assets/css/auth.css">
 </head>
-<body class="auth">
-  <div class="card" style="max-width:420px;margin:10vh auto;">
-    <h2>Sign up to Dealvox</h2>
-    <form id="authForm" data-mode="signup">
-      <div class="field">
-        <label>Email</label>
-        <input class="input" name="email" type="email" required />
+<body>
+<div class="auth-shell">
+  <section class="auth-card">
+    <header class="auth-header">
+      <div class="auth-logo">
+        <span>🤖</span>
       </div>
-      <div class="field">
-        <label>Password</label>
-        <input class="input" name="password" type="password" required />
+      <div class="auth-title-wrap">
+        <h1>Create your Dealvox account</h1>
+        <p>Spin up voice agents and dashboards in minutes.</p>
       </div>
-      <button class="pricing-btn accent" type="submit">Continue</button>
-      <p style="margin:.6rem 0 0;color:#6b7280">
-        Already have an account? <a href="/login">Sign in</a>
-      </p>
-    </form>
-  </div>
-<script>
-  window.SUPABASE_URL = "https://rtidfgnigtsxdszypkwr.supabase.co";
-  window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0aWRmZ25pZ3RzeGRzenlwa3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MjM5NjEsImV4cCI6MjA3ODQ5OTk2MX0.DtqhhfZlFOnQLYGy6qTtgaia38bTPB_pvNEQGhLt4T0";
-</script>
-<script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    </header>
 
-const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
-  auth: { persistSession: false, flowType: "implicit" }
-});
+    <div class="auth-body">
+      <form id="signupForm">
+        <div class="field">
+          <label for="signupEmail">Work email</label>
+          <input id="signupEmail" class="input" type="email" required autocomplete="email">
+        </div>
 
-  const form = document.getElementById("authForm");
+        <div class="field">
+          <label for="signupPassword">Password</label>
+          <input id="signupPassword" class="input" type="password" required autocomplete="new-password">
+        </div>
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = form.email.value.trim();
-    const password = form.password.value;
-    const mode = form.dataset.mode; // "login" | "signup"
+        <button type="submit" class="btn-primary">Create account</button>
 
-    let res;
-    if (mode === "signup") {
-      res = await supabase.auth.signUp({ email, password });
-    } else {
-      res = await supabase.auth.signInWithPassword({ email, password });
-    }
-    if (res.error) { alert(res.error.message); return; }
+        <p id="signupStatus" class="status"></p>
 
-    const session = res.data.session;
-    if (!session) { 
-      alert("Check your email to confirm your account, then sign in.");
-      return; 
-    }
+        <div class="auth-footer">
+          <span>Already have an account? <a href="/login">Sign in</a></span>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
 
-    const redirectTo = `${location.origin}/auth/callback`;
-
-  if (mode === "signup") {
-    await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: redirectTo }
-    });
-  }
-// For magic-link flow (optional):
-// await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
-
-
-    // ✅ Cloudflare Pages function path is /set-session
-    const setResp = await fetch("/set-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        access_token: session.access_token,
-        refresh_token: session.refresh_token
-      }),
-      credentials: "include" // ensure cookies are stored
-    });
-
-    if (!setResp.ok) {
-      const txt = await setResp.text().catch(() => "");
-      console.error("set-session failed:", setResp.status, txt);
-      alert("Could not save session. Please try again.");
-      return;
-    }
-
-    const params = new URLSearchParams(location.search);
-    const redirect = params.get("redirect") || "/account";
-    location.href = redirect;
-  });
-</script>
+<script src="/assets/js/signup.js?v=1"></script>
 </body>
 </html>
