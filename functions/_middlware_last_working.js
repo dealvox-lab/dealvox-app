@@ -13,8 +13,9 @@ export const onRequest = async ({ request, env, next }) => {
     "/set-session",
     "/logout",
     "/assets",
-    "/partials",   // 👈 make sure partials are public
-    "/debug-auth"  // 👈 your email helper
+    "/partials",   
+    "/debug-auth",
+    "/reset-password"
   ];
 
   if (publicPrefixes.some(p => path === p || path.startsWith(p + "/"))) {
