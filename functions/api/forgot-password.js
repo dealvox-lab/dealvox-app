@@ -22,6 +22,8 @@ export const onRequestPost = async ({ request, env }) => {
       );
     }
 
+    console.log("SUPABASE URL USED:", `${supabaseUrl}/auth/v1/reset-password-for-email`);
+
     const origin = new URL(request.url).origin;
     const redirectTo = `${origin}/reset-password`;
 
