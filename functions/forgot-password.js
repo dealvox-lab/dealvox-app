@@ -1,11 +1,6 @@
 // /functions/forgot-password.js
 
-export const onRequest = async ({ request, env }) => {
-  // Only allow POST for now
-  if (request.method !== "POST") {
-    return new Response("Not found", { status: 404 });
-  }
-
+export const onRequestPost = async ({ request, env }) => {
   try {
     const { email } = await request.json();
 
@@ -27,7 +22,7 @@ export const onRequest = async ({ request, env }) => {
       );
     }
 
-    // Where the user lands AFTER clicking the email link
+    // Where the user lands after clicking the email link
     const origin = new URL(request.url).origin;
     const redirectTo = `${origin}/reset-password`;
 
