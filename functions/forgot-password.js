@@ -39,11 +39,11 @@ export const onRequestPost = async ({ request, env }) => {
 const text = await res.text();
 console.log("SUPABASE RESET RESPONSE:", res.status, text);
 
-let data = null;
+let data1 = null;
 try {
-  data = JSON.parse(text);
+  data1 = JSON.parse(text);
 } catch (_) {
-  data = text;
+  data1 = text;
 }
 
 if (!res.ok) {
