@@ -24,7 +24,7 @@ export const onRequest = async ({ request, env, next }) => {
     cookies["sb-token"]
   );
 
-  // Optional debug view: /anything?debug=1 to see what middleware sees
+  // Optional debug view: /anything?debug=1
   if (debug) {
     return new Response(
       JSON.stringify(
@@ -43,13 +43,16 @@ export const onRequest = async ({ request, env, next }) => {
   // Routes that must always stay public / untouched by auth logic
   const alwaysPublicPrefixes = [
     "/assets",
-    "/partials",   // your HTML partials
-    "/auth",       // includes /auth/callback
+    "/partials",        // HTML partials
+    "/auth",            // includes /auth/callback
     "/set-session",
     "/logout",
     "/debug-auth",
     "/favicon.ico",
     "/robots.txt",
+    "/forgot-password", // password reset request page
+    "/reset-password",  // password reset form page
+    "/api",             // all API routes (login, forgot, reset, etc.)
   ];
 
   if (alwaysPublicPrefixes.some(p => path === p || path.startsWith(p + "/"))) {
