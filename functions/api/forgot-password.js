@@ -39,9 +39,10 @@ export const onRequestPost = async ({ request, env }) => {
     // 3) Build redirect + endpoint URL
     const origin = new URL(request.url).origin;
     const redirectTo = `${origin}/reset-password`;
-    const endpoint = `${supabaseUrl}/auth/v1/reset-password-for-email`;
 
-    // These logs will appear in Cloudflare Functions logs
+    // ✅ Correct Supabase endpoint for password reset email
+    const endpoint = `${supabaseUrl}/auth/v1/recover`;
+
     console.log("FORGOT PW: endpoint =", endpoint);
     console.log("FORGOT PW: redirect_to =", redirectTo);
 
@@ -65,8 +66,8 @@ export const onRequestPost = async ({ request, env }) => {
       parsed = text;
     }
 
-    // 5) If Supabase returned an error, surface it
     if (!res.ok) {
+      // Surface exact error to frontend (still with debug_url)
       return new Response(
         JSON.stringify({
           error: "supabase_error",
