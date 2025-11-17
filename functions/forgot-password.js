@@ -1,6 +1,11 @@
 // /functions/forgot-password.js
 
-export const onRequestPost = async ({ request, env }) => {
+export const onRequest = async ({ request, env }) => {
+  // Only allow POST for now
+  if (request.method !== "POST") {
+    return new Response("Not found", { status: 404 });
+  }
+
   try {
     const { email } = await request.json();
 
@@ -14,7 +19,17 @@ export const onRequestPost = async ({ request, env }) => {
     const supabaseUrl = (env.SUPABASE_URL || "").replace(/\/+$/, "");
     const anonKey     = env.SUPABASE_ANON_KEY;
 
-    const redirectTo = `${new URL(request.url).origin}/reset-password`;
+    if (!supabaseUrl || !anonKey) {
+      console.error("Supabase env vars missing");
+      return new Response(
+        JSON.stringify({ error: "supabase_not_configured" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Where the user lands AFTER clicking the email link
+    const origin = new URL(request.url).origin;
+    const redirectTo = `${origin}/reset-password`;
 
     const res = await fetch(`${supabaseUrl}/auth/v1/reset-password-for-email`, {
       method: "POST",
@@ -22,27 +37,25 @@ export const onRequestPost = async ({ request, env }) => {
         apikey: anonKey,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        email,
-        redirect_to: redirectTo,
-      }),
+      body: JSON.stringify({ email, redirect_to: redirectTo }),
     });
 
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
       console.error("Supabase reset error:", res.status, data);
-      return new Response(JSON.stringify({ error: "supabase_error" }), {
-        status: res.status,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: "supabase_error" }),
+        { status: res.status, headers: { "Content-Type": "application/json" } }
+      );
     }
 
-    return new Response(JSON.stringify({ ok: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ ok: true }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   } catch (err) {
+    console.error("forgot-password function error:", err);
     return new Response(
       JSON.stringify({ error: "server_error" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
