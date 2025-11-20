@@ -1,55 +1,63 @@
 <div class="card">
   <h2>Assistant</h2>
-  <p>Configure and deploy your AI assistant. Start with a basic setup, then fine-tune details.</p>
+  <p>Configure your AI assistant identity, language, prompts, and integration.</p>
 
-  <!-- STEP 1: DEPLOY ASSISTANT (no existing assistant yet) -->
-  <form id="assistantDeployForm" style="display:none;">
-    <div class="grid-2">
-      <div>
-        <div class="field">
-          <label for="asstDeployName">Agent name</label>
-          <input id="asstDeployName" class="input" placeholder="Jake">
+  <!-- STEP 1: Initial deploy state (no assistant yet) -->
+  <section id="assistantInitial" class="asst-section">
+    <form id="assistantDeployForm">
+      <div class="grid-2">
+        <!-- LEFT COLUMN -->
+        <div>
+          <div class="field">
+            <label for="asstNewName">Agent name</label>
+            <input id="asstNewName" class="input" placeholder="Jake">
+          </div>
+
+          <div class="field">
+            <label for="asstNewType">Agent type</label>
+            <select id="asstNewType" class="input">
+              <option value="sales">Sales assistant</option>
+              <option value="support">Support assistant</option>
+              <option value="qualification">Lead qualification</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="asstNewPhoneArea">Phone number area</label>
+            <select id="asstNewPhoneArea" class="input">
+              <option value="+1">US / Canada (+1)</option>
+              <option value="+44">UK (+44)</option>
+              <option value="+49">Germany (+49)</option>
+              <option value="+31">Netherlands (+31)</option>
+              <option value="+41">Switzerland (+41)</option>
+              <option value="custom">Other (set later)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="asstNewVoice">Agent voice</label>
+            <select id="asstNewVoice" class="input">
+              <option value="female_friendly">Female – Friendly</option>
+              <option value="female_professional">Female – Professional</option>
+              <option value="male_calm">Male – Calm</option>
+              <option value="male_energetic">Male – Energetic</option>
+            </select>
+          </div>
         </div>
 
-        <div class="field">
-          <label for="asstDeployType">Agent type</label>
-          <select id="asstDeployType" class="input">
-            <option value="">Select type…</option>
-            <option value="sales">Sales / Outbound</option>
-            <option value="support">Support / Helpdesk</option>
-            <option value="booking">Booking / Scheduling</option>
-            <option value="custom">Custom</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="asstDeployPhoneArea">Phone number area</label>
-          <select id="asstDeployPhoneArea" class="input">
-            <option value="">Select region…</option>
-            <option value="us">US / Canada (+1)</option>
-            <option value="uk">UK (+44)</option>
-            <option value="eu">EU (+31 / +33 / +49)</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="asstDeployVoice">Agent voice</label>
-          <select id="asstDeployVoice" class="input">
-            <option value="">Select voice…</option>
-            <option value="female_en">Female – EN</option>
-            <option value="male_en">Male – EN</option>
-            <option value="neutral_en">Neutral – EN</option>
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <div class="field">
-          <label for="asstDeployIntro">Intro (first message)</label>
-          <textarea id="asstDeployIntro" class="input" rows="6"
-            placeholder="Hi {{firstName}}, this is {{agentName}} calling from {{company}} about your {{industry}} needs."></textarea>
-          <p class="muted" style="margin-top:6px;font-size:0.85rem;">
+        <!-- RIGHT COLUMN -->
+        <div>
+          <div class="field">
+            <label for="asstNewIntro">Intro</label>
+            <textarea
+              id="asstNewIntro"
+              class="input"
+              rows="6"
+              placeholder="Hi {{firstName}}, this is {{company}}’s AI assistant calling about your {{industry}} needs..."
+            ></textarea>
+          </div>
+          <p class="muted" style="font-size:0.8rem;margin-top:-4px;">
             You can use variables:
             <code>{{firstName}}</code>,
             <code>{{lastName}}</code>,
@@ -58,102 +66,145 @@
           </p>
         </div>
       </div>
-    </div>
 
-    <div style="margin-top:18px;display:flex;align-items:center;gap:12px;">
-      <button type="submit" class="btn-primary" id="asstDeployBtn">
-        Deploy agent
-      </button>
-      <span id="asstStatus" class="muted"></span>
-    </div>
-  </form>
+      <div style="margin-top:18px;display:flex;align-items:center;gap:12px;">
+        <button type="submit" class="btn-primary" id="asstDeployBtn">
+          Deploy agent
+        </button>
+        <span id="asstDeployStatus" class="muted"></span>
+      </div>
+    </form>
+  </section>
 
-  <!-- STEP 2: MANAGE EXISTING ASSISTANT -->
-  <form id="assistantForm" style="display:none;" enctype="multipart/form-data">
-    <div class="grid-2">
+  <!-- STEP 2: Manage existing assistant -->
+  <section id="assistantManage" class="asst-section" hidden>
+    <form id="assistantForm">
+      <div class="grid-2">
+        <!-- LEFT COLUMN -->
+        <div>
+          <div class="field">
+            <label for="asstAgentId">Agent ID</label>
+            <input
+              id="asstAgentId"
+              class="input"
+              placeholder="oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD"
+              readonly
+            >
+          </div>
 
-      <!-- LEFT COLUMN -->
-      <div>
-        <div class="field">
-          <label for="asstAgentId">Agent ID</label>
-          <input id="asstAgentId" class="input" readonly>
+          <div class="field">
+            <label for="asstAgentName">Agent name</label>
+            <input id="asstAgentName" class="input" placeholder="Jake">
+          </div>
+
+          <div class="field">
+            <label for="asstAgentType">Agent type</label>
+            <select id="asstAgentType" class="input">
+              <option value="sales">Sales assistant</option>
+              <option value="support">Support assistant</option>
+              <option value="qualification">Lead qualification</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="asstPhoneArea">Phone number area</label>
+            <select id="asstPhoneArea" class="input">
+              <option value="+1">US / Canada (+1)</option>
+              <option value="+44">UK (+44)</option>
+              <option value="+49">Germany (+49)</option>
+              <option value="+31">Netherlands (+31)</option>
+              <option value="+41">Switzerland (+41)</option>
+              <option value="custom">Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="asstPhoneNumber">Phone number</label>
+            <input
+              id="asstPhoneNumber"
+              class="input"
+              placeholder="e.g. +1 555 123 4567"
+            >
+          </div>
+
+          <div class="field">
+            <label for="asstAgentVoice">Agent voice</label>
+            <select id="asstAgentVoice" class="input">
+              <option value="female_friendly">Female – Friendly</option>
+              <option value="female_professional">Female – Professional</option>
+              <option value="male_calm">Male – Calm</option>
+              <option value="male_energetic">Male – Energetic</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="asstPublished">Is published</label>
+            <select id="asstPublished" class="input">
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </div>
         </div>
 
-        <div class="field">
-          <label for="asstAgentName">Agent name</label>
-          <input id="asstAgentName" class="input" placeholder="Jake">
-        </div>
+        <!-- RIGHT COLUMN -->
+        <div>
+          <div class="field">
+            <label for="asstPrompt">General prompt</label>
+            <textarea
+              id="asstPrompt"
+              class="input"
+              rows="6"
+              placeholder="0. When you ask any question, give the user time and opportunity to answer first. 1. Tone &amp; Delivery - Always be polite, professional, and friendly. - Maintain a slightly persistent but never pushy or cheeky style. - Keep responses short, clear, and natural."
+            ></textarea>
+          </div>
 
-        <div class="field">
-          <label for="asstType">Agent type</label>
-          <select id="asstType" class="input">
-            <option value="">Select type…</option>
-            <option value="sales">Sales / Outbound</option>
-            <option value="support">Support / Helpdesk</option>
-            <option value="booking">Booking / Scheduling</option>
-            <option value="custom">Custom</option>
-          </select>
-        </div>
+          <div class="field">
+            <label for="asstIntroPrompt">Intro</label>
+            <textarea
+              id="asstIntroPrompt"
+              class="input"
+              rows="4"
+              placeholder='Say "Hello {{name}}, I’m Kate". If the {{name}} is empty, say "Hello there, I&apos;m Kate"'
+            ></textarea>
+            <p class="muted" style="font-size:0.8rem;margin-top:4px;">
+              You can use variables:
+              <code>{{firstName}}</code>,
+              <code>{{lastName}}</code>,
+              <code>{{company}}</code>,
+              <code>{{industry}}</code>.
+            </p>
+          </div>
 
-        <div class="field">
-          <label for="asstPhoneNumber">Phone number</label>
-          <input id="asstPhoneNumber" class="input" placeholder="+1 555 123 4567">
-        </div>
+          <div class="field">
+            <label for="asstKnowledgeFile">Knowledge base</label>
+            <input
+              id="asstKnowledgeFile"
+              type="file"
+              class="input"
+            >
+            <p class="muted" style="font-size:0.8rem;margin-top:4px;">
+              Upload FAQs, product docs, or PDFs to enrich the assistant’s responses.
+            </p>
+          </div>
 
-        <div class="field">
-          <label for="asstVoice">Agent voice</label>
-          <select id="asstVoice" class="input">
-            <option value="">Select voice…</option>
-            <option value="female_en">Female – EN</option>
-            <option value="male_en">Male – EN</option>
-            <option value="neutral_en">Neutral – EN</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="asstPublished">Is published</label>
-          <select id="asstPublished" class="input">
-            <option value="false">No</option>
-            <option value="true">Yes</option>
-          </select>
+          <div class="field">
+            <label for="asstWebhookUrl">Webhook URL</label>
+            <input
+              id="asstWebhookUrl"
+              class="input"
+              placeholder="https://hook.us1.make.com/5cph7auigg7iyb1u3ibr9qdcrdbdb4f7"
+            >
+          </div>
         </div>
       </div>
 
-      <!-- RIGHT COLUMN -->
-      <div>
-        <div class="field">
-          <label for="asstPrompt">General prompt</label>
-          <textarea id="asstPrompt" class="input" rows="6"
-            placeholder="You are a helpful AI sales assistant that…"></textarea>
-        </div>
-
-        <div class="field">
-          <label for="asstIntroPrompt">Intro</label>
-          <textarea id="asstIntroPrompt" class="input" rows="4"
-            placeholder='Hi {{firstName}}, this is {{agentName}} from {{company}}…'></textarea>
-        </div>
-
-        <div class="field">
-          <label for="asstKbFile">Knowledge base</label>
-          <input id="asstKbFile" type="file" class="input">
-          <p class="muted" style="margin-top:6px;font-size:0.85rem;">
-            Upload PDFs, DOCX, or text files with product, pricing, and FAQ information.
-          </p>
-        </div>
-
-        <div class="field">
-          <label for="asstWebhookUrl">Webhook URL</label>
-          <input id="asstWebhookUrl" class="input"
-            placeholder="https://hook.us1.make.com/your-webhook-id">
-        </div>
+      <div style="margin-top:18px;display:flex;align-items:center;gap:12px;">
+        <button type="submit" class="btn-primary" id="asstSaveBtn">
+          Save Assistant
+        </button>
+        <span id="asstStatus" class="muted"></span>
       </div>
-    </div>
-
-    <div style="margin-top:18px;display:flex;align-items:center;gap:12px;">
-      <button type="submit" class="btn-primary" id="asstSaveBtn">
-        Save Assistant
-      </button>
-      <span id="asstStatus" class="muted"></span>
-    </div>
-  </form>
+    </form>
+  </section>
 </div>
