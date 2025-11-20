@@ -221,57 +221,59 @@ async function initAccountProfileView() {
 }
 
 // ----------------------------------------------------
-// ASSISTANT VIEW (Assistant tab)
+// ASSISTANT VIEW (Assistant tab) - TWO-STEP FLOW
 // ----------------------------------------------------
 
 async function initAccountAssistantView() {
+  const deploySection = document.getElementById("assistantInitial");
+  const manageSection = document.getElementById("assistantManage");
+
+  const deployForm   = document.getElementById("assistantDeployForm");
+  const deployStatus = document.getElementById("asstDeployStatus");
+
   const form      = document.getElementById("assistantForm");
-  const statusEl  = document.getElementById("asstStatus");
+  const saveStatusEl  = document.getElementById("asstStatus");
   const saveBtn   = document.getElementById("asstSaveBtn");
 
-  const agentIdEl     = document.getElementById("asstAgentId");
-  const agentNameEl   = document.getElementById("asstAgentName");
-  const publishedEl   = document.getElementById("asstPublished");
-  const languageEl    = document.getElementById("asstLanguage");
-  const versionEl     = document.getElementById("asstVersion");
-  const llmIdEl       = document.getElementById("asstLlmId");
-  const promptLlmEl   = document.getElementById("asstPromptLlm");
-  const promptEl      = document.getElementById("asstPrompt");
-  const introPromptEl = document.getElementById("asstIntroPrompt");
-  const webhookUrlEl  = document.getElementById("asstWebhookUrl");
-
-  if (!form) {
-    console.warn("assistantForm not found; skipping assistant init");
+  if (!deploySection || !manageSection) {
+    console.warn("Assistant sections not found; skipping assistant init");
     return;
   }
-  if (form.dataset.bound === "1") return;
-  form.dataset.bound = "1";
+
+  // Prevent double-binding on reloads
+  if (form && form.dataset.bound === "1") return;
+  if (form) form.dataset.bound = "1";
 
   let auth;
   try {
     auth = await getAuthInfo();
   } catch (e) {
     console.error("getAuthInfo failed:", e);
-    if (statusEl) statusEl.textContent = "Unable to load assistant.";
+    if (saveStatusEl) saveStatusEl.textContent = "Unable to load assistant.";
     return;
   }
 
   if (!auth.user || !auth.accessToken) {
-    if (statusEl) statusEl.textContent = "Session expired. Please log in.";
+    if (saveStatusEl) saveStatusEl.textContent = "Session expired. Please log in.";
     return;
   }
 
   const userId = auth.user.id;
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/assistants`;
 
-  // ---- LOAD ASSISTANT (latest version per user) ----
+  // ---- helper setters ----
+  function setIfExists(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.value = value ?? "";
+  }
+
+  // ---- LOAD ASSISTANT (detect existing vs new) ----
   async function loadAssistant() {
-    if (statusEl) statusEl.textContent = "Loading…";
+    if (saveStatusEl) saveStatusEl.textContent = "Loading…";
 
     const params = new URLSearchParams();
     params.set("select", "*");
     params.set("user_id", `eq.${userId}`);
-    params.set("order", "version.desc");
     params.set("limit", "1");
 
     async function run(currentAuth) {
@@ -284,7 +286,7 @@ async function initAccountAssistantView() {
     if (res.status === 401) {
       const newAuth = await handleJwt401(res, "load assistant");
       if (!newAuth) {
-        if (statusEl) statusEl.textContent = "Session expired. Please log in.";
+        if (saveStatusEl) saveStatusEl.textContent = "Session expired. Please log in.";
         return;
       }
       auth = newAuth;
@@ -293,7 +295,7 @@ async function initAccountAssistantView() {
 
     if (!res.ok) {
       console.error("Assistant load HTTP error:", res.status, await res.text());
-      if (statusEl) statusEl.textContent = "Could not load assistant.";
+      if (saveStatusEl) saveStatusEl.textContent = "Could not load assistant.";
       return;
     }
 
@@ -301,49 +303,149 @@ async function initAccountAssistantView() {
     const data = rows[0];
 
     if (data) {
-      if (agentIdEl)     agentIdEl.value     = data.agent_id      || "";
-      if (agentNameEl)   agentNameEl.value   = data.agent_name    || "";
-      if (publishedEl)   publishedEl.value   = data.is_published ? "true" : "false";
-      if (languageEl)    languageEl.value    = data.language      || "en-US";
-      if (versionEl)     versionEl.value     = data.version       || 1;
-      if (llmIdEl)       llmIdEl.value       = data.llm_id        || "";
-      if (promptLlmEl)   promptLlmEl.value   = data.prompt_llm    || "";
-      if (promptEl)      promptEl.value      = data.prompt        || "";
-      if (introPromptEl) introPromptEl.value = data.intro_prompt  || "";
-      if (webhookUrlEl)  webhookUrlEl.value  = data.webhook_url   || "";
+      // We have an assistant: show manage section
+      deploySection.hidden = true;
+      manageSection.hidden = false;
+
+      setIfExists("asstAgentId", data.agent_id);
+      setIfExists("asstAgentName", data.agent_name);
+      setIfExists("asstAgentType", data.agent_type);
+      setIfExists("asstPhoneArea", data.phone_area);
+      setIfExists("asstPhoneNumber", data.phone_number);
+      setIfExists("asstAgentVoice", data.agent_voice);
+      setIfExists("asstPublished", data.is_published ? "true" : "false");
+      setIfExists("asstPrompt", data.prompt);
+      setIfExists("asstIntroPrompt", data.intro_prompt);
+      setIfExists("asstWebhookUrl", data.webhook_url);
+      // knowledge_key can be used later to show last uploaded file name
     } else {
-      if (languageEl && !languageEl.value) languageEl.value = "en-US";
-      if (versionEl && !versionEl.value)   versionEl.value = 1;
+      // No assistant yet → initial deploy flow
+      deploySection.hidden = false;
+      manageSection.hidden = true;
     }
 
-    if (statusEl) statusEl.textContent = "";
+    if (saveStatusEl) saveStatusEl.textContent = "";
   }
 
-  // ---- SAVE ASSISTANT ----
-  async function saveAssistant() {
-    if (!saveBtn) return;
-    saveBtn.disabled = true;
-    if (statusEl) statusEl.textContent = "Saving…";
+  // ---- DEPLOY ASSISTANT (STEP 1) ----
+  async function deployAssistant() {
+    if (!deployForm) return;
+    if (deployStatus) deployStatus.textContent = "Deploying…";
 
-    const rawPublished = publishedEl ? publishedEl.value : "false";
-    const isPublished = rawPublished === "true";
-    const version =
-      versionEl && versionEl.value
-        ? parseInt(versionEl.value, 10) || 1
-        : 1;
+    const newNameEl      = document.getElementById("asstNewName");
+    const newTypeEl      = document.getElementById("asstNewType");
+    const newPhoneAreaEl = document.getElementById("asstNewPhoneArea");
+    const newVoiceEl     = document.getElementById("asstNewVoice");
+    const newIntroEl     = document.getElementById("asstNewIntro");
+
+    const agentName  = newNameEl ? newNameEl.value.trim() : "";
+    const agentType  = newTypeEl ? newTypeEl.value : "sales";
+    const phoneArea  = newPhoneAreaEl ? newPhoneAreaEl.value : "custom";
+    const agentVoice = newVoiceEl ? newVoiceEl.value : "female_friendly";
+    const intro      = newIntroEl ? newIntroEl.value.trim() : "";
+
+    // Generate a simple agent ID
+    let agentId;
+    if (crypto && typeof crypto.randomUUID === "function") {
+      agentId = crypto.randomUUID().replace(/-/g, "").slice(0, 28);
+    } else {
+      agentId = ("agent_" + Math.random().toString(36).slice(2, 18));
+    }
 
     const payload = {
       user_id:      userId,
-      agent_id:     agentIdEl     ? agentIdEl.value.trim()     || null : null,
-      agent_name:   agentNameEl   ? agentNameEl.value.trim()   || null : null,
-      is_published: isPublished,
-      language:     languageEl    ? languageEl.value.trim()    || null : null,
-      version:      version,
-      llm_id:       llmIdEl       ? llmIdEl.value.trim()       || null : null,
-      prompt_llm:   promptLlmEl   ? promptLlmEl.value.trim()   || null : null,
-      prompt:       promptEl      ? promptEl.value.trim()      || null : null,
-      intro_prompt: introPromptEl ? introPromptEl.value.trim() || null : null,
-      webhook_url:  webhookUrlEl  ? webhookUrlEl.value.trim()  || null : null,
+      agent_id:     agentId,
+      agent_name:   agentName || null,
+      agent_type:   agentType || null,
+      phone_area:   phoneArea || null,
+      agent_voice:  agentVoice || null,
+      intro_prompt: intro || null,
+      is_published: false,
+      language:     "en-US",
+      version:      1,
+    };
+
+    async function run(currentAuth) {
+      return fetch(baseUrl, {
+        method: "POST",
+        headers: {
+          ...supabaseHeaders(currentAuth.accessToken),
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify(payload),
+      });
+    }
+
+    try {
+      let res = await run(auth);
+      if (res.status === 401) {
+        const newAuth = await handleJwt401(res, "deploy assistant");
+        if (!newAuth) {
+          if (deployStatus) deployStatus.textContent = "Session expired. Please log in.";
+          return;
+        }
+        auth = newAuth;
+        res = await run(auth);
+      }
+
+      if (!res.ok) {
+        console.error("Assistant deploy HTTP error:", res.status, await res.text());
+        if (deployStatus) deployStatus.textContent = "Failed to deploy. Try again.";
+        return;
+      }
+
+      if (deployStatus) deployStatus.textContent = "Agent deployed!";
+      // Reload assistant data into manage view
+      await loadAssistant();
+    } catch (e) {
+      console.error("Assistant deploy error:", e);
+      if (deployStatus) deployStatus.textContent = "Failed to deploy. Try again.";
+    }
+  }
+
+  // ---- SAVE ASSISTANT (STEP 2) ----
+  async function saveAssistant() {
+    if (!form || !saveBtn) return;
+    saveBtn.disabled = true;
+    if (saveStatusEl) saveStatusEl.textContent = "Saving…";
+
+    const agentIdEl       = document.getElementById("asstAgentId");
+    const agentNameEl     = document.getElementById("asstAgentName");
+    const agentTypeEl     = document.getElementById("asstAgentType");
+    const phoneAreaEl     = document.getElementById("asstPhoneArea");
+    const phoneNumberEl   = document.getElementById("asstPhoneNumber");
+    const agentVoiceEl    = document.getElementById("asstAgentVoice");
+    const publishedEl     = document.getElementById("asstPublished");
+    const promptEl        = document.getElementById("asstPrompt");
+    const introPromptEl   = document.getElementById("asstIntroPrompt");
+    const webhookUrlEl    = document.getElementById("asstWebhookUrl");
+    const kbFileEl        = document.getElementById("asstKnowledgeFile");
+
+    const agentId = agentIdEl ? agentIdEl.value.trim() : null;
+
+    const kbFile = kbFileEl && kbFileEl.files && kbFileEl.files[0]
+      ? kbFileEl.files[0]
+      : null;
+
+    // For now we just store the filename/key – upload flow can be added later
+    const knowledgeKey = kbFile ? kbFile.name : null;
+
+    const rawPublished = publishedEl ? publishedEl.value : "false";
+    const isPublished  = rawPublished === "true";
+
+    const payload = {
+      user_id:       userId,
+      agent_id:      agentId || null,
+      agent_name:    agentNameEl   ? agentNameEl.value.trim()     || null : null,
+      agent_type:    agentTypeEl   ? agentTypeEl.value            || null : null,
+      phone_area:    phoneAreaEl   ? phoneAreaEl.value            || null : null,
+      phone_number:  phoneNumberEl ? phoneNumberEl.value.trim()   || null : null,
+      agent_voice:   agentVoiceEl  ? agentVoiceEl.value           || null : null,
+      is_published:  isPublished,
+      prompt:        promptEl      ? promptEl.value.trim()        || null : null,
+      intro_prompt:  introPromptEl ? introPromptEl.value.trim()   || null : null,
+      webhook_url:   webhookUrlEl  ? webhookUrlEl.value.trim()    || null : null,
+      knowledge_key: knowledgeKey,
     };
 
     async function run(currentAuth) {
@@ -362,7 +464,7 @@ async function initAccountAssistantView() {
       if (res.status === 401) {
         const newAuth = await handleJwt401(res, "save assistant");
         if (!newAuth) {
-          if (statusEl) statusEl.textContent = "Session expired. Please log in.";
+          if (saveStatusEl) saveStatusEl.textContent = "Session expired. Please log in.";
           saveBtn.disabled = false;
           return;
         }
@@ -372,24 +474,36 @@ async function initAccountAssistantView() {
 
       if (!res.ok) {
         console.error("Assistant save HTTP error:", res.status, await res.text());
-        if (statusEl) statusEl.textContent = "Save failed. Try again.";
+        if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
       } else {
-        if (statusEl) statusEl.textContent = "Saved.";
-        setTimeout(() => statusEl && (statusEl.textContent = ""), 1500);
+        if (saveStatusEl) saveStatusEl.textContent = "Saved.";
+        setTimeout(() => saveStatusEl && (saveStatusEl.textContent = ""), 1500);
       }
     } catch (e) {
       console.error("Assistant save error:", e);
-      if (statusEl) statusEl.textContent = "Save failed. Try again.";
+      if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
     } finally {
       if (saveBtn) saveBtn.disabled = false;
     }
   }
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    saveAssistant();
-  });
+  // Bind listeners
+  if (deployForm && !deployForm.dataset.bound) {
+    deployForm.dataset.bound = "1";
+    deployForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      deployAssistant();
+    });
+  }
 
+  if (form) {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      saveAssistant();
+    });
+  }
+
+  // Initial load
   loadAssistant();
 }
 
