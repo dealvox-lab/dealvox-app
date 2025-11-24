@@ -517,21 +517,35 @@ async function initApiKeySection() {
   const card = document.getElementById("apiKeyCard");
   if (!card) return; // partial not on this page
 
-  const { user } = await getAuthInfo();
-  if (!user) {
+  // We need both user and accessToken
+  let auth;
+  try {
+    auth = await getAuthInfo();
+  } catch (e) {
+    console.error("getAuthInfo failed (api key):", e);
     card.classList.add("hidden");
     return;
   }
 
-  const emptyEl      = document.getElementById("apiKeyEmpty");
-  const detailsEl    = document.getElementById("apiKeyDetails");
-  const maskedEl     = document.getElementById("apiKeyMasked");
-  const lastUpdatedEl= document.getElementById("apiKeyLastUpdated");
-  const statusEl     = document.getElementById("apiKeyStatus");
+  if (!auth.user || !auth.accessToken) {
+    card.classList.add("hidden");
+    return;
+  }
 
-  const generateBtn  = document.getElementById("apiKeyGenerateBtn");
-  const copyBtn      = document.getElementById("apiKeyCopyBtn");
-  const regenBtn     = document.getElementById("apiKeyRegenerateBtn");
+  const user = auth.user;
+
+  const emptyEl       = document.getElementById("apiKeyEmpty");
+  const detailsEl     = document.getElementById("apiKeyDetails");
+  const maskedEl      = document.getElementById("apiKeyMasked");
+  const lastUpdatedEl = document.getElementById("apiKeyLastUpdated");
+  const statusEl      = document.getElementById("apiKeyStatus");
+
+  const generateBtn   = document.getElementById("apiKeyGenerateBtn");
+  const copyBtn       = document.getElementById("apiKeyCopyBtn");
+  const regenBtn      = document.getElementById("apiKeyRegenerateBtn");
+
+  const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/api_clients`;
+  const rpcUrl  = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/rpc/create_user_api_key`;
 
   function setStatus(msg, isError = false) {
     if (!statusEl) return;
@@ -548,7 +562,7 @@ async function initApiKeySection() {
     emptyEl.classList.remove("hidden");
     detailsEl.classList.add("hidden");
     currentApiKeyPlain = null;
-    if (maskedEl) maskedEl.textContent = "••••••";
+    if (maskedEl)      maskedEl.textContent = "••••••";
     if (lastUpdatedEl) lastUpdatedEl.textContent = "";
   }
 
@@ -558,81 +572,113 @@ async function initApiKeySection() {
 
     const prefix = row.key_prefix;
     const suffix = row.key_suffix;
-
     maskedEl.textContent = maskFromParts(prefix, suffix);
 
     currentApiKeyPlain = plainKeyMaybe || null;
 
     if (row.created_at && lastUpdatedEl) {
       const d = new Date(row.created_at);
-      lastUpdatedEl.textContent =
-        "Last generated: " + d.toLocaleString();
+      lastUpdatedEl.textContent = "Last generated: " + d.toLocaleString();
     }
   }
 
-  // --- 1) Load existing key row (no plaintext, only prefix/suffix) ---
+  // --- 1) Load existing key via REST ---
 
   async function loadExistingKey() {
     setStatus("Loading API key...");
 
-    const { data, error } = await supabase
-      .from("api_clients")
-      .select("id, user_id, key_prefix, key_suffix, created_at, active")
-      .eq("user_id", user.id)
-      .eq("active", true)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const params = new URLSearchParams();
+    params.set("select", "id,user_id,key_prefix,key_suffix,created_at,active");
+    params.set("user_id", `eq.${user.id}`);
+    params.set("active", "eq.true");
+    params.set("order", "created_at.desc");
+    params.set("limit", "1");
 
-    if (error) {
-      console.error("loadExistingKey error", error);
+    try {
+      const res = await fetch(`${baseUrl}?${params.toString()}`, {
+        headers: supabaseHeaders(auth.accessToken),
+      });
+
+      if (res.status === 401) {
+        // optional: refresh using handleJwt401 like other sections
+        setStatus("Session expired. Please log in.", true);
+        showEmpty();
+        return;
+      }
+
+      if (!res.ok) {
+        console.error("loadExistingKey HTTP error", res.status, await res.text());
+        setStatus("Could not load API key.", true);
+        showEmpty();
+        return;
+      }
+
+      const rows = await res.json();
+      const data = rows && rows[0];
+
+      if (!data) {
+        setStatus("");
+        showEmpty();
+        return;
+      }
+
+      showDetails(data, null); // no plaintext on reload
+      setStatus("");
+    } catch (err) {
+      console.error("loadExistingKey error", err);
       setStatus("Could not load API key.", true);
       showEmpty();
-      return;
     }
-
-    if (!data) {
-      setStatus("");
-      showEmpty();
-      return;
-    }
-
-    showDetails(data, null); // no plaintext on reload
-    setStatus("");
   }
 
-  // --- 2) Generate / refresh via RPC ---
+  // --- 2) Generate / refresh via RPC REST endpoint ---
 
   async function generateOrRefreshKey() {
     setStatus("Generating new API key...");
     if (generateBtn) generateBtn.disabled = true;
-    if (regenBtn) regenBtn.disabled = true;
+    if (regenBtn)    regenBtn.disabled = true;
 
-    const { data, error } = await supabase.rpc("create_user_api_key");
+    try {
+      const res = await fetch(rpcUrl, {
+        method: "POST",
+        headers: supabaseHeaders(auth.accessToken),
+        body: JSON.stringify({}) // function has no args but POST must have a body
+      });
 
-    if (generateBtn) generateBtn.disabled = false;
-    if (regenBtn) regenBtn.disabled = false;
+      if (res.status === 401) {
+        setStatus("Session expired. Please log in.", true);
+        return;
+      }
 
-    if (error) {
-      console.error("create_user_api_key error", error);
+      if (!res.ok) {
+        console.error("create_user_api_key HTTP error", res.status, await res.text());
+        setStatus("Could not generate API key.", true);
+        return;
+      }
+
+      const data = await res.json();
+      // data: { id, api_key, created_at, key_prefix, key_suffix }
+
+      const row = {
+        id:          data.id,
+        user_id:     user.id,
+        key_prefix:  data.key_prefix,
+        key_suffix:  data.key_suffix,
+        created_at:  data.created_at,
+        active:      true,
+      };
+
+      currentApiKeyPlain = data.api_key || null;
+
+      showDetails(row, currentApiKeyPlain);
+      setStatus("New API key generated. Save it in a secure place.");
+    } catch (err) {
+      console.error("generateOrRefreshKey error", err);
       setStatus("Could not generate API key.", true);
-      return;
+    } finally {
+      if (generateBtn) generateBtn.disabled = false;
+      if (regenBtn)    regenBtn.disabled = false;
     }
-
-    // data: { id, api_key, created_at, key_prefix, key_suffix }
-    const row = {
-      id:          data.id,
-      user_id:     user.id,
-      key_prefix:  data.key_prefix,
-      key_suffix:  data.key_suffix,
-      created_at:  data.created_at,
-      active:      true,
-    };
-
-    currentApiKeyPlain = data.api_key || null;
-
-    showDetails(row, currentApiKeyPlain);
-    setStatus("New API key generated. Save it in a secure place.");
   }
 
   // --- 3) Copy full key to clipboard ---
@@ -654,24 +700,7 @@ async function initApiKeySection() {
   // --- 4) Wire up buttons ---
 
   generateBtn?.addEventListener("click", () => {
-    generateOrRefreshKey();
-  });
-
-  regenBtn?.addEventListener("click", () => {
-    const ok = window.confirm(
-      "Refresh key? Your existing key will stop working."
-    );
-    if (!ok) return;
-    generateOrRefreshKey();
-  });
-
-  copyBtn?.addEventListener("click", () => {
-    copyKey();
-  });
-
-  // --- Init ---
-  await loadExistingKey();
-}
+  generateOrRefres
 
 // ----------------------------------------------------
 // SPA NAV + PARTIAL LOADING
