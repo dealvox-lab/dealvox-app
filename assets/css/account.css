@@ -364,3 +364,84 @@
 .hint.small.danger {
   color: #b91c1c;
 }
+
+/* Voices grid */
+.voices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+  margin-top: 14px;
+}
+
+.voice-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  align-items: flex-start;
+}
+
+.voice-avatar-wrapper {
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.voice-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.voice-body {
+  flex: 1;
+}
+
+.voice-name {
+  margin: 0 0 4px 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.voice-meta {
+  margin: 0 0 8px 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+/* Secondary button for previews */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-secondary.small {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-secondary:hover {
+  background: rgba(32, 117, 174, 0.06);
+}
+
+.voice-preview-btn.playing {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+
