@@ -559,39 +559,65 @@ async function initApiKeySection() {
   }
   
   function showEmpty() {
-    if (emptyEl)   emptyEl.style.display   = "block";
-    if (detailsEl) detailsEl.style.display = "none";
-
-    currentApiKeyPlain = null;
-
-    if (maskedEl)      maskedEl.textContent = "••••••";
-    if (lastUpdatedEl) lastUpdatedEl.textContent = "";
+  if (emptyEl) {
+    emptyEl.classList.remove("hidden");
+    emptyEl.style.display = "block";
   }
+
+  if (detailsEl) {
+    detailsEl.classList.add("hidden");
+    detailsEl.style.display = "none";
+  }
+
+  currentApiKeyPlain = null;
+
+  if (maskedEl)      maskedEl.textContent = "••••••";
+  if (lastUpdatedEl) lastUpdatedEl.textContent = "";
+
+  if (copyBtn) {
+    copyBtn.disabled = true;
+    copyBtn.style.display = "none";   // 👈 completely hide
+  }
+}
 
   function showDetails(row, plainKeyMaybe) {
-    if (emptyEl)   emptyEl.style.display   = "none";   // 👈 hide the “Generate” block
-    if (detailsEl) detailsEl.style.display = "block";  // 👈 show the key row
+  if (emptyEl) {
+    emptyEl.classList.add("hidden");
+    emptyEl.style.display = "none";
+  }
 
-    const prefix = row.key_prefix;
-    const suffix = row.key_suffix;
+  if (detailsEl) {
+    detailsEl.classList.remove("hidden");
+    detailsEl.style.display = "block";
+  }
 
-    if (maskedEl) {
-      maskedEl.textContent = prefix && suffix
-        ? `${prefix}•••${suffix}`
-        : "••••••";
-    }
+  const prefix = row.key_prefix;
+  const suffix = row.key_suffix;
 
-    currentApiKeyPlain = plainKeyMaybe || null;
+  if (maskedEl) {
+    maskedEl.textContent =
+      prefix && suffix ? `${prefix}•••${suffix}` : "••••••";
+  }
 
-    if (copyBtn) {
-    copyBtn.disabled = !currentApiKeyPlain;
-    }
+  currentApiKeyPlain = plainKeyMaybe || null;
 
-    if (row.created_at && lastUpdatedEl) {
-      const d = new Date(row.created_at);
-      lastUpdatedEl.textContent = "Last generated: " + d.toLocaleString();
+  if (copyBtn) {
+    if (currentApiKeyPlain) {
+      // first time after generation → show & enable Copy
+      copyBtn.style.display = "inline-flex";
+      copyBtn.disabled = false;
+    } else {
+      // after reload → hide Copy completely
+      copyBtn.style.display = "none";
+      copyBtn.disabled = true;
     }
   }
+
+  if (row.created_at && lastUpdatedEl) {
+    const d = new Date(row.created_at);
+    lastUpdatedEl.textContent = "Last generated: " + d.toLocaleString();
+  }
+}
 
   // --- 1) Load existing key via REST ---
 
