@@ -549,9 +549,6 @@ async function initApiKeySection() {
   const rpcUrl  = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/rpc/create_user_api_key`;
 
   // --- Webhook helper elements (how to start a call) ---
-  const endpointEl       = document.getElementById("apiWebhookEndpoint");
-  const bodyEl           = document.getElementById("apiWebhookBody");
-  const webhookStatusEl  = document.getElementById("apiWebhookStatus");
   const fromNumberHintEl = document.getElementById("apiFromNumberHint");
 
   let assistantPhone = null; // from assistants.phone_number
