@@ -40,47 +40,7 @@
   <p id="apiKeyStatus" class="status-text"></p>
 </div>
 
-<!-- New: how to trigger a phone call via webhook -->
-<div class="card">
-  <section class="api-howto">
-  <h3>Start a call via webhook</h3>
-  <p>
-    Use this endpoint from your CRM, n8n, Make, or any backend to start an outbound call with your
-    deployed assistant.
-  </p>
-
-  <div class="api-howto-block">
-    <!-- Endpoint -->
-    <div class="api-howto-item">
-      <div class="api-howto-label-row">
-        <span class="field-label">Endpoint</span>
-        <button
-          type="button"
-          id="apiWebhookEndpointCopy"
-          class="copy-btn"
-          aria-label="Copy endpoint URL"
-        >
-          ⧉
-        </button>
-      </div>
-      <pre id="apiWebhookEndpoint" class="code-block">
-https://dealvox-api.ongo-promotion.workers.dev/v2/create-phone-call</pre>
-    </div>
-
-    <!-- JSON payload -->
-    <div class="api-howto-item">
-      <div class="api-howto-label-row">
-        <span class="field-label">JSON payload</span>
-        <button
-          type="button"
-          id="apiWebhookBodyCopy"
-          class="copy-btn"
-          aria-label="Copy JSON payload"
-        >
-          ⧉
-        </button>
-      </div>
-      <!-- -----------------------------------------
+<!-- -----------------------------------------
      CALL WEBHOOK EXAMPLE
 ------------------------------------------ -->
 <div class="card" id="apiCallExample" style="margin-top: 32px;">
@@ -125,25 +85,4 @@ https://dealvox-api.ongo-promotion.workers.dev/v2/create-phone-call</pre>
     Your assistant has no phone number yet. Buy a number first.
   </p>
 
-</div>
-
-      <!-- Will be filled / updated by JS so from_number matches assistant phone -->
-      <pre id="apiWebhookBody" class="code-block"></pre>
-
-      <!-- Shown only if we don't find a phone_number for the assistant -->
-      <p class="hint small danger" id="apiFromNumberHint" style="display:none;">
-        Buy a number first for your assistant (Assistant tab) – we’ll auto-fill
-        <code>from_number</code> once it’s available.
-      </p>
-    </div>
-
-    <p class="hint small">
-      When calling this endpoint, send your personal API key in the
-      <code>X-Api-Key</code> header. <strong>Insert a saved API key</strong> from the
-      section above.
-    </p>
-
-    <p class="hint small" id="apiWebhookStatus"></p>
-  </div>
-</section>
 </div>
