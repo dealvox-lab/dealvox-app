@@ -666,6 +666,48 @@ async function initApiKeySection() {
     bodyEl.textContent = JSON.stringify(examplePayload, null, 2);
   }
 
+  // --- Headers copy handler ---
+const headersExampleEl = document.getElementById("apiHeadersExample");
+const headersCopyBtn   = document.getElementById("apiHeadersCopy");
+const apiKeyHintEl     = document.getElementById("apiApiKeyHint");
+
+// When API key becomes available → update header example
+function refreshHeaderExample() {
+  if (!headersExampleEl) return;
+
+  if (currentApiKeyPlain) {
+    headersExampleEl.textContent = JSON.stringify(
+      {
+        "Content-Type": "application/json",
+        "X-Api-Key": currentApiKeyPlain
+      },
+      null,
+      2
+    );
+    apiKeyHintEl.style.display = "none";
+  } else {
+    headersExampleEl.textContent = JSON.stringify(
+      {
+        "Content-Type": "application/json",
+        "X-Api-Key": "INSERT_YOUR_API_KEY_HERE"
+      },
+      null,
+      2
+    );
+    apiKeyHintEl.style.display = "block";
+  }
+}
+
+// When key loads OR generates
+refreshHeaderExample();
+
+// Refresh header preview whenever key updates
+const originalShowDetails = showDetails;
+showDetails = function(row, key) {
+  originalShowDetails(row, key);
+  refreshHeaderExample();
+};
+
   // --- Load assistant phone_number from Supabase (assistants table) ---
   async function loadAssistantPhone() {
     if (!auth.accessToken || !user) return;
@@ -857,6 +899,16 @@ async function initApiKeySection() {
   copyBtn?.addEventListener("click", () => {
     copyKey();
   });
+
+  headersCopyBtn?.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(headersExampleEl.textContent);
+    setWebhookStatus("Headers copied.");
+  } catch (err) {
+    console.error("Copy headers failed:", err);
+    setWebhookStatus("Could not copy headers.");
+  }
+});
 
   // Webhook copy buttons
   endpointCopyBtn?.addEventListener("click", async () => {
