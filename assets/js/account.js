@@ -695,13 +695,14 @@ async function initApiKeySection() {
 
   async function copyKey() {
     if (!currentApiKeyPlain) {
-      setStatus((
+      setStatus(
     "For security, the full key is only shown right after generation. " +
     "Click “Refresh key” to create a new one if you’ve lost it.",
     true
   );
       return;
     }
+    
     try {
       await navigator.clipboard.writeText(currentApiKeyPlain);
       setStatus("API key copied to clipboard.");
