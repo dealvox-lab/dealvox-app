@@ -1,0 +1,218 @@
+<div class="card">
+  <h2>Voices</h2>
+  <p>
+    Preview the available Dealvox voices. Each card shows the avatar, accent,
+    gender, age range and a short audio sample so you can pick a tone that fits
+    your assistant.
+  </p>
+
+  <div id="voicesList" class="voices-grid">
+
+    <!-- Repeat this <article> block for every row in voices.csv -->
+
+    <!-- Billy -->
+    <article class="voice-card">
+      <div class="voice-avatar-wrapper">
+        <img
+          src="https://storage.googleapis.com/dealvox-voices/billy.png"
+          alt="Billy avatar"
+          class="voice-avatar"
+        />
+      </div>
+      <div class="voice-body">
+        <h3 class="voice-name">Billy</h3>
+        <p class="voice-meta">
+          <span>American</span> · <span>Male</span> · <span>Young</span>
+        </p>
+        <button
+          type="button"
+          class="btn-secondary small voice-preview-btn"
+          data-audio="https://storage.googleapis.com/dealvox-voices/billy_preview.mp3"
+        >
+          ▶ Preview
+        </button>
+      </div>
+    </article>
+
+    <!-- Lily -->
+    <article class="voice-card">
+      <div class="voice-avatar-wrapper">
+        <img
+          src="https://storage.googleapis.com/dealvox-voices/lily.png"
+          alt="Lily avatar"
+          class="voice-avatar"
+        />
+      </div>
+      <div class="voice-body">
+        <h3 class="voice-name">Lily</h3>
+        <p class="voice-meta">
+          <span>American</span> · <span>Female</span> · <span>Young</span>
+        </p>
+        <button
+          type="button"
+          class="btn-secondary small voice-preview-btn"
+          data-audio="https://storage.googleapis.com/dealvox-voices/lily_preview.mp3"
+        >
+          ▶ Preview
+        </button>
+      </div>
+    </article>
+
+    <!-- Marissa -->
+    <article class="voice-card">
+      <div class="voice-avatar-wrapper">
+        <img
+          src="https://storage.googleapis.com/dealvox-voices/marissa.png"
+          alt="Marissa avatar"
+          class="voice-avatar"
+        />
+      </div>
+      <div class="voice-body">
+        <h3 class="voice-name">Marissa</h3>
+        <p class="voice-meta">
+          <span>American</span> · <span>Female</span> · <span>Young</span>
+        </p>
+        <button
+          type="button"
+          class="btn-secondary small voice-preview-btn"
+          data-audio="https://storage.googleapis.com/dealvox-voices/marissa_preview.mp3"
+        >
+          ▶ Preview
+        </button>
+      </div>
+    </article>
+
+    <!-- Bing -->
+    <article class="voice-card">
+      <div class="voice-avatar-wrapper">
+        <img
+          src="https://storage.googleapis.com/dealvox-voices/bing.png"
+          alt="Bing avatar"
+          class="voice-avatar"
+        />
+      </div>
+      <div class="voice-body">
+        <h3 class="voice-name">Bing</h3>
+        <p class="voice-meta">
+          <span>American</span> · <span>Male</span> · <span>Young</span>
+        </p>
+        <button
+          type="button"
+          class="btn-secondary small voice-preview-btn"
+          data-audio="https://storage.googleapis.com/dealvox-voices/bing_preview.mp3"
+        >
+          ▶ Preview
+        </button>
+      </div>
+    </article>
+
+    <!-- Jenny -->
+    <article class="voice-card">
+      <div class="voice-avatar-wrapper">
+        <img
+          src="https://storage.googleapis.com/dealvox-voices/jenny.png"
+          alt="Jenny avatar"
+          class="voice-avatar"
+        />
+      </div>
+      <div class="voice-body">
+        <h3 class="voice-name">Jenny</h3>
+        <p class="voice-meta">
+          <span>American</span> · <span>Female</span> · <span>Young</span>
+        </p>
+        <button
+          type="button"
+          class="btn-secondary small voice-preview-btn"
+          data-audio="https://storage.googleapis.com/dealvox-voices/jenny_preview.mp3"
+        >
+          ▶ Preview
+        </button>
+      </div>
+    </article>
+
+    <!-- Lucas -->
+    <article class="voice-card">
+      <div class="voice-avatar-wrapper">
+        <img
+          src="https://storage.googleapis.com/dealvox-voices/lucas.png"
+          alt="Lucas avatar"
+          class="voice-avatar"
+        />
+      </div>
+      <div class="voice-body">
+        <h3 class="voice-name">Lucas</h3>
+        <p class="voice-meta">
+          <span>American</span> · <span>Male</span> · <span>Middle Aged</span>
+        </p>
+        <button
+          type="button"
+          class="btn-secondary small voice-preview-btn"
+          data-audio="https://storage.googleapis.com/dealvox-voices/lucas_preview.mp3"
+        >
+          ▶ Preview
+        </button>
+      </div>
+    </article>
+
+    <!-- …continue duplicating for all rows in voices.csv -->
+
+  </div>
+
+  <!-- Shared audio player (reused by all preview buttons) -->
+  <audio id="voicePreviewPlayer" preload="none"></audio>
+</div>
+
+<script>
+  (function () {
+    const container = document.getElementById("voicesList");
+    const player = document.getElementById("voicePreviewPlayer");
+    if (!container || !player) return;
+
+    let currentBtn = null;
+
+    container.addEventListener("click", (e) => {
+      const btn = e.target.closest(".voice-preview-btn");
+      if (!btn) return;
+
+      const url = btn.dataset.audio;
+      if (!url) return;
+
+      // Toggle if the same button is pressed again
+      if (currentBtn === btn && !player.paused) {
+        player.pause();
+        btn.textContent = "▶ Preview";
+        btn.classList.remove("playing");
+        currentBtn = null;
+        return;
+      }
+
+      // Reset previous button text
+      if (currentBtn && currentBtn !== btn) {
+        currentBtn.textContent = "▶ Preview";
+        currentBtn.classList.remove("playing");
+      }
+
+      currentBtn = btn;
+      btn.textContent = "⏸ Pause";
+      btn.classList.add("playing");
+
+      if (player.src !== url) {
+        player.src = url;
+      }
+
+      player
+        .play()
+        .catch((err) => {
+          console.error("Audio play failed", err);
+        });
+    });
+
+    player.addEventListener("ended", () => {
+      if (currentBtn) {
+        currentBtn.textContent = "▶ Preview";
+        currentBtn.classList.remove("playing");
+        currentBtn = null;
+      }
+    });
+  })();
+</script>
