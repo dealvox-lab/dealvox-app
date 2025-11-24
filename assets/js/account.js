@@ -508,7 +508,7 @@ async function initAccountAssistantView() {
 }
 
 // ----------------------------------------------------
-// API KEY SECTION (account-api.html)
+// API KEY SECTION (API tab)
 // ----------------------------------------------------
 
 let currentApiKeyPlain = null; // full key only held in memory
@@ -600,7 +600,6 @@ async function initApiKeySection() {
       });
 
       if (res.status === 401) {
-        // optional: refresh using handleJwt401 like other sections
         setStatus("Session expired. Please log in.", true);
         showEmpty();
         return;
@@ -642,7 +641,7 @@ async function initApiKeySection() {
       const res = await fetch(rpcUrl, {
         method: "POST",
         headers: supabaseHeaders(auth.accessToken),
-        body: JSON.stringify({}) // function has no args but POST must have a body
+        body: JSON.stringify({}) // function has no args
       });
 
       if (res.status === 401) {
@@ -700,7 +699,22 @@ async function initApiKeySection() {
   // --- 4) Wire up buttons ---
 
   generateBtn?.addEventListener("click", () => {
-  generateOrRefres
+    generateOrRefreshKey();
+  });
+
+  regenBtn?.addEventListener("click", () => {
+    const ok = window.confirm("Refresh key? Your existing key will stop working.");
+    if (!ok) return;
+    generateOrRefreshKey();
+  });
+
+  copyBtn?.addEventListener("click", () => {
+    copyKey();
+  });
+
+  // --- Init ---
+  await loadExistingKey();
+}
 
 // ----------------------------------------------------
 // SPA NAV + PARTIAL LOADING
