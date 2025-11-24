@@ -514,7 +514,7 @@ async function initAccountAssistantView() {
 let currentApiKeyPlain = null; // full key only held in memory
 
 async function initApiKeySection() {
-  const card = document.getElementById("apiKeyCard");
+  const card       = document.getElementById("apiKeyCard");
   const copyHintEl = document.getElementById("apiKeyCopyHint");
   if (!card) return; // partial not on this page
 
@@ -548,83 +548,170 @@ async function initApiKeySection() {
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/api_clients`;
   const rpcUrl  = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/rpc/create_user_api_key`;
 
+  // --- Webhook helper elements (how to start a call) ---
+  const endpointEl       = document.getElementById("apiWebhookEndpoint");
+  const endpointCopyBtn  = document.getElementById("apiWebhookEndpointCopy");
+  const bodyEl           = document.getElementById("apiWebhookBody");
+  const bodyCopyBtn      = document.getElementById("apiWebhookBodyCopy");
+  const webhookStatusEl  = document.getElementById("apiWebhookStatus");
+  const fromNumberHintEl = document.getElementById("apiFromNumberHint");
+
+  let assistantPhone = null; // from assistants.phone_number
+
   function setStatus(msg, isError = false) {
     if (!statusEl) return;
     statusEl.textContent = msg || "";
     statusEl.classList.toggle("error", !!isError);
   }
 
+  function setWebhookStatus(msg) {
+    if (!webhookStatusEl) return;
+    webhookStatusEl.textContent = msg || "";
+    if (!msg) return;
+    clearTimeout(setWebhookStatus._timer);
+    setWebhookStatus._timer = setTimeout(() => {
+      webhookStatusEl.textContent = "";
+    }, 2000);
+  }
+
   function maskFromParts(prefix, suffix) {
     if (!prefix || !suffix) return "••••••";
     return `${prefix}•••${suffix}`;
   }
-  
+
   function showEmpty() {
-  if (emptyEl) {
-    emptyEl.classList.remove("hidden");
-    emptyEl.style.display = "block";
-  }
+    if (emptyEl) {
+      emptyEl.classList.remove("hidden");
+      emptyEl.style.display = "block";
+    }
 
-  if (detailsEl) {
-    detailsEl.classList.add("hidden");
-    detailsEl.style.display = "none";
-  }
+    if (detailsEl) {
+      detailsEl.classList.add("hidden");
+      detailsEl.style.display = "none";
+    }
 
-  currentApiKeyPlain = null;
+    currentApiKeyPlain = null;
 
-  if (maskedEl)      maskedEl.textContent = "••••••";
-  if (lastUpdatedEl) lastUpdatedEl.textContent = "";
+    if (maskedEl)      maskedEl.textContent = "••••••";
+    if (lastUpdatedEl) lastUpdatedEl.textContent = "";
 
-  if (copyBtn) {
-    copyBtn.disabled = true;
-    copyBtn.style.display = "none";   // 👈 completely hide
-  }
-
-  if (copyHintEl) {
-    copyHintEl.style.display = "none";
-  }
-}
-
-  function showDetails(row, plainKeyMaybe) {
-  if (emptyEl) {
-    emptyEl.classList.add("hidden");
-    emptyEl.style.display = "none";
-  }
-
-  if (detailsEl) {
-    detailsEl.classList.remove("hidden");
-    detailsEl.style.display = "block";
-  }
-
-  const prefix = row.key_prefix;
-  const suffix = row.key_suffix;
-
-  if (maskedEl) {
-    maskedEl.textContent =
-      prefix && suffix ? `${prefix}•••${suffix}` : "••••••";
-  }
-
-  currentApiKeyPlain = plainKeyMaybe || null;
-
-  if (copyBtn) {
-    if (currentApiKeyPlain) {
-      copyBtn.style.display = "inline-flex";
-      copyBtn.disabled = false;
-
-      if (copyHintEl) copyHintEl.style.display = "block";
-    } else {
-      copyBtn.style.display = "none";
+    if (copyBtn) {
       copyBtn.disabled = true;
+      copyBtn.style.display = "none"; // completely hide
+    }
 
-      if (copyHintEl) copyHintEl.style.display = "none";
+    if (copyHintEl) {
+      copyHintEl.style.display = "none";
     }
   }
-    
-  if (row.created_at && lastUpdatedEl) {
-    const d = new Date(row.created_at);
-    lastUpdatedEl.textContent = "Last generated: " + d.toLocaleString();
+
+  function showDetails(row, plainKeyMaybe) {
+    if (emptyEl) {
+      emptyEl.classList.add("hidden");
+      emptyEl.style.display = "none";
+    }
+
+    if (detailsEl) {
+      detailsEl.classList.remove("hidden");
+      detailsEl.style.display = "block";
+    }
+
+    const prefix = row.key_prefix;
+    const suffix = row.key_suffix;
+
+    if (maskedEl) {
+      maskedEl.textContent =
+        prefix && suffix ? `${prefix}•••${suffix}` : "••••••";
+    }
+
+    currentApiKeyPlain = plainKeyMaybe || null;
+
+    if (copyBtn) {
+      if (currentApiKeyPlain) {
+        copyBtn.style.display = "inline-flex";
+        copyBtn.disabled = false;
+
+        if (copyHintEl) copyHintEl.style.display = "block";
+      } else {
+        copyBtn.style.display = "none";
+        copyBtn.disabled = true;
+
+        if (copyHintEl) copyHintEl.style.display = "none";
+      }
+    }
+
+    if (row.created_at && lastUpdatedEl) {
+      const d = new Date(row.created_at);
+      lastUpdatedEl.textContent = "Last generated: " + d.toLocaleString();
+    }
   }
-}
+
+  // --- Render webhook JSON payload, using assistantPhone if available ---
+  function renderWebhookBody() {
+    if (!bodyEl) return;
+
+    const from = assistantPhone || "YOUR_ASSISTANT_NUMBER";
+
+    const examplePayload = {
+      from_number: from,
+      to_number: "+12137774445",
+      retell_llm_dynamic_variables: {
+        firstName: "John",
+        lastName: "Doe",
+        company: "Acme Inc.",
+        industry: "Finance"
+      }
+    };
+
+    bodyEl.textContent = JSON.stringify(examplePayload, null, 2);
+  }
+
+  // --- Load assistant phone_number from Supabase (assistants table) ---
+  async function loadAssistantPhone() {
+    if (!auth.accessToken || !user) return;
+
+    const assistantsUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/assistants`;
+    const params = new URLSearchParams();
+    params.set("select", "phone_number");
+    params.set("user_id", `eq.${user.id}`);
+    params.set("limit", "1");
+
+    try {
+      const res = await fetch(`${assistantsUrl}?${params.toString()}`, {
+        headers: supabaseHeaders(auth.accessToken),
+      });
+
+      if (!res.ok) {
+        console.warn(
+          "assistants phone load error:",
+          res.status,
+          await res.text()
+        );
+        assistantPhone = null;
+        if (fromNumberHintEl) fromNumberHintEl.style.display = "block";
+        renderWebhookBody();
+        return;
+      }
+
+      const rows = await res.json();
+      const data = rows && rows[0];
+
+      if (data && data.phone_number) {
+        assistantPhone = data.phone_number;
+        if (fromNumberHintEl) fromNumberHintEl.style.display = "none";
+      } else {
+        assistantPhone = null;
+        if (fromNumberHintEl) fromNumberHintEl.style.display = "block";
+      }
+
+      renderWebhookBody();
+    } catch (err) {
+      console.error("assistants phone load error:", err);
+      assistantPhone = null;
+      if (fromNumberHintEl) fromNumberHintEl.style.display = "block";
+      renderWebhookBody();
+    }
+  }
 
   // --- 1) Load existing key via REST ---
 
@@ -650,7 +737,11 @@ async function initApiKeySection() {
       }
 
       if (!res.ok) {
-        console.error("loadExistingKey HTTP error", res.status, await res.text());
+        console.error(
+          "loadExistingKey HTTP error",
+          res.status,
+          await res.text()
+        );
         setStatus("Could not load API key.", true);
         showEmpty();
         return;
@@ -694,7 +785,11 @@ async function initApiKeySection() {
       }
 
       if (!res.ok) {
-        console.error("create_user_api_key HTTP error", res.status, await res.text());
+        console.error(
+          "create_user_api_key HTTP error",
+          res.status,
+          await res.text()
+        );
         setStatus("Could not generate API key.", true);
         return;
       }
@@ -703,12 +798,12 @@ async function initApiKeySection() {
       // data: { id, api_key, created_at, key_prefix, key_suffix }
 
       const row = {
-        id:          data.id,
-        user_id:     user.id,
-        key_prefix:  data.key_prefix,
-        key_suffix:  data.key_suffix,
-        created_at:  data.created_at,
-        active:      true,
+        id:         data.id,
+        user_id:    user.id,
+        key_prefix: data.key_prefix,
+        key_suffix: data.key_suffix,
+        created_at: data.created_at,
+        active:     true,
       };
 
       currentApiKeyPlain = data.api_key || null;
@@ -729,13 +824,13 @@ async function initApiKeySection() {
   async function copyKey() {
     if (!currentApiKeyPlain) {
       setStatus(
-    "For security, the full key is only shown right after generation. " +
-    "Click “Refresh key” to create a new one if you’ve lost it.",
-    true
-  );
+        "For security, the full key is only shown right after generation. " +
+          "Click “Refresh key” to create a new one if you’ve lost it.",
+        true
+      );
       return;
     }
-    
+
     try {
       await navigator.clipboard.writeText(currentApiKeyPlain);
       setStatus("API key copied to clipboard.");
@@ -752,7 +847,9 @@ async function initApiKeySection() {
   });
 
   regenBtn?.addEventListener("click", () => {
-    const ok = window.confirm("Refresh key? Your existing key will stop working.");
+    const ok = window.confirm(
+      "Refresh key? Your existing key will stop working."
+    );
     if (!ok) return;
     generateOrRefreshKey();
   });
@@ -761,8 +858,35 @@ async function initApiKeySection() {
     copyKey();
   });
 
+  // Webhook copy buttons
+  endpointCopyBtn?.addEventListener("click", async () => {
+    if (!endpointEl) return;
+    try {
+      const txt = endpointEl.textContent.trim();
+      await navigator.clipboard.writeText(txt);
+      setWebhookStatus("Endpoint copied.");
+    } catch (err) {
+      console.error("Copy endpoint failed:", err);
+      setWebhookStatus("Could not copy endpoint.");
+    }
+  });
+
+  bodyCopyBtn?.addEventListener("click", async () => {
+    if (!bodyEl) return;
+    try {
+      const txt = bodyEl.textContent;
+      await navigator.clipboard.writeText(txt);
+      setWebhookStatus("JSON payload copied.");
+    } catch (err) {
+      console.error("Copy payload failed:", err);
+      setWebhookStatus("Could not copy payload.");
+    }
+  });
+
   // --- Init ---
   await loadExistingKey();
+  renderWebhookBody();       // initial placeholder JSON
+  await loadAssistantPhone(); // then try to replace from_number with real phone
 }
 
 // ----------------------------------------------------
