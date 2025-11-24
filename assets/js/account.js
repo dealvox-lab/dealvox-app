@@ -583,6 +583,10 @@ async function initApiKeySection() {
 
     currentApiKeyPlain = plainKeyMaybe || null;
 
+    if (copyBtn) {
+    copyBtn.disabled = !currentApiKeyPlain;
+    }
+
     if (row.created_at && lastUpdatedEl) {
       const d = new Date(row.created_at);
       lastUpdatedEl.textContent = "Last generated: " + d.toLocaleString();
@@ -691,7 +695,11 @@ async function initApiKeySection() {
 
   async function copyKey() {
     if (!currentApiKeyPlain) {
-      setStatus("No API key available to copy (reload and regenerate if needed).", true);
+      setStatus((
+    "For security, the full key is only shown right after generation. " +
+    "Click “Refresh key” to create a new one if you’ve lost it.",
+    true
+  );
       return;
     }
     try {
