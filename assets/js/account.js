@@ -515,6 +515,7 @@ let currentApiKeyPlain = null; // full key only held in memory
 
 async function initApiKeySection() {
   const card = document.getElementById("apiKeyCard");
+  const copyHintEl = document.getElementById("apiKeyCopyHint");
   if (!card) return; // partial not on this page
 
   // We need both user and accessToken
@@ -578,6 +579,10 @@ async function initApiKeySection() {
     copyBtn.disabled = true;
     copyBtn.style.display = "none";   // 👈 completely hide
   }
+
+  if (copyHintEl) {
+    copyHintEl.style.display = "none";
+  }
 }
 
   function showDetails(row, plainKeyMaybe) {
@@ -603,16 +608,18 @@ async function initApiKeySection() {
 
   if (copyBtn) {
     if (currentApiKeyPlain) {
-      // first time after generation → show & enable Copy
       copyBtn.style.display = "inline-flex";
       copyBtn.disabled = false;
+
+      if (copyHintEl) copyHintEl.style.display = "block";
     } else {
-      // after reload → hide Copy completely
       copyBtn.style.display = "none";
       copyBtn.disabled = true;
+
+      if (copyHintEl) copyHintEl.style.display = "none";
     }
   }
-
+    
   if (row.created_at && lastUpdatedEl) {
     const d = new Date(row.created_at);
     lastUpdatedEl.textContent = "Last generated: " + d.toLocaleString();
