@@ -669,7 +669,6 @@ async function initApiKeySection() {
 
   // --- Headers copy handler ---
 const headersExampleEl = document.getElementById("apiHeadersExample");
-const headersCopyBtn   = document.getElementById("apiHeadersCopy");
 const apiKeyHintEl     = document.getElementById("apiApiKeyHint");
 
 // When API key becomes available → update header example
