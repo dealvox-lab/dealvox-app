@@ -557,22 +557,29 @@ async function initApiKeySection() {
     if (!prefix || !suffix) return "••••••";
     return `${prefix}•••${suffix}`;
   }
-
+  
   function showEmpty() {
-    emptyEl.classList.remove("hidden");
-    detailsEl.classList.add("hidden");
+    if (emptyEl)   emptyEl.style.display   = "block";
+    if (detailsEl) detailsEl.style.display = "none";
+
     currentApiKeyPlain = null;
+
     if (maskedEl)      maskedEl.textContent = "••••••";
     if (lastUpdatedEl) lastUpdatedEl.textContent = "";
   }
 
   function showDetails(row, plainKeyMaybe) {
-    emptyEl.classList.add("hidden");
-    detailsEl.classList.remove("hidden");
+    if (emptyEl)   emptyEl.style.display   = "none";   // 👈 hide the “Generate” block
+    if (detailsEl) detailsEl.style.display = "block";  // 👈 show the key row
 
     const prefix = row.key_prefix;
     const suffix = row.key_suffix;
-    maskedEl.textContent = maskFromParts(prefix, suffix);
+
+    if (maskedEl) {
+      maskedEl.textContent = prefix && suffix
+        ? `${prefix}•••${suffix}`
+        : "••••••";
+    }
 
     currentApiKeyPlain = plainKeyMaybe || null;
 
