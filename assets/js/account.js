@@ -666,6 +666,12 @@ async function initApiKeySection() {
     bodyEl.textContent = JSON.stringify(examplePayload, null, 2);
   }
 
+  function flashCopyStatus(el) {
+  if (!el) return;
+  el.classList.add("visible");
+  setTimeout(() => el.classList.remove("visible"), 1800);
+}
+
   // --- Headers copy handler ---
 const headersExampleEl = document.getElementById("apiHeadersExample");
 const headersCopyBtn   = document.getElementById("apiHeadersCopy");
@@ -900,40 +906,47 @@ showDetails = function(row, key) {
     copyKey();
   });
 
-  headersCopyBtn?.addEventListener("click", async () => {
+  // Webhook copy buttons
+
+const endpointCopyBtn = document.getElementById("apiWebhookEndpointCopy");
+const endpointStatusEl = document.getElementById("apiWebhookEndpointStatus");
+const endpointEl = document.getElementById("apiWebhookEndpoint");
+
+endpointCopyBtn?.addEventListener("click", async () => {
   try {
-    await navigator.clipboard.writeText(headersExampleEl.textContent);
-    setWebhookStatus("Headers copied.");
+    await navigator.clipboard.writeText(endpointEl.textContent.trim());
+    flashCopyStatus(endpointStatusEl);
   } catch (err) {
-    console.error("Copy headers failed:", err);
-    setWebhookStatus("Could not copy headers.");
+    console.error("Endpoint copy failed", err);
   }
 });
 
-  // Webhook copy buttons
-  endpointCopyBtn?.addEventListener("click", async () => {
-    if (!endpointEl) return;
-    try {
-      const txt = endpointEl.textContent.trim();
-      await navigator.clipboard.writeText(txt);
-      setWebhookStatus("Endpoint copied.");
-    } catch (err) {
-      console.error("Copy endpoint failed:", err);
-      setWebhookStatus("Could not copy endpoint.");
-    }
-  });
 
-  bodyCopyBtn?.addEventListener("click", async () => {
-    if (!bodyEl) return;
-    try {
-      const txt = bodyEl.textContent;
-      await navigator.clipboard.writeText(txt);
-      setWebhookStatus("JSON payload copied.");
-    } catch (err) {
-      console.error("Copy payload failed:", err);
-      setWebhookStatus("Could not copy payload.");
-    }
-  });
+const headersCopyBtn = document.getElementById("apiHeadersCopy");
+const headersStatusEl = document.getElementById("apiHeadersCopyStatus");
+const headersEl = document.getElementById("apiHeadersExample");
+
+headersCopyBtn?.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(headersEl.textContent.trim());
+    flashCopyStatus(headersStatusEl);
+  } catch (err) {
+    console.error("Headers copy failed", err);
+  }
+});
+
+  const bodyCopyBtn = document.getElementById("apiWebhookBodyCopy");
+const bodyStatusEl = document.getElementById("apiWebhookBodyCopyStatus");
+const bodyEl = document.getElementById("apiWebhookBody");
+
+bodyCopyBtn?.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(bodyEl.textContent.trim());
+    flashCopyStatus(bodyStatusEl);
+  } catch (err) {
+    console.error("Payload copy failed", err);
+  }
+});
 
   // --- Init ---
   await loadExistingKey();
