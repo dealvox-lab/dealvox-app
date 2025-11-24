@@ -927,6 +927,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const VIEW_FILES = {
     account:   "/assets/partials/account-profile.html",
     assistant: "/assets/partials/account-assistant.html",
+    voices:    "/assets/partials/account-voices.html",
     api:       "/assets/partials/account-api.html",
     reports:   "/assets/partials/account-reports.html",
     spendings: "/assets/partials/account-spendings.html",
@@ -938,6 +939,7 @@ document.addEventListener("DOMContentLoaded", () => {
     account:   initAccountProfileView,
     assistant: initAccountAssistantView,
     api:       initApiKeySection,
+    voices:    () => {}, // no extra JS needed; partial has its own script
   };
 
   function setActiveLink(view) {
