@@ -290,3 +290,64 @@
   color: var(--accent) !important;
   font-weight:600;
 }
+
+.api-howto {
+  margin-top: 24px;
+}
+
+.api-howto-block {
+  margin-top: 8px;
+  border-radius: 14px;
+  border: 1px dashed var(--border);
+  padding: 16px;
+  background: #fff;
+}
+
+.api-howto-item + .api-howto-item {
+  margin-top: 16px;
+}
+
+.api-howto-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.field-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.code-block {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  white-space: pre; /* keep formatting */
+}
+
+.copy-btn {
+  border: none;
+  background: #e0f2fe;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  background: #bfdbfe;
+}
+
+.hint.small {
+  font-size: 0.78rem;
+}
+
+.hint.small.danger {
+  color: #b91c1c;
+}
