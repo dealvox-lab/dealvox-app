@@ -550,9 +550,7 @@ async function initApiKeySection() {
 
   // --- Webhook helper elements (how to start a call) ---
   const endpointEl       = document.getElementById("apiWebhookEndpoint");
-  const endpointCopyBtn  = document.getElementById("apiWebhookEndpointCopy");
   const bodyEl           = document.getElementById("apiWebhookBody");
-  const bodyCopyBtn      = document.getElementById("apiWebhookBodyCopy");
   const webhookStatusEl  = document.getElementById("apiWebhookStatus");
   const fromNumberHintEl = document.getElementById("apiFromNumberHint");
 
