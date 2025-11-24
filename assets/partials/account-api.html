@@ -41,7 +41,8 @@
 </div>
 
 <!-- New: how to trigger a phone call via webhook -->
-<section class="api-howto">
+<div class="card">
+  <section class="api-howto">
   <h3>Start a call via webhook</h3>
   <p>
     Use this endpoint from your CRM, n8n, Make, or any backend to start an outbound call with your
@@ -79,6 +80,53 @@ https://dealvox-api.ongo-promotion.workers.dev/v2/create-phone-call</pre>
           ⧉
         </button>
       </div>
+      <!-- -----------------------------------------
+     CALL WEBHOOK EXAMPLE
+------------------------------------------ -->
+<div class="card" id="apiCallExample" style="margin-top: 32px;">
+  <h2>How to Trigger a Phone Call via API</h2>
+  <p>
+    Use your API key to send a webhook request that tells your Retell agent to start a call immediately.
+  </p>
+
+  <!-- Endpoint -->
+  <label class="field-label">POST Endpoint</label>
+  <div class="code-row">
+    <code id="apiWebhookEndpoint">https://dealvox-api.YOUR_WORKER_DOMAIN.dev/v2/create-phone-call</code>
+    <button id="apiWebhookEndpointCopy" class="btn secondary small">Copy</button>
+  </div>
+  <p id="apiWebhookStatus" class="hint"></p>
+
+  <!-- HEADERS -->
+  <h3 style="margin-top: 26px;">Headers</h3>
+
+  <div class="code-row">
+    <code id="apiHeadersExample">
+{
+  "Content-Type": "application/json",
+  "X-Api-Key": "INSERT_YOUR_API_KEY_HERE"
+}
+    </code>
+    <button id="apiHeadersCopy" class="btn secondary small">Copy</button>
+  </div>
+  <p id="apiApiKeyHint" class="hint" style="display:none; color: #b91c1c;">
+    Insert a saved API key first.
+  </p>
+
+  <!-- BODY -->
+  <h3 style="margin-top: 26px;">Example JSON Payload</h3>
+
+  <div class="code-row">
+    <pre id="apiWebhookBody" class="code-block" style="white-space: pre-wrap;"></pre>
+    <button id="apiWebhookBodyCopy" class="btn secondary small">Copy</button>
+  </div>
+
+  <p id="apiFromNumberHint" class="hint" style="display:none; color:#b91c1c;">
+    Your assistant has no phone number yet. Buy a number first.
+  </p>
+
+</div>
+
       <!-- Will be filled / updated by JS so from_number matches assistant phone -->
       <pre id="apiWebhookBody" class="code-block"></pre>
 
@@ -98,4 +146,4 @@ https://dealvox-api.ongo-promotion.workers.dev/v2/create-phone-call</pre>
     <p class="hint small" id="apiWebhookStatus"></p>
   </div>
 </section>
-
+</div>
