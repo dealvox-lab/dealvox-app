@@ -508,105 +508,6 @@ async function initAccountAssistantView() {
 }
 
 // ----------------------------------------------------
-// SPA NAV + PARTIAL LOADING
-// ----------------------------------------------------
-
-document.addEventListener("DOMContentLoaded", () => {
-  const contentEl = document.getElementById("accountContent");
-  const viewEl    = document.getElementById("accountView");
-  const links     = document.querySelectorAll(".sidebar-nav .nav-link");
-  const emailEl   = document.getElementById("sidebarEmail");
-
-  const VIEW_FILES = {
-    account:   "/assets/partials/account-profile.html",
-    assistant: "/assets/partials/account-assistant.html",
-    api:       "/assets/partials/account-api.html",
-    reports:   "/assets/partials/account-reports.html",
-    spendings: "/assets/partials/account-spendings.html",
-    billing:   "/assets/partials/account-billing.html",
-    help:      "/assets/partials/account-help.html",
-  };
-
-  const viewInitializers = {
-    account:   initAccountProfileView,
-    assistant: initAccountAssistantView,
-  };
-
-  function setActiveLink(view) {
-    links.forEach(a => a.classList.toggle("active", a.dataset.view === view));
-  }
-
-  async function loadView(view) {
-    const file = VIEW_FILES[view];
-    if (!file) {
-      viewEl.innerHTML = `<div class="empty">Unknown section: <strong>${view}</strong></div>`;
-      return;
-    }
-
-    try {
-      contentEl.setAttribute("aria-busy", "true");
-      viewEl.innerHTML = `
-        <div class="loading">
-          <div class="spinner"></div>
-          <div>Loading…</div>
-        </div>`;
-
-      const res  = await fetch(file, { cache: "no-cache" });
-      const text = await res.text();
-      console.log("Loaded view:", view, "from", res.url, "status", res.status);
-      console.log("First 120 chars:", text.slice(0, 120));
-
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      viewEl.innerHTML = text;
-      setActiveLink(view);
-
-      if (viewInitializers[view]) viewInitializers[view]();
-
-      if (location.hash !== "#" + view) {
-        history.replaceState(null, "", "#" + view);
-      }
-      contentEl.focus();
-    } catch (err) {
-      console.error("Failed to load view", view, err);
-      viewEl.innerHTML = `<div class="empty">Could not load this section. Please try again.</div>`;
-    } finally {
-      contentEl.setAttribute("aria-busy", "false");
-    }
-  }
-
-  function viewFromHash() {
-    const hash = (location.hash || "").replace("#", "");
-    return hash && VIEW_FILES[hash] ? hash : "account";
-  }
-
-  links.forEach(a =>
-    a.addEventListener("click", (e) => {
-      e.preventDefault();
-      loadView(a.dataset.view);
-    })
-  );
-
-  window.addEventListener("hashchange", () => loadView(viewFromHash()));
-
-  // Sidebar email under logo
-  if (emailEl) {
-    (async () => {
-      try {
-        const auth = await getAuthInfo();
-        if (auth.user && auth.user.email) {
-          emailEl.textContent = auth.user.email;
-        } else {
-          emailEl.textContent = "";
-        }
-      } catch (e) {
-        console.error("Email load failed:", e);
-        emailEl.textContent = "";
-      }
-    })();
-  }
-
-  // ----------------------------------------------------
 // API KEY SECTION (account-api.html)
 // ----------------------------------------------------
 
@@ -772,12 +673,105 @@ async function initApiKeySection() {
   await loadExistingKey();
 }
 
-// Call this from your main init:
-document.addEventListener("DOMContentLoaded", () => {
-  // ...your existing account init...
-  initApiKeySection();
-});
+// ----------------------------------------------------
+// SPA NAV + PARTIAL LOADING
+// ----------------------------------------------------
 
+document.addEventListener("DOMContentLoaded", () => {
+  const contentEl = document.getElementById("accountContent");
+  const viewEl    = document.getElementById("accountView");
+  const links     = document.querySelectorAll(".sidebar-nav .nav-link");
+  const emailEl   = document.getElementById("sidebarEmail");
+
+  const VIEW_FILES = {
+    account:   "/assets/partials/account-profile.html",
+    assistant: "/assets/partials/account-assistant.html",
+    api:       "/assets/partials/account-api.html",
+    reports:   "/assets/partials/account-reports.html",
+    spendings: "/assets/partials/account-spendings.html",
+    billing:   "/assets/partials/account-billing.html",
+    help:      "/assets/partials/account-help.html",
+  };
+
+  const viewInitializers = {
+    account:   initAccountProfileView,
+    assistant: initAccountAssistantView,
+    api:       initApiKeySection,
+  };
+
+  function setActiveLink(view) {
+    links.forEach(a => a.classList.toggle("active", a.dataset.view === view));
+  }
+
+  async function loadView(view) {
+    const file = VIEW_FILES[view];
+    if (!file) {
+      viewEl.innerHTML = `<div class="empty">Unknown section: <strong>${view}</strong></div>`;
+      return;
+    }
+
+    try {
+      contentEl.setAttribute("aria-busy", "true");
+      viewEl.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <div>Loading…</div>
+        </div>`;
+
+      const res  = await fetch(file, { cache: "no-cache" });
+      const text = await res.text();
+      console.log("Loaded view:", view, "from", res.url, "status", res.status);
+      console.log("First 120 chars:", text.slice(0, 120));
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      viewEl.innerHTML = text;
+      setActiveLink(view);
+
+      if (viewInitializers[view]) viewInitializers[view]();
+
+      if (location.hash !== "#" + view) {
+        history.replaceState(null, "", "#" + view);
+      }
+      contentEl.focus();
+    } catch (err) {
+      console.error("Failed to load view", view, err);
+      viewEl.innerHTML = `<div class="empty">Could not load this section. Please try again.</div>`;
+    } finally {
+      contentEl.setAttribute("aria-busy", "false");
+    }
+  }
+
+  function viewFromHash() {
+    const hash = (location.hash || "").replace("#", "");
+    return hash && VIEW_FILES[hash] ? hash : "account";
+  }
+
+  links.forEach(a =>
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      loadView(a.dataset.view);
+    })
+  );
+
+  window.addEventListener("hashchange", () => loadView(viewFromHash()));
+
+  // Sidebar email under logo
+  if (emailEl) {
+    (async () => {
+      try {
+        const auth = await getAuthInfo();
+        if (auth.user && auth.user.email) {
+          emailEl.textContent = auth.user.email;
+        } else {
+          emailEl.textContent = "";
+        }
+      } catch (e) {
+        console.error("Email load failed:", e);
+        emailEl.textContent = "";
+      }
+    })();
+  }
 
   // Initial view
   loadView(viewFromHash());
