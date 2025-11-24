@@ -1,12 +1,41 @@
-<div class="card">
-  <h2>API settings</h2>
-  <p>Keys and webhooks used by your integration.</p>
-  <div class="field">
-    <label>Public API key</label>
-    <input class="input" value="pk_live_****************" readonly>
+<div class="card" id="apiKeyCard">
+  <h2>API Access</h2>
+  <p>
+    Use your personal API key to call the Dealvox API gateway.
+    Keep it secret – anyone with this key can use your account’s quota.
+  </p>
+
+  <!-- State: no key yet -->
+  <div id="apiKeyEmpty" class="api-empty">
+    <p>You don’t have an API key yet.</p>
+    <button id="apiKeyGenerateBtn" class="btn primary">
+      Generate API key
+    </button>
   </div>
-  <div class="field">
-    <label>Webhook URL</label>
-    <input class="input" placeholder="https://example.com/webhook">
+
+  <!-- State: key exists -->
+  <div id="apiKeyDetails" class="api-details hidden">
+    <label class="field-label">Your API key</label>
+
+    <div class="api-key-row">
+      <code id="apiKeyMasked" class="api-key-masked">dvk_•••xxx</code>
+
+      <button id="apiKeyCopyBtn" class="btn secondary small">
+        Copy
+      </button>
+
+      <button id="apiKeyRegenerateBtn" class="btn danger small">
+        Refresh key
+      </button>
+    </div>
+
+    <p class="hint">
+      For security reasons we only show the first 3 and last 3 characters.
+      You can still copy the full key using the Copy button.
+    </p>
+
+    <p class="hint" id="apiKeyLastUpdated"></p>
   </div>
+
+  <p id="apiKeyStatus" class="status-text"></p>
 </div>
