@@ -606,6 +606,179 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
   }
 
+  // ----------------------------------------------------
+// API KEY SECTION (account-api.html)
+// ----------------------------------------------------
+
+let currentApiKeyPlain = null; // full key only held in memory
+
+async function initApiKeySection() {
+  const card = document.getElementById("apiKeyCard");
+  if (!card) return; // partial not on this page
+
+  const { user } = await getAuthInfo();
+  if (!user) {
+    card.classList.add("hidden");
+    return;
+  }
+
+  const emptyEl      = document.getElementById("apiKeyEmpty");
+  const detailsEl    = document.getElementById("apiKeyDetails");
+  const maskedEl     = document.getElementById("apiKeyMasked");
+  const lastUpdatedEl= document.getElementById("apiKeyLastUpdated");
+  const statusEl     = document.getElementById("apiKeyStatus");
+
+  const generateBtn  = document.getElementById("apiKeyGenerateBtn");
+  const copyBtn      = document.getElementById("apiKeyCopyBtn");
+  const regenBtn     = document.getElementById("apiKeyRegenerateBtn");
+
+  function setStatus(msg, isError = false) {
+    if (!statusEl) return;
+    statusEl.textContent = msg || "";
+    statusEl.classList.toggle("error", !!isError);
+  }
+
+  function maskFromParts(prefix, suffix) {
+    if (!prefix || !suffix) return "••••••";
+    return `${prefix}•••${suffix}`;
+  }
+
+  function showEmpty() {
+    emptyEl.classList.remove("hidden");
+    detailsEl.classList.add("hidden");
+    currentApiKeyPlain = null;
+    if (maskedEl) maskedEl.textContent = "••••••";
+    if (lastUpdatedEl) lastUpdatedEl.textContent = "";
+  }
+
+  function showDetails(row, plainKeyMaybe) {
+    emptyEl.classList.add("hidden");
+    detailsEl.classList.remove("hidden");
+
+    const prefix = row.key_prefix;
+    const suffix = row.key_suffix;
+
+    maskedEl.textContent = maskFromParts(prefix, suffix);
+
+    currentApiKeyPlain = plainKeyMaybe || null;
+
+    if (row.created_at && lastUpdatedEl) {
+      const d = new Date(row.created_at);
+      lastUpdatedEl.textContent =
+        "Last generated: " + d.toLocaleString();
+    }
+  }
+
+  // --- 1) Load existing key row (no plaintext, only prefix/suffix) ---
+
+  async function loadExistingKey() {
+    setStatus("Loading API key...");
+
+    const { data, error } = await supabase
+      .from("api_clients")
+      .select("id, user_id, key_prefix, key_suffix, created_at, active")
+      .eq("user_id", user.id)
+      .eq("active", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error("loadExistingKey error", error);
+      setStatus("Could not load API key.", true);
+      showEmpty();
+      return;
+    }
+
+    if (!data) {
+      setStatus("");
+      showEmpty();
+      return;
+    }
+
+    showDetails(data, null); // no plaintext on reload
+    setStatus("");
+  }
+
+  // --- 2) Generate / refresh via RPC ---
+
+  async function generateOrRefreshKey() {
+    setStatus("Generating new API key...");
+    if (generateBtn) generateBtn.disabled = true;
+    if (regenBtn) regenBtn.disabled = true;
+
+    const { data, error } = await supabase.rpc("create_user_api_key");
+
+    if (generateBtn) generateBtn.disabled = false;
+    if (regenBtn) regenBtn.disabled = false;
+
+    if (error) {
+      console.error("create_user_api_key error", error);
+      setStatus("Could not generate API key.", true);
+      return;
+    }
+
+    // data: { id, api_key, created_at, key_prefix, key_suffix }
+    const row = {
+      id:          data.id,
+      user_id:     user.id,
+      key_prefix:  data.key_prefix,
+      key_suffix:  data.key_suffix,
+      created_at:  data.created_at,
+      active:      true,
+    };
+
+    currentApiKeyPlain = data.api_key || null;
+
+    showDetails(row, currentApiKeyPlain);
+    setStatus("New API key generated. Save it in a secure place.");
+  }
+
+  // --- 3) Copy full key to clipboard ---
+
+  async function copyKey() {
+    if (!currentApiKeyPlain) {
+      setStatus("No API key available to copy (reload and regenerate if needed).", true);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(currentApiKeyPlain);
+      setStatus("API key copied to clipboard.");
+    } catch (err) {
+      console.error("copyKey error", err);
+      setStatus("Could not copy to clipboard.", true);
+    }
+  }
+
+  // --- 4) Wire up buttons ---
+
+  generateBtn?.addEventListener("click", () => {
+    generateOrRefreshKey();
+  });
+
+  regenBtn?.addEventListener("click", () => {
+    const ok = window.confirm(
+      "Refresh key? Your existing key will stop working."
+    );
+    if (!ok) return;
+    generateOrRefreshKey();
+  });
+
+  copyBtn?.addEventListener("click", () => {
+    copyKey();
+  });
+
+  // --- Init ---
+  await loadExistingKey();
+}
+
+// Call this from your main init:
+document.addEventListener("DOMContentLoaded", () => {
+  // ...your existing account init...
+  initApiKeySection();
+});
+
+
   // Initial view
   loadView(viewFromHash());
 });
