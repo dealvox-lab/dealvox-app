@@ -283,8 +283,3 @@
   color: var(--muted);
   margin-top: -4px;
 }
-
-/* account.css */
-.hidden {
-  display: none !important;
-}
