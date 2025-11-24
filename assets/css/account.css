@@ -287,6 +287,6 @@
 
 .hint2 {
   font-size: 0.85rem;
-  color: var(--accent);
+  color: var(--accent) !important;
   font-weight:600;
 }
