@@ -261,6 +261,7 @@
 .btn.danger {
   background: #fff5f5;
   border: 1px solid #fecaca;
+  border-radius: 999px;
   color: #b91c1c;
   box-shadow: var(--shadow);
 }
