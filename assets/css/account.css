@@ -284,3 +284,10 @@
   color: var(--muted);
   margin-top: -4px;
 }
+
+.hint2 {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: -4px;
+  font-weight:500;
+}
