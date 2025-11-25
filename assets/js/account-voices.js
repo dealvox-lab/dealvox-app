@@ -330,7 +330,7 @@ window.initVoicesView = async function initVoicesView() {
     return;
   }
 
-  const userId = auth.user.id;
+  const userId  = auth.user.id;
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/assistants`;
 
   function setStatus(msg, isError = false) {
@@ -339,12 +339,13 @@ window.initVoicesView = async function initVoicesView() {
     statusEl.classList.toggle("error", !!isError);
   }
 
-  // 2) Load current voice from assistants.agent_voice
-  let currentVoiceId = null;
+  // 2) Load current voice + deployment state (assistants.agent_voice, assistants.is_published)
+  let currentVoiceId      = null;
+  let assistantIsDeployed = false;   // <- controls Select button state
 
   async function loadCurrentVoice() {
     const params = new URLSearchParams();
-    params.set("select", "agent_voice");
+    params.set("select", "agent_voice,is_published");
     params.set("user_id", `eq.${userId}`);
     params.set("limit", "1");
 
@@ -362,7 +363,7 @@ window.initVoicesView = async function initVoicesView() {
         return;
       }
       auth = newAuth;
-      res = await run(auth);
+      res  = await run(auth);
     }
 
     if (!res.ok) {
@@ -371,8 +372,15 @@ window.initVoicesView = async function initVoicesView() {
     }
 
     const rows = await res.json();
-    if (rows && rows[0] && rows[0].agent_voice) {
-      currentVoiceId = rows[0].agent_voice;
+    const row  = rows && rows[0];
+
+    if (row) {
+      if (row.agent_voice) currentVoiceId = row.agent_voice;
+      // Treat is_published as "deployed"
+      assistantIsDeployed = !!row.is_published;
+    } else {
+      currentVoiceId      = null;
+      assistantIsDeployed = false;
     }
   }
 
@@ -413,9 +421,16 @@ window.initVoicesView = async function initVoicesView() {
             </button>
             <button
               type="button"
-              class="btn-primary small voice-select-btn"
+              class="btn-primary small voice-select-btn
+                ${assistantIsDeployed ? "" : "disabled"}"
               data-role="select-voice"
               data-voice-id="${voice.id}"
+              title="${
+                assistantIsDeployed
+                  ? "Use this voice for your assistant."
+                  : "Deploy an assistant first."
+              }"
+              ${assistantIsDeployed ? "" : "disabled"}
             >
               Select this voice
             </button>
@@ -438,7 +453,7 @@ window.initVoicesView = async function initVoicesView() {
     setStatus("Saving voice…");
 
     const payload = {
-      user_id: userId,
+      user_id:     userId,
       agent_voice: voiceId,
     };
 
@@ -461,7 +476,7 @@ window.initVoicesView = async function initVoicesView() {
         return false;
       }
       auth = newAuth;
-      res = await run(auth);
+      res  = await run(auth);
     }
 
     if (!res.ok) {
@@ -530,6 +545,14 @@ window.initVoicesView = async function initVoicesView() {
 
     if (selectBtn) {
       event.preventDefault();
+
+      // If assistant is not deployed, block and show hint
+      if (selectBtn.classList.contains("disabled")) {
+        setStatus("Deploy an assistant first.", true);
+        setTimeout(() => setStatus(""), 1800);
+        return;
+      }
+
       const voiceId = selectBtn.dataset.voiceId;
       if (voiceId) {
         saveVoice(voiceId);
@@ -545,7 +568,9 @@ window.initVoicesView = async function initVoicesView() {
     }
   });
 
-  await loadCurrentVoice();
+  // Init sequence
+  await loadCurrentVoice();  // sets currentVoiceId + assistantIsDeployed
   renderVoices();
   setStatus("");
 };
+
