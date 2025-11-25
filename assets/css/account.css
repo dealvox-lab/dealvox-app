@@ -470,3 +470,14 @@
   padding: 6px 12px;
   font-size: 0.8rem;
 }
+
+.voice-select-btn.disabled {
+  background: #d1d5db !important;   /* grey */
+  color: #6b7280 !important;
+  border-color: #d1d5db !important;
+  cursor: not-allowed;
+}
+
+.voice-select-btn.disabled:hover {
+  background: #d1d5db !important;
+}
