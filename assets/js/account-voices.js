@@ -2,326 +2,303 @@
 
 // Static catalog generated from your CSV
 const VOICES = [
-  {
-    "id": "retell-wavenet-Bella",
-    "name": "Bella",
-    "accent": "American",
-    "gender": "female",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/bella.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Bella.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Nathan",
-    "name": "Nathan",
-    "accent": "American",
-    "gender": "male",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/nathan.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Nathan.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Isabella",
-    "name": "Isabella",
-    "accent": "American",
-    "gender": "female",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/isabella.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Isabella.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Alexander",
-    "name": "Alexander",
-    "accent": "American",
-    "gender": "male",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/alexander.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Alexander.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Jack",
-    "name": "Jack",
-    "accent": "British",
-    "gender": "male",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/jack.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Jack.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Olivia",
-    "name": "Olivia",
-    "accent": "British",
-    "gender": "female",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/olivia.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Olivia.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Sofia",
-    "name": "Sofia",
-    "accent": "Spanish",
-    "gender": "female",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/sofia.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Sofia.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Daniel",
-    "name": "Daniel",
-    "accent": "Spanish",
-    "gender": "male",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/daniel.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Daniel.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Marie",
-    "name": "Marie",
-    "accent": "French",
-    "gender": "female",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/marie.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Marie.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Pierre",
-    "name": "Pierre",
-    "accent": "French",
-    "gender": "male",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/pierre.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Pierre.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Maria",
-    "name": "Maria",
-    "accent": "Portuguese",
-    "gender": "female",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/maria.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Maria.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Joao",
-    "name": "João",
-    "accent": "Portuguese",
-    "gender": "male",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/joao.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Joao.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Emma",
-    "name": "Emma",
-    "accent": "Australian",
-    "gender": "female",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/emma.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Emma.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Liam",
-    "name": "Liam",
-    "accent": "Australian",
-    "gender": "male",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/liam.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Liam.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Ava",
-    "name": "Ava",
-    "accent": "New Zealand",
-    "gender": "female",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/ava.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Ava.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Noah",
-    "name": "Noah",
-    "accent": "New Zealand",
-    "gender": "male",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/noah.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Noah.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Jiwoo",
-    "name": "Jiwoo",
-    "accent": "Korean",
-    "gender": "female",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/jiwoo.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Jiwoo.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Minjoon",
-    "name": "Minjoon",
-    "accent": "Korean",
-    "gender": "male",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/minjoon.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Minjoon.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Yuki",
-    "name": "Yuki",
-    "accent": "Japanese",
-    "gender": "female",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/yuki.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Yuki.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Haruto",
-    "name": "Haruto",
-    "accent": "Japanese",
-    "gender": "male",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/haruto.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Haruto.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Linda",
-    "name": "Linda",
-    "accent": "German",
-    "gender": "female",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/linda.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Linda.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "retell-wavenet-Hans",
-    "name": "Hans",
-    "accent": "German",
-    "gender": "male",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/hans.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Hans.mp3",
-    "provider": "google"
-  },
-  {
-    "id": "11labs-Lily",
-    "name": "Lily",
-    "accent": "American",
-    "gender": "female",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/lily.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Lily.mp3",
-    "provider": "elevenlabs"
-  },
-  {
-    "id": "11labs-Ethan",
-    "name": "Ethan",
-    "accent": "American",
-    "gender": "male",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/ethan.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Ethan.mp3",
-    "provider": "elevenlabs"
-  },
-  {
-    "id": "11labs-Oliver",
-    "name": "Oliver",
-    "accent": "British",
-    "gender": "male",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/oliver.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Oliver.mp3",
-    "provider": "elevenlabs"
-  },
-  {
-    "id": "11labs-Amelia",
-    "name": "Amelia",
-    "accent": "British",
-    "gender": "female",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/amelia.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Amelia.mp3",
-    "provider": "elevenlabs"
-  },
-  {
-    "id": "11labs-Santiago",
-    "name": "Santiago",
-    "accent": "Spanish",
-    "gender": "male",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/santiago.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Santiago.mp3",
-    "provider": "elevenlabs"
-  },
-  {
-    "id": "11labs-Valentina",
-    "name": "Valentina",
-    "accent": "Spanish",
-    "gender": "female",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/valentina.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Valentina.mp3",
-    "provider": "elevenlabs"
-  },
-  {
-    "id": "11labs-Chloe",
-    "name": "Chloe",
-    "accent": "French",
-    "gender": "female",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/chloe.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Chloe.mp3",
-    "provider": "elevenlabs"
-  },
-  {
-    "id": "11labs-Louis",
-    "name": "Louis",
-    "accent": "French",
-    "gender": "male",
-    "age": "Young",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/louis.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Louis.mp3",
-    "provider": "elevenlabs"
-  },
-  {
-    "id": "11labs-Kathrine",
-    "name": "Kathrine",
-    "accent": "American",
-    "gender": "female",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/kathrine.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Kathrine.mp3",
-    "provider": "elevenlabs"
-  },
-  {
-    "id": "11labs-Andrew",
-    "name": "Andrew",
-    "accent": "American",
-    "gender": "male",
-    "age": "Middle Aged",
-    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/andrew.png",
-    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Andrew.mp3",
-    "provider": "elevenlabs"
-  }
+ {
+   "id": "11labs-Billy",
+   "name": "Billy",
+   "accent": "American",
+   "gender": "male",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/billy.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/billy.mp3"
+ },
+ {
+   "id": "11labs-Lily",
+   "name": "Lily",
+   "accent": "American",
+   "gender": "female",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/lily.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/lily.mp3"
+ },
+ {
+   "id": "11labs-Marissa",
+   "name": "Marissa",
+   "accent": "American",
+   "gender": "female",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Marissa.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/marissa.mp3"
+ },
+ {
+   "id": "11labs-Bing",
+   "name": "Bing",
+   "accent": "American",
+   "gender": "male",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/bing.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/bing.mp3"
+ },
+ {
+   "id": "11labs-Jenny",
+   "name": "Jenny",
+   "accent": "American",
+   "gender": "female",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Jenny.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Jenny.mp3"
+ },
+ {
+   "id": "11labs-Lucas",
+   "name": "Lucas",
+   "accent": "American",
+   "gender": "male",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/lucas.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/lucas.mp3"
+ },
+ {
+   "id": "11labs-Brian",
+   "name": "Brian",
+   "accent": "American",
+   "gender": "male",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/brian.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/brian.mp3"
+ },
+ {
+   "id": "11labs-Kate",
+   "name": "Kate",
+   "accent": "American",
+   "gender": "female",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Kate.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/kate.mp3"
+ },
+ {
+   "id": "11labs-Jason",
+   "name": "Jason",
+   "accent": "American",
+   "gender": "male",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Jason.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/jason.mp3"
+ },
+ {
+   "id": "11labs-Ethan",
+   "name": "Ethan",
+   "accent": "American",
+   "gender": "male",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/ethan.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/ethan.mp3"
+ },
+ {
+   "id": "11labs-Paul",
+   "name": "Paul",
+   "accent": "American",
+   "gender": "male",
+   "age": "old",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/paul.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/paul.mp3"
+ },
+ {
+   "id": "11labs-John",
+   "name": "John",
+   "accent": "American",
+   "gender": "male",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/John.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/John.mp3"
+ },
+ {
+   "id": "11labs-Adrian",
+   "name": "Adrian",
+   "accent": "American",
+   "gender": "male",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/adrian.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/adrian.mp3"
+ },
+ {
+   "id": "11labs-Gilfoy",
+   "name": "Gilfoy",
+   "accent": "American",
+   "gender": "male",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/gilfoy.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/gilfoy.mp3"
+ },
+ {
+   "id": "11labs-Zuri",
+   "name": "Zuri",
+   "accent": "American",
+   "gender": "female",
+   "age": "old",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Zuri.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/zuri.mp3"
+ },
+ {
+   "id": "11labs-Steve",
+   "name": "Steve",
+   "accent": "American",
+   "gender": "male",
+   "age": "old",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Steve.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Steve-.mp3"
+ },
+ {
+   "id": "11labs-Grace",
+   "name": "Grace",
+   "accent": "American",
+   "gender": "female",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/grace.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/grace.mp3"
+ },
+ {
+   "id": "11labs-Chloe",
+   "name": "Chloe",
+   "accent": "American",
+   "gender": "female",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Chloe.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/chloe.mp3"
+ },
+ {
+   "id": "11labs-Max",
+   "name": "Max",
+   "accent": "American",
+   "gender": "male",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/max.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Max.mp3"
+ },
+ {
+   "id": "11labs-Anna",
+   "name": "Anna",
+   "accent": "American",
+   "gender": "female",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/anna.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/anna.mp3"
+ },
+ {
+   "id": "11labs-Julia",
+   "name": "Julia",
+   "accent": "American",
+   "gender": "female",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Julia.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/julia.mp3"
+ },
+ {
+   "id": "11labs-victoria",
+   "name": "Victoria",
+   "accent": "American",
+   "gender": "female",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Victoria.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Victoria.mp3"
+ },
+ {
+   "id": "11labs-Susan",
+   "name": "Susan",
+   "accent": "American",
+   "gender": "female",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Susan.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/susan.mp3"
+ },
+ {
+   "id": "11labs-Emily",
+   "name": "Emily",
+   "accent": "American",
+   "gender": "female",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/emily.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/custom_voice_ad3caa44911a95fb08b2526918.mp3"
+ },
+ {
+   "id": "11labs-Kathrine",
+   "name": "Kathrine",
+   "accent": "American",
+   "gender": "female",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/kathrine.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Kathrine.mp3"
+ },
+ {
+   "id": "11labs-Andrew",
+   "name": "Andrew",
+   "accent": "American",
+   "gender": "male",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/andrew.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/andrew.mp3"
+ },
+ {
+   "id": "11labs-Nina",
+   "name": "Nina",
+   "accent": "American",
+   "gender": "female",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/nina.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/nina.mp3"
+ },
+ {
+   "id": "11labs-Myra",
+   "name": "Myra",
+   "accent": "American",
+   "gender": "female",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Myra.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/myra.mp3"
+ },
+ {
+   "id": "11labs-Evie",
+   "name": "Evie",
+   "accent": "American",
+   "gender": "female",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/evie.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/evie.mp3"
+ },
+ {
+   "id": "11labs-James",
+   "name": "James",
+   "accent": "American",
+   "gender": "male",
+   "age": "old",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/james.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/James.mp3"
+ },
+ {
+   "id": "11labs-Cimo",
+   "name": "Cimo",
+   "accent": "American",
+   "gender": "female",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/cimo.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/cimo.mp3"
+ },
+ {
+   "id": "11labs-Ryan",
+   "name": "Ryan",
+   "accent": "American",
+   "gender": "male",
+   "age": "young",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/ryan.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/ryan.mp3"
+ },
+ {
+   "id": "11labs-Mia",
+   "name": "Mia",
+   "accent": "American",
+   "gender": "female",
+   "age": "middle-aged",
+   "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/mia.png",
+   "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Mia.mp3"
+ }
 ];
 
 // ----------------------------------------------------
