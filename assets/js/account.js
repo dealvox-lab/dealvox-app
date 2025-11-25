@@ -399,22 +399,24 @@ async function deployAssistant() {
       deployStatus.textContent = `The agent ID ${agentId} is deployed successfully.`;
     }
 
-    // ✅ OPTIONAL WEBHOOK → Make.com (fire-and-forget)
-    try {
-      fetch("https://hook.us1.make.com/yg826ha11fq1jdfmpl5sp3s1f5w6xiz3", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          agentName,
-          agentType,
-          agentVoice,
-        }),
-      });
-    } catch (hookErr) {
-      console.warn("Deploy webhook failed (non-blocking):", hookErr);
-    }
+  // ✅ OPTIONAL WEBHOOK → Make.com (fire-and-forget)
+try {
+  fetch("https://hook.us1.make.com/yg826ha11fq1jdfmpl5sp3s1f5w6xiz3", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      agentName,
+      agentType,
+      agentVoice,
+      intro,   // 👈 NEW FIELD
+    }),
+  });
+} catch (hookErr) {
+  console.warn("Deploy webhook failed (non-blocking):", hookErr);
+}
+
 
     // Reload assistant data into manage view
     await loadAssistant();
