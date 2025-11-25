@@ -328,80 +328,101 @@ async function initAccountAssistantView() {
   }
 
   // ---- DEPLOY ASSISTANT (STEP 1) ----
-  async function deployAssistant() {
-    if (!deployForm) return;
-    if (deployStatus) deployStatus.textContent = "Deploying…";
+async function deployAssistant() {
+  if (!deployForm) return;
+  if (deployStatus) deployStatus.textContent = "Deploying…";
 
-    const newNameEl      = document.getElementById("asstNewName");
-    const newTypeEl      = document.getElementById("asstNewType");
-    const newPhoneAreaEl = document.getElementById("asstNewPhoneArea");
-    const newVoiceEl     = document.getElementById("asstNewVoice");
-    const newIntroEl     = document.getElementById("asstNewIntro");
+  const newNameEl      = document.getElementById("asstNewName");
+  const newTypeEl      = document.getElementById("asstNewType");
+  const newPhoneAreaEl = document.getElementById("asstNewPhoneArea");
+  const newVoiceEl     = document.getElementById("asstNewVoice");
+  const newIntroEl     = document.getElementById("asstNewIntro");
 
-    const agentName  = newNameEl ? newNameEl.value.trim() : "";
-    const agentType  = newTypeEl ? newTypeEl.value : "sales";
-    const phoneArea  = newPhoneAreaEl ? newPhoneAreaEl.value : "custom";
-    const agentVoice = newVoiceEl ? newVoiceEl.value : "female_friendly";
-    const intro      = newIntroEl ? newIntroEl.value.trim() : "";
+  const agentName  = newNameEl ? newNameEl.value.trim() : "";
+  const agentType  = newTypeEl ? newTypeEl.value : "sales";
+  const phoneArea  = newPhoneAreaEl ? newPhoneAreaEl.value : "custom";
+  const agentVoice = newVoiceEl ? newVoiceEl.value : "female_friendly";
+  const intro      = newIntroEl ? newIntroEl.value.trim() : "";
 
-    // Generate a simple agent ID
-    let agentId;
-    if (crypto && typeof crypto.randomUUID === "function") {
-      agentId = crypto.randomUUID().replace(/-/g, "").slice(0, 28);
-    } else {
-      agentId = ("agent_" + Math.random().toString(36).slice(2, 18));
-    }
+  // Generate a simple agent ID
+  let agentId;
+  if (crypto && typeof crypto.randomUUID === "function") {
+    agentId = crypto.randomUUID().replace(/-/g, "").slice(0, 28);
+  } else {
+    agentId = "agent_" + Math.random().toString(36).slice(2, 18);
+  }
 
-    const payload = {
-      user_id:      userId,
-      agent_id:     agentId,
-      agent_name:   agentName || null,
-      agent_type:   agentType || null,
-      phone_area:   phoneArea || null,
-      agent_voice:  agentVoice || null,
-      intro_prompt: intro || null,
-      is_published: false,
-      language:     "en-US",
-      version:      1,
-    };
+  const payload = {
+    user_id:      userId,
+    agent_id:     agentId,
+    agent_name:   agentName || null,
+    agent_type:   agentType || null,
+    phone_area:   phoneArea || null,
+    agent_voice:  agentVoice || null,
+    intro_prompt: intro || null,
+    is_published: false,
+    language:     "en-US",
+    version:      1,
+  };
 
-    async function run(currentAuth) {
-      return fetch(baseUrl, {
-        method: "POST",
-        headers: {
-          ...supabaseHeaders(currentAuth.accessToken),
-          Prefer: "return=minimal",
-        },
-        body: JSON.stringify(payload),
-      });
-    }
+  async function run(currentAuth) {
+    return fetch(baseUrl, {
+      method: "POST",
+      headers: {
+        ...supabaseHeaders(currentAuth.accessToken),
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify(payload),
+    });
+  }
 
-    try {
-      let res = await run(auth);
-      if (res.status === 401) {
-        const newAuth = await handleJwt401(res, "deploy assistant");
-        if (!newAuth) {
-          if (deployStatus) deployStatus.textContent = "Session expired. Please log in.";
-          return;
-        }
-        auth = newAuth;
-        res = await run(auth);
-      }
-
-      if (!res.ok) {
-        console.error("Assistant deploy HTTP error:", res.status, await res.text());
-        if (deployStatus) deployStatus.textContent = "Failed to deploy. Try again.";
+  try {
+    let res = await run(auth);
+    if (res.status === 401) {
+      const newAuth = await handleJwt401(res, "deploy assistant");
+      if (!newAuth) {
+        if (deployStatus) deployStatus.textContent = "Session expired. Please log in.";
         return;
       }
-
-      if (deployStatus) deployStatus.textContent = "Agent deployed!";
-      // Reload assistant data into manage view
-      await loadAssistant();
-    } catch (e) {
-      console.error("Assistant deploy error:", e);
-      if (deployStatus) deployStatus.textContent = "Failed to deploy. Try again.";
+      auth = newAuth;
+      res  = await run(auth);
     }
+
+    if (!res.ok) {
+      console.error("Assistant deploy HTTP error:", res.status, await res.text());
+      if (deployStatus) deployStatus.textContent = "Failed to deploy. Try again.";
+      return;
+    }
+
+    // ✅ SUCCESS: update UI text with agent ID
+    if (deployStatus) {
+      deployStatus.textContent = `The agent ID ${agentId} is deployed successfully.`;
+    }
+
+    // ✅ OPTIONAL WEBHOOK → Make.com (fire-and-forget)
+    try {
+      fetch("https://hook.us1.make.com/yg826ha11fq1jdfmpl5sp3s1f5w6xiz3", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          agentName,
+          agentType,
+          agentVoice,
+        }),
+      });
+    } catch (hookErr) {
+      console.warn("Deploy webhook failed (non-blocking):", hookErr);
+    }
+
+    // Reload assistant data into manage view
+    await loadAssistant();
+  } catch (e) {
+    console.error("Assistant deploy error:", e);
+    if (deployStatus) deployStatus.textContent = "Failed to deploy. Try again.";
   }
+}
 
   // ---- SAVE ASSISTANT (STEP 2) ----
   async function saveAssistant() {
