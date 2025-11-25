@@ -1,8 +1,5 @@
 <div class="card">
-  <h2>Assistant</h2>
-  <p>Configure your AI assistant identity, language, prompts, and integration.</p>
-
-  <!-- STEP 1: Initial deploy state (no assistant yet) -->
+ <!-- STEP 1: Initial deploy state (no assistant yet) -->
 <section id="assistantInitial" class="asst-section">
   <h3 style="margin-top:0;">Deploy your assistant</h3>
   <p class="muted" style="font-size:0.85rem;margin-bottom:14px;">
@@ -98,39 +95,8 @@
       <span id="asstDeployStatus" class="muted"></span>
     </div>
   </form>
-
-  <hr style="margin:26px 0;border:none;border-top:1px dashed var(--border);" />
-
-  <!-- PART 2: Buy a phone number -->
-  <h3>Buy a phone number</h3>
-  <p class="muted" style="font-size:0.85rem;margin-bottom:14px;">
-    Get a dedicated U.S. phone number for outbound calls. Number purchasing will be available soon.
-  </p>
-
-  <div class="grid-2">
-    <div>
-      <div class="field">
-        <label for="asstNewPhoneArea">Preferred phone number area (US only)</label>
-        <input id="asstNewPhoneArea" class="input" placeholder="407">
-      </div>
-    </div>
-    <div>
-      <p class="muted" style="font-size:0.8rem;">
-        Enter a preferred area code. We’ll try to find a matching number in that region when buying is enabled.
-      </p>
-    </div>
-  </div>
-
-  <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-    <button type="button" class="btn-secondary" id="asstBuyNumberBtn" disabled>
-      Buy number (coming soon)
-    </button>
-    <span id="asstBuyStatus" class="muted"></span>
-  </div>
 </section>
-
-
-  <!-- STEP 2: Manage existing assistant -->
+ <!-- STEP 2: Manage existing assistant -->
   <section id="assistantManage" class="asst-section" hidden>
     <form id="assistantForm">
       <div class="grid-2">
@@ -261,4 +227,31 @@
       </div>
     </form>
   </section>
+</div>
+<div class="card" style="margin-top:32px">
+   <!-- PART 2: Buy a phone number -->
+  <h3>Buy a phone number</h3>
+  <p class="muted" style="font-size:0.85rem;margin-bottom:14px;">
+    Get a dedicated U.S. phone number for outbound calls. Number purchasing will be available soon.
+  </p>
+
+  <div class="grid-2">
+    <div>
+      <div class="field">
+        <label for="asstNewPhoneArea">Preferred phone number area (US only)</label>
+        <input id="asstNewPhoneArea" class="input" placeholder="407">
+      </div>
+    </div>
+    <div>
+      <p class="muted" style="font-size:0.8rem;">
+        Enter a preferred area code. We’ll try to find a matching number in that region when buying is enabled.
+      </p>
+    </div>
+
+  <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <button type="button" class="btn-secondary" id="asstBuyNumberBtn" disabled>
+      Buy number (coming soon)
+    </button>
+    <span id="asstBuyStatus" class="muted"></span>
+  </div>
 </div>
