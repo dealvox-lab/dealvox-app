@@ -409,7 +409,7 @@ window.initVoicesView = async function initVoicesView() {
               data-preview-url="${voice.preview}"
               data-voice-id="${voice.id}"
             >
-              ▶ Preview
+              ▶ Listen
             </button>
             <button
               type="button"
