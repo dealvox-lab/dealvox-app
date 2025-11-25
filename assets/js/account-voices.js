@@ -1,326 +1,360 @@
 // /assets/js/account-voices.js
-// ------------------------------------------
-// VOICES VIEW (Voices tab)
-// ------------------------------------------
 
-// Static catalog from your CSV
-const VOICES_CATALOG = [
+// Static catalog generated from your CSV
+const VOICES = [
   {
-    voice_id: "11labs-Billy",
-    voice_name: "Billy",
-    accent: "American",
-    gender: "male",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/billy.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/billy.mp3",
+    "id": "retell-wavenet-Bella",
+    "name": "Bella",
+    "accent": "American",
+    "gender": "female",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/bella.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Bella.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Lily",
-    voice_name: "Lily",
-    accent: "American",
-    gender: "female",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/lily.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/lily.mp3",
+    "id": "retell-wavenet-Nathan",
+    "name": "Nathan",
+    "accent": "American",
+    "gender": "male",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/nathan.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Nathan.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Jenny",
-    voice_name: "Jenny",
-    accent: "American",
-    gender: "female",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/Jenny.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/Jenny.mp3",
+    "id": "retell-wavenet-Isabella",
+    "name": "Isabella",
+    "accent": "American",
+    "gender": "female",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/isabella.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Isabella.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-George",
-    voice_name: "George",
-    accent: "American",
-    gender: "male",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/george.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/george.mp3",
+    "id": "retell-wavenet-Alexander",
+    "name": "Alexander",
+    "accent": "American",
+    "gender": "male",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/alexander.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Alexander.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Andrew",
-    voice_name: "Andrew",
-    accent: "British",
-    gender: "male",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/andrew.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/andrew.mp3",
+    "id": "retell-wavenet-Jack",
+    "name": "Jack",
+    "accent": "British",
+    "gender": "male",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/jack.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Jack.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Callum",
-    voice_name: "Callum",
-    accent: "British",
-    gender: "male",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/callum.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/callum.mp3",
+    "id": "retell-wavenet-Olivia",
+    "name": "Olivia",
+    "accent": "British",
+    "gender": "female",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/olivia.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Olivia.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Ana",
-    voice_name: "Ana",
-    accent: "American",
-    gender: "female",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/ana.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/ana.mp3",
+    "id": "retell-wavenet-Sofia",
+    "name": "Sofia",
+    "accent": "Spanish",
+    "gender": "female",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/sofia.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Sofia.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Antoni",
-    voice_name: "Antoni",
-    accent: "American",
-    gender: "male",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/antoni.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/antoni.mp3",
+    "id": "retell-wavenet-Daniel",
+    "name": "Daniel",
+    "accent": "Spanish",
+    "gender": "male",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/daniel.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Daniel.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Gigi",
-    voice_name: "Gigi",
-    accent: "American",
-    gender: "female",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/gigi.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/gigi.mp3",
+    "id": "retell-wavenet-Marie",
+    "name": "Marie",
+    "accent": "French",
+    "gender": "female",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/marie.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Marie.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Sarah",
-    voice_name: "Sarah",
-    accent: "American",
-    gender: "female",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/sarah.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/sarah.mp3",
+    "id": "retell-wavenet-Pierre",
+    "name": "Pierre",
+    "accent": "French",
+    "gender": "male",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/pierre.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Pierre.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Laura",
-    voice_name: "Laura",
-    accent: "American",
-    gender: "female",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/laura.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/laura.mp3",
+    "id": "retell-wavenet-Maria",
+    "name": "Maria",
+    "accent": "Portuguese",
+    "gender": "female",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/maria.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Maria.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Adam",
-    voice_name: "Adam",
-    accent: "American",
-    gender: "male",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/adam.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/adam.mp3",
+    "id": "retell-wavenet-Joao",
+    "name": "João",
+    "accent": "Portuguese",
+    "gender": "male",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/joao.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Joao.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Nicole",
-    voice_name: "Nicole",
-    accent: "American",
-    gender: "female",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/nicole.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/nicole.mp3",
+    "id": "retell-wavenet-Emma",
+    "name": "Emma",
+    "accent": "Australian",
+    "gender": "female",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/emma.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Emma.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Kim",
-    voice_name: "Kim",
-    accent: "American",
-    gender: "female",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/kim.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/kim.mp3",
+    "id": "retell-wavenet-Liam",
+    "name": "Liam",
+    "accent": "Australian",
+    "gender": "male",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/liam.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Liam.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-James",
-    voice_name: "James",
-    accent: "American",
-    gender: "male",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/james.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/james.mp3",
+    "id": "retell-wavenet-Ava",
+    "name": "Ava",
+    "accent": "New Zealand",
+    "gender": "female",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/ava.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Ava.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Rachel",
-    voice_name: "Rachel",
-    accent: "American",
-    gender: "female",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/rachel.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/rachel.mp3",
+    "id": "retell-wavenet-Noah",
+    "name": "Noah",
+    "accent": "New Zealand",
+    "gender": "male",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/noah.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Noah.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Thomas",
-    voice_name: "Thomas",
-    accent: "American",
-    gender: "male",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/thomas.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/thomas.mp3",
+    "id": "retell-wavenet-Jiwoo",
+    "name": "Jiwoo",
+    "accent": "Korean",
+    "gender": "female",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/jiwoo.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Jiwoo.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Domi",
-    voice_name: "Domi",
-    accent: "American",
-    gender: "female",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/domi.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/domi.mp3",
+    "id": "retell-wavenet-Minjoon",
+    "name": "Minjoon",
+    "accent": "Korean",
+    "gender": "male",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/minjoon.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Minjoon.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Elli",
-    voice_name: "Elli",
-    accent: "American",
-    gender: "female",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/elli.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/elli.mp3",
+    "id": "retell-wavenet-Yuki",
+    "name": "Yuki",
+    "accent": "Japanese",
+    "gender": "female",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/yuki.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Yuki.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Charlotte",
-    voice_name: "Charlotte",
-    accent: "American",
-    gender: "female",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/charlotte.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/charlotte.mp3",
+    "id": "retell-wavenet-Haruto",
+    "name": "Haruto",
+    "accent": "Japanese",
+    "gender": "male",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/haruto.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Haruto.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Patrick",
-    voice_name: "Patrick",
-    accent: "American",
-    gender: "male",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/patrick.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/patrick.mp3",
+    "id": "retell-wavenet-Linda",
+    "name": "Linda",
+    "accent": "German",
+    "gender": "female",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/linda.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Linda.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Michael",
-    voice_name: "Michael",
-    accent: "American",
-    gender: "male",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/michael.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/michael.mp3",
+    "id": "retell-wavenet-Hans",
+    "name": "Hans",
+    "accent": "German",
+    "gender": "male",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/hans.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Hans.mp3",
+    "provider": "google"
   },
   {
-    voice_id: "11labs-Eric",
-    voice_name: "Eric",
-    accent: "American",
-    gender: "male",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/eric.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/eric.mp3",
+    "id": "11labs-Lily",
+    "name": "Lily",
+    "accent": "American",
+    "gender": "female",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/lily.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Lily.mp3",
+    "provider": "elevenlabs"
   },
   {
-    voice_id: "11labs-Ethan",
-    voice_name: "Ethan",
-    accent: "American",
-    gender: "male",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/ethan.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/ethan.mp3",
+    "id": "11labs-Ethan",
+    "name": "Ethan",
+    "accent": "American",
+    "gender": "male",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/ethan.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Ethan.mp3",
+    "provider": "elevenlabs"
   },
   {
-    voice_id: "11labs-Chris",
-    voice_name: "Chris",
-    accent: "American",
-    gender: "male",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/chris.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/chris.mp3",
+    "id": "11labs-Oliver",
+    "name": "Oliver",
+    "accent": "British",
+    "gender": "male",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/oliver.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Oliver.mp3",
+    "provider": "elevenlabs"
   },
   {
-    voice_id: "11labs-Jessica",
-    voice_name: "Jessica",
-    accent: "American",
-    gender: "female",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/jessica.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/jessica.mp3",
+    "id": "11labs-Amelia",
+    "name": "Amelia",
+    "accent": "British",
+    "gender": "female",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/amelia.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Amelia.mp3",
+    "provider": "elevenlabs"
   },
   {
-    voice_id: "11labs-Matthew",
-    voice_name: "Matthew",
-    accent: "American",
-    gender: "male",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/matthew.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/matthew.mp3",
+    "id": "11labs-Santiago",
+    "name": "Santiago",
+    "accent": "Spanish",
+    "gender": "male",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/santiago.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Santiago.mp3",
+    "provider": "elevenlabs"
   },
   {
-    voice_id: "11labs-Josh",
-    voice_name: "Josh",
-    accent: "American",
-    gender: "male",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/josh.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/josh.mp3",
+    "id": "11labs-Valentina",
+    "name": "Valentina",
+    "accent": "Spanish",
+    "gender": "female",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/valentina.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Valentina.mp3",
+    "provider": "elevenlabs"
   },
   {
-    voice_id: "11labs-Sam",
-    voice_name: "Sam",
-    accent: "American",
-    gender: "male",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/sam.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/sam.mp3",
+    "id": "11labs-Chloe",
+    "name": "Chloe",
+    "accent": "French",
+    "gender": "female",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/chloe.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Chloe.mp3",
+    "provider": "elevenlabs"
   },
   {
-    voice_id: "11labs-Aria",
-    voice_name: "Aria",
-    accent: "American",
-    gender: "female",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/aria.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/aria.mp3",
+    "id": "11labs-Louis",
+    "name": "Louis",
+    "accent": "French",
+    "gender": "male",
+    "age": "Young",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/louis.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Louis.mp3",
+    "provider": "elevenlabs"
   },
   {
-    voice_id: "11labs-Ryan",
-    voice_name: "Ryan",
-    accent: "American",
-    gender: "male",
-    age: "Young",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/ryan.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/ryan.mp3",
+    "id": "11labs-Kathrine",
+    "name": "Kathrine",
+    "accent": "American",
+    "gender": "female",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/kathrine.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Kathrine.mp3",
+    "provider": "elevenlabs"
   },
   {
-    voice_id: "11labs-Mia",
-    voice_name: "Mia",
-    accent: "American",
-    gender: "female",
-    age: "Middle Aged",
-    avatar_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/mia.png",
-    preview_audio_url: "https://retell-utils-public.s3.us-west-2.amazonaws.com/Mia.mp3",
-  },
+    "id": "11labs-Andrew",
+    "name": "Andrew",
+    "accent": "American",
+    "gender": "male",
+    "age": "Middle Aged",
+    "avatar": "https://retell-utils-public.s3.us-west-2.amazonaws.com/andrew.png",
+    "preview": "https://retell-utils-public.s3.us-west-2.amazonaws.com/Andrew.mp3",
+    "provider": "elevenlabs"
+  }
 ];
 
-// Uses helpers from account.js: getAuthInfo, supabaseHeaders, handleJwt401
-async function initAccountVoicesView() {
+// ----------------------------------------------------
+// Voices tab logic (uses helpers from account.js)
+// ----------------------------------------------------
+
+window.initVoicesView = async function initVoicesView() {
   const grid     = document.getElementById("voicesGrid");
   const statusEl = document.getElementById("voicesStatus");
   const audioEl  = document.getElementById("voicePreviewAudio");
 
   if (!grid) return;
-  if (grid.dataset.bound === "1") return;
-  grid.dataset.bound = "1";
 
+  grid.innerHTML = "";
+  if (statusEl) statusEl.textContent = "Loading voices…";
+
+  // 1) Auth info from existing helpers
   let auth;
   try {
     auth = await getAuthInfo();
-  } catch (e) {
-    console.error("getAuthInfo failed (voices):", e);
-    if (statusEl) statusEl.textContent = "Unable to load voices.";
+  } catch (err) {
+    console.error("getAuthInfo failed (voices):", err);
+    if (statusEl) statusEl.textContent = "Unable to load voices. Please reload.";
     return;
   }
 
   if (!auth.user || !auth.accessToken) {
-    if (statusEl) statusEl.textContent = "Session expired. Please log in.";
+    if (statusEl) statusEl.textContent = "Session expired. Please log in again.";
     return;
   }
 
-  const userId        = auth.user.id;
-  const assistantsUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/assistants`;
+  const userId = auth.user.id;
+  const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/assistants`;
 
   function setStatus(msg, isError = false) {
     if (!statusEl) return;
@@ -328,40 +362,9 @@ async function initAccountVoicesView() {
     statusEl.classList.toggle("error", !!isError);
   }
 
-  function renderVoices(selectedVoiceId) {
-    grid.innerHTML = VOICES_CATALOG.map((v) => {
-      const selected = v.voice_id === selectedVoiceId;
-      const gender   = v.gender
-        ? v.gender.charAt(0).toUpperCase() + v.gender.slice(1)
-        : "";
-      return `
-        <div class="voice-card${selected ? " selected" : ""}" data-voice-id="${v.voice_id}">
-          <div class="voice-avatar-wrapper">
-            <img src="${v.avatar_url}" alt="${v.voice_name} avatar" class="voice-avatar">
-          </div>
-          <div class="voice-body">
-            <h3 class="voice-name">${v.voice_name}</h3>
-            <p class="voice-meta">${v.accent} • ${gender} • ${v.age}</p>
-            <div class="voice-actions">
-              <button type="button"
-                      class="btn-secondary small voice-preview-btn"
-                      data-audio="${v.preview_audio_url}">
-                Preview
-              </button>
-              <button type="button"
-                      class="btn-primary small voice-select-btn">
-                ${selected ? "Selected" : "Select this voice"}
-              </button>
-              <span class="voice-selected-pill"${
-                selected ? "" : ' style="display:none"'
-              }>Selected</span>
-            </div>
-          </div>
-        </div>`;
-    }).join("");
-  }
+  // 2) Load current voice from assistants.agent_voice
+  let currentVoiceId = null;
 
-  // Load current assistant voice from Supabase
   async function loadCurrentVoice() {
     const params = new URLSearchParams();
     params.set("select", "agent_voice");
@@ -369,29 +372,91 @@ async function initAccountVoicesView() {
     params.set("limit", "1");
 
     async function run(currentAuth) {
-      return fetch(`${assistantsUrl}?${params.toString()}`, {
+      return fetch(`${baseUrl}?${params.toString()}`, {
         headers: supabaseHeaders(currentAuth.accessToken),
       });
     }
 
     let res = await run(auth);
     if (res.status === 401) {
-      const newAuth = await handleJwt401(res, "load assistant voice");
-      if (!newAuth) return null;
+      const newAuth = await handleJwt401(res, "load voice");
+      if (!newAuth) {
+        setStatus("Session expired. Please log in again.", true);
+        return;
+      }
       auth = newAuth;
-      res  = await run(auth);
+      res = await run(auth);
     }
 
     if (!res.ok) {
       console.warn("loadCurrentVoice HTTP error", res.status, await res.text());
-      return null;
+      return;
     }
 
     const rows = await res.json();
-    const data = rows && rows[0];
-    return data && data.agent_voice ? data.agent_voice : null;
+    if (rows && rows[0] && rows[0].agent_voice) {
+      currentVoiceId = rows[0].agent_voice;
+    }
   }
 
+  // 3) Render voices grid
+  function renderVoices() {
+    grid.innerHTML = "";
+    VOICES.forEach((voice) => {
+      const card = document.createElement("div");
+      card.className = "voice-card";
+      card.dataset.voiceId = voice.id;
+
+      if (currentVoiceId && voice.id === currentVoiceId) {
+        card.classList.add("selected");
+      }
+
+      card.innerHTML = `
+        <div class="voice-avatar-wrapper">
+          <img class="voice-avatar" src="${voice.avatar}" alt="${voice.name}" loading="lazy" />
+        </div>
+        <div class="voice-body">
+          <h3 class="voice-name">${voice.name}</h3>
+          <p class="voice-meta">
+            ${voice.gender ? voice.gender : ""}${
+              voice.gender && voice.accent ? " · " : ""
+            }${voice.accent ? voice.accent : ""}${
+              (voice.gender || voice.accent) && voice.age ? " · " : ""
+            }${voice.age ? voice.age : ""}
+          </p>
+          <div class="voice-actions">
+            <button
+              type="button"
+              class="btn-secondary small voice-preview-btn"
+              data-role="preview-voice"
+              data-preview-url="${voice.preview}"
+              data-voice-id="${voice.id}"
+            >
+              ▶ Preview
+            </button>
+            <button
+              type="button"
+              class="btn-primary small voice-select-btn"
+              data-role="select-voice"
+              data-voice-id="${voice.id}"
+            >
+              Select this voice
+            </button>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function markSelected(voiceId) {
+    const cards = grid.querySelectorAll(".voice-card");
+    cards.forEach((card) => {
+      card.classList.toggle("selected", card.dataset.voiceId === voiceId);
+    });
+  }
+
+  // 4) Save selected voice into assistants.agent_voice
   async function saveVoice(voiceId) {
     setStatus("Saving voice…");
 
@@ -401,7 +466,7 @@ async function initAccountVoicesView() {
     };
 
     async function run(currentAuth) {
-      return fetch(assistantsUrl, {
+      return fetch(baseUrl, {
         method: "POST",
         headers: {
           ...supabaseHeaders(currentAuth.accessToken),
@@ -413,13 +478,13 @@ async function initAccountVoicesView() {
 
     let res = await run(auth);
     if (res.status === 401) {
-      const newAuth = await handleJwt401(res, "save assistant voice");
+      const newAuth = await handleJwt401(res, "save voice");
       if (!newAuth) {
-        setStatus("Session expired. Please log in.", true);
+        setStatus("Session expired. Please log in again.", true);
         return false;
       }
       auth = newAuth;
-      res  = await run(auth);
+      res = await run(auth);
     }
 
     if (!res.ok) {
@@ -428,69 +493,82 @@ async function initAccountVoicesView() {
       return false;
     }
 
-    setStatus("Voice saved.");
-    setTimeout(() => setStatus(""), 1500);
+    setStatus("Voice saved. This will be used for new calls.");
+    setTimeout(() => setStatus(""), 1800);
+    currentVoiceId = voiceId;
+    markSelected(voiceId);
     return true;
   }
 
-  // Event delegation for preview + select
+  // 5) Audio preview logic
   let currentPreviewBtn = null;
 
-  grid.addEventListener("click", async (e) => {
-    const previewBtn = e.target.closest(".voice-preview-btn");
-    const selectBtn  = e.target.closest(".voice-select-btn");
+  function stopPreview() {
+    if (!audioEl) return;
+    audioEl.pause();
+    audioEl.currentTime = 0;
+    if (currentPreviewBtn) {
+      currentPreviewBtn.classList.remove("playing");
+      currentPreviewBtn = null;
+    }
+  }
+
+  async function handlePreviewClick(btn) {
+    if (!audioEl) return;
+
+    const url = btn.dataset.previewUrl;
+    if (!url) return;
+
+    // Toggle if same button
+    if (currentPreviewBtn === btn && !audioEl.paused) {
+      stopPreview();
+      return;
+    }
+
+    // Switch to new preview
+    stopPreview();
+    currentPreviewBtn = btn;
+    currentPreviewBtn.classList.add("playing");
+
+    try {
+      audioEl.src = url;
+      await audioEl.play();
+    } catch (err) {
+      console.error("Preview play error:", err);
+      setStatus("Could not play preview.", true);
+      stopPreview();
+    }
+  }
+
+  // Click delegation for preview + select
+  grid.addEventListener("click", (event) => {
+    const previewBtn = event.target.closest("[data-role='preview-voice']");
+    const selectBtn  = event.target.closest("[data-role='select-voice']");
 
     if (previewBtn) {
-      const audioUrl = previewBtn.getAttribute("data-audio");
-      if (!audioUrl || !audioEl) return;
-
-      try {
-        if (currentPreviewBtn && currentPreviewBtn !== previewBtn) {
-          currentPreviewBtn.classList.remove("playing");
-        }
-        currentPreviewBtn = previewBtn;
-
-        previewBtn.classList.add("playing");
-        audioEl.src = audioUrl;
-        await audioEl.play();
-      } catch (err) {
-        console.error("Preview play error", err);
-        setStatus("Could not play preview.", true);
-      }
+      event.preventDefault();
+      handlePreviewClick(previewBtn);
       return;
     }
 
     if (selectBtn) {
-      const card = selectBtn.closest(".voice-card");
-      if (!card) return;
-      const voiceId = card.getAttribute("data-voice-id");
-      if (!voiceId) return;
-
-      const ok = await saveVoice(voiceId);
-      if (!ok) return;
-
-      // Update UI selection
-      grid.querySelectorAll(".voice-card").forEach((c) => {
-        const pill = c.querySelector(".voice-selected-pill");
-        const btn  = c.querySelector(".voice-select-btn");
-        const isSelected = c === card;
-
-        c.classList.toggle("selected", isSelected);
-        if (pill) pill.style.display = isSelected ? "inline-flex" : "none";
-        if (btn)  btn.textContent   = isSelected ? "Selected" : "Select this voice";
-      });
+      event.preventDefault();
+      const voiceId = selectBtn.dataset.voiceId;
+      if (voiceId) {
+        saveVoice(voiceId);
+      }
     }
   });
 
-  if (audioEl) {
-    audioEl.addEventListener("ended", () => {
-      if (currentPreviewBtn) {
-        currentPreviewBtn.classList.remove("playing");
-        currentPreviewBtn = null;
-      }
-    });
-  }
+  // Stop audio if user leaves the Voices tab
+  window.addEventListener("hashchange", () => {
+    const hash = (location.hash || "").replace("#", "");
+    if (hash !== "voices") {
+      stopPreview();
+    }
+  });
 
-  const currentVoiceId = await loadCurrentVoice();
-  renderVoices(currentVoiceId);
-}
+  await loadCurrentVoice();
+  renderVoices();
+  setStatus("");
+};
