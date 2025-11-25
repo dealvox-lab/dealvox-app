@@ -939,7 +939,7 @@ document.addEventListener("DOMContentLoaded", () => {
     account:   initAccountProfileView,
     assistant: initAccountAssistantView,
     api:       initApiKeySection,
-    voices:    () => {}, // no extra JS needed; partial has its own script
+    voices:    () => window.initVoicesView && window.initVoicesView(),
   };
 
   function setActiveLink(view) {
