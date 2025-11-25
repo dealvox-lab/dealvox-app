@@ -10,9 +10,9 @@
 
 /* Layout */
 .account-layout{
-  display:flex;                /* 👈 this is the missing piece */
+  display:flex;
   align-items: flex-start;
-  min-height: calc(100vh - 72px); /* leave room for your global header */
+  min-height: calc(100vh - 72px);
   background: var(--bg);
 }
 
@@ -328,7 +328,7 @@
   padding: 10px 12px;
   border: 1px solid var(--border);
   overflow-x: auto;
-  white-space: pre; /* keep formatting */
+  white-space: pre;
 }
 
 .copy-btn {
@@ -356,7 +356,6 @@
   opacity: 1;
 }
 
-
 .hint.small {
   font-size: 0.78rem;
 }
@@ -365,57 +364,85 @@
   color: #b91c1c;
 }
 
-/* Voices grid */
+/* -----------------------------------------------
+   VOICES SECTION (voices tab)
+------------------------------------------------- */
+
 .voices-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 18px;
-  margin-top: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
 }
 
 .voice-card {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   padding: 12px 14px;
   border-radius: 14px;
   border: 1px solid var(--border);
   background: #fff;
+  box-shadow: 0 4px 14px rgba(15,23,42,.04);
   align-items: flex-start;
 }
 
-.voice-avatar-wrapper {
+.voice-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 8px 22px rgba(32,117,174,.12);
+}
+
+.voice-avatar {
   flex: 0 0 56px;
   width: 56px;
   height: 56px;
-  border-radius: 999px;
+  border-radius: 50%;
   overflow: hidden;
   background: #e5e7eb;
 }
 
-.voice-avatar {
+.voice-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.voice-body {
+.voice-main {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.voice-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
 }
 
 .voice-name {
-  margin: 0 0 4px 0;
+  margin: 0;
   font-size: 0.98rem;
   font-weight: 600;
   color: var(--ink);
 }
 
-.voice-meta {
-  margin: 0 0 8px 0;
-  font-size: 0.82rem;
+.voice-tag {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
   color: var(--muted);
 }
 
-/* Secondary button for previews */
+.voice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* secondary button already exists; this just scales it for cards */
 .btn-secondary {
   display: inline-flex;
   align-items: center;
@@ -439,9 +466,7 @@
   background: rgba(32, 117, 174, 0.06);
 }
 
-.voice-preview-btn.playing {
-  background: var(--accent);
-  color: #ffffff;
-  border-color: var(--accent);
+.btn-primary.small {
+  padding: 6px 12px;
+  font-size: 0.8rem;
 }
-
