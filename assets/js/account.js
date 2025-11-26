@@ -230,10 +230,12 @@ async function initAccountAssistantView() {
 
   const deployForm   = document.getElementById("assistantDeployForm");
   const deployStatus = document.getElementById("asstDeployStatus");
+  const deployLoader = document.getElementById("asstDeployLoader");
+  const deployNoteEl = document.getElementById("asstDeployNote");
 
-  const form      = document.getElementById("assistantForm");
-  const saveStatusEl  = document.getElementById("asstStatus");
-  const saveBtn   = document.getElementById("asstSaveBtn");
+  const form         = document.getElementById("assistantForm");
+  const saveStatusEl = document.getElementById("asstStatus");
+  const saveBtn      = document.getElementById("asstSaveBtn");
 
   if (!deploySection || !manageSection) {
     console.warn("Assistant sections not found; skipping assistant init");
@@ -258,8 +260,41 @@ async function initAccountAssistantView() {
     return;
   }
 
-  const userId = auth.user.id;
+  const userId  = auth.user.id;
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/assistants`;
+
+  // ---- loader notes while deploying ----
+  const deployNotes = [
+    "Customizing your model for your industry…",
+    "Choosing the best conversational flow for your calls…",
+    "Configuring memory and safety rules…",
+    "Connecting your agent to Dealvox infrastructure…",
+    "Running a quick quality check on the voice settings…",
+  ];
+  let deployNoteTimer = null;
+  let deployNoteIndex = 0;
+
+  function startDeployLoader() {
+    if (deployLoader) deployLoader.hidden = false;
+    if (deployNoteEl) {
+      deployNoteIndex = 0;
+      deployNoteEl.textContent = deployNotes[deployNoteIndex];
+    }
+    if (deployNoteTimer) clearInterval(deployNoteTimer);
+    deployNoteTimer = setInterval(() => {
+      if (!deployNoteEl) return;
+      deployNoteIndex = (deployNoteIndex + 1) % deployNotes.length;
+      deployNoteEl.textContent = deployNotes[deployNoteIndex];
+    }, 30000); // every 30 seconds
+  }
+
+  function stopDeployLoader() {
+    if (deployLoader) deployLoader.hidden = true;
+    if (deployNoteTimer) {
+      clearInterval(deployNoteTimer);
+      deployNoteTimer = null;
+    }
+  }
 
   // ---- helper setters ----
   function setIfExists(id, value) {
@@ -287,16 +322,16 @@ async function initAccountAssistantView() {
       const newAuth = await handleJwt401(res, "load assistant");
       if (!newAuth) {
         if (saveStatusEl) saveStatusEl.textContent = "Session expired. Please log in.";
-        return;
+        return false;
       }
       auth = newAuth;
-      res = await run(auth);
+      res  = await run(auth);
     }
 
     if (!res.ok) {
       console.error("Assistant load HTTP error:", res.status, await res.text());
       if (saveStatusEl) saveStatusEl.textContent = "Could not load assistant.";
-      return;
+      return false;
     }
 
     const rows = await res.json();
@@ -325,106 +360,93 @@ async function initAccountAssistantView() {
     }
 
     if (saveStatusEl) saveStatusEl.textContent = "";
+    return !!data;
   }
 
-  // ---- DEPLOY ASSISTANT (STEP 1) ----
-async function deployAssistant() {
-  if (!deployForm) return;
-  if (deployStatus) deployStatus.textContent = "Deploying…";
+  // ---- poll until n8n writes the assistant row ----
+  async function pollForAssistantRecord(timeoutMs = 5 * 60 * 1000, intervalMs = 15000) {
+    const deadline = Date.now() + timeoutMs;
 
-  const newNameEl      = document.getElementById("asstNewName");
-  const newTypeEl      = document.getElementById("asstNewType");
-  const newPhoneAreaEl = document.getElementById("asstNewPhoneArea");
-  const newVoiceEl     = document.getElementById("asstNewVoice");
-  const newIntroEl     = document.getElementById("asstNewIntro");
-
-  const agentName  = newNameEl ? newNameEl.value.trim() : "";
-  const agentType  = newTypeEl ? newTypeEl.value : "sales";
-  const phoneArea  = newPhoneAreaEl ? newPhoneAreaEl.value : "custom";
-  const agentVoice = newVoiceEl ? newVoiceEl.value : "female_friendly";
-  const intro      = newIntroEl ? newIntroEl.value.trim() : "";
-
-  // Generate a simple agent ID
-  let agentId;
-  if (crypto && typeof crypto.randomUUID === "function") {
-    agentId = crypto.randomUUID().replace(/-/g, "").slice(0, 28);
-  } else {
-    agentId = "agent_" + Math.random().toString(36).slice(2, 18);
-  }
-
-  const payload = {
-    user_id:      userId,
-    agent_id:     agentId,
-    agent_name:   agentName || null,
-    agent_type:   agentType || null,
-    phone_area:   phoneArea || null,
-    agent_voice:  agentVoice || null,
-    intro_prompt: intro || null,
-    is_published: false,
-    language:     "en-US",
-    version:      1,
-  };
-
-  async function run(currentAuth) {
-    return fetch(baseUrl, {
-      method: "POST",
-      headers: {
-        ...supabaseHeaders(currentAuth.accessToken),
-        Prefer: "return=minimal",
-      },
-      body: JSON.stringify(payload),
-    });
-  }
-
-  try {
-    let res = await run(auth);
-    if (res.status === 401) {
-      const newAuth = await handleJwt401(res, "deploy assistant");
-      if (!newAuth) {
-        if (deployStatus) deployStatus.textContent = "Session expired. Please log in.";
-        return;
-      }
-      auth = newAuth;
-      res  = await run(auth);
+    while (Date.now() < deadline) {
+      const hasAssistant = await loadAssistant();
+      if (hasAssistant) return true;
+      await new Promise(r => setTimeout(r, intervalMs));
     }
+    return false;
+  }
 
-    if (!res.ok) {
-      console.error("Assistant deploy HTTP error:", res.status, await res.text());
-      if (deployStatus) deployStatus.textContent = "Failed to deploy. Try again.";
+  // ---- DEPLOY ASSISTANT (STEP 1) – WEBHOOK ONLY ----
+  async function deployAssistant() {
+    if (!deployForm) return;
+
+    const newNameEl      = document.getElementById("asstNewName");
+    const newTypeEl      = document.getElementById("asstNewType");
+    const newPhoneAreaEl = document.getElementById("asstNewPhoneArea");
+    const newVoiceEl     = document.getElementById("asstNewVoice");
+
+    const agentName  = newNameEl ? newNameEl.value.trim() : "";
+    const agentType  = newTypeEl ? newTypeEl.value : "conversation_flow_381392a33119";
+    const phoneArea  = newPhoneAreaEl ? newPhoneAreaEl.value.trim() : "";
+    const agentVoice = newVoiceEl ? newVoiceEl.value : "11labs-Billy";
+
+    if (!agentName) {
+      if (deployStatus) deployStatus.textContent = "Please enter an agent name first.";
       return;
     }
 
-    // ✅ SUCCESS: update UI text with agent ID
     if (deployStatus) {
-      deployStatus.textContent = `The agent ID ${agentId} is deployed successfully.`;
+      deployStatus.textContent = "Deployment started. This usually takes 3–4 minutes…";
     }
+    startDeployLoader();
 
-  // ✅ OPTIONAL WEBHOOK → n8n (fire-and-forget)
-try {
-  fetch("https://dealvox-840984531750.us-east4.run.app/webhook/05020ee1-4a28-4ca7-9603-783e6430934e", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      agentName,
-      agentType,
-      agentVoice,
-      intro,   // 👈 NEW FIELD
-    }),
-  });
-} catch (hookErr) {
-  console.warn("Deploy webhook failed (non-blocking):", hookErr);
-}
+    const webhookUrl =
+      "https://dealvox-840984531750.us-east4.run.app/webhook/05020ee1-4a28-4ca7-9603-783e6430934e";
 
+    try {
+      const resp = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          userId:    userId,
+          agentName: agentName,
+          agentType: agentType,
+          agentVoice: agentVoice,
+          // phoneArea is available if you want it: phoneArea,
+        }),
+      });
 
-    // Reload assistant data into manage view
-    await loadAssistant();
-  } catch (e) {
-    console.error("Assistant deploy error:", e);
-    if (deployStatus) deployStatus.textContent = "Failed to deploy. Try again.";
+      if (!resp.ok) {
+        console.error("Deploy webhook error:", resp.status, await resp.text());
+        if (deployStatus) deployStatus.textContent = "Could not start deployment. Try again.";
+        stopDeployLoader();
+        return;
+      }
+
+      if (deployStatus) {
+        deployStatus.textContent =
+          "Your agent is being prepared. We’ll open the settings as soon as it’s ready…";
+      }
+
+      const ok = await pollForAssistantRecord();
+      stopDeployLoader();
+
+      if (!ok) {
+        if (deployStatus) {
+          deployStatus.textContent =
+            "Still deploying… You can refresh this page in a couple of minutes.";
+        }
+        return;
+      }
+
+      if (deployStatus) {
+        deployStatus.textContent = "Agent deployed. You can now adjust details below.";
+      }
+    } catch (e) {
+      console.error("Assistant deploy error:", e);
+      stopDeployLoader();
+      if (deployStatus) deployStatus.textContent = "Failed to deploy. Try again.";
+    }
   }
-}
 
   // ---- SAVE ASSISTANT (STEP 2) ----
   async function saveAssistant() {
@@ -492,7 +514,7 @@ try {
           return;
         }
         auth = newAuth;
-        res = await run(auth);
+        res  = await run(auth);
       }
 
       if (!res.ok) {
@@ -526,7 +548,7 @@ try {
     });
   }
 
-  // Initial load
+  // Initial load – decide which step to show
   loadAssistant();
 }
 
