@@ -355,6 +355,23 @@ async function initAccountAssistantView() {
     } else {
       agentId = "agent_" + Math.random().toString(36).slice(2, 18);
     }
+    
+  // show loader only now
+  if (deployLoader) deployLoader.style.display = "inline-flex";
+  if (deployNoteEl) deployNoteEl.textContent = "Customizing your model…";
+
+      // on success path after you schedule loadAssistant()
+  clearInterval(noteTimer);
+  if (deployLoader) deployLoader.style.display = "none";
+
+  // and in the catch block:
+} catch (err) {
+  console.error("Assistant deploy error:", err);
+  clearInterval(noteTimer);
+  if (deployLoader) deployLoader.style.display = "none";
+  if (deployNoteEl) deployNoteEl.textContent = "Failed to deploy. Try again.";
+}
+
 
     // Local “deploying…” UI
     if (deployLoader) deployLoader.hidden = false;
