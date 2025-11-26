@@ -565,7 +565,7 @@ async function initAccountAssistantView() {
       const res = await fetch(deleteWebhookUrl, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ userId, agentId }),
+        body: JSON.stringify({ userId, agentId, agentType }),
       });
 
       if (!res.ok) {
