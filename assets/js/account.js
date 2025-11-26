@@ -228,15 +228,14 @@ async function initAccountAssistantView() {
   const deploySection = document.getElementById("assistantInitial");
   const manageSection = document.getElementById("assistantManage");
 
-  const deployForm   = document.getElementById("assistantDeployForm");
-  const deployStatus = document.getElementById("asstDeployStatus");
-  const deployLoader = document.getElementById("asstDeployLoader");
-  const deployNoteEl = document.getElementById("asstDeployNote");
+  const deployForm     = document.getElementById("assistantDeployForm");
+  const deployLoader   = document.getElementById("asstDeployLoader");
+  const deployNoteEl   = document.getElementById("asstDeployNote");
 
-  const form         = document.getElementById("assistantForm");
-  const saveStatusEl = document.getElementById("asstStatus");
-  const saveBtn      = document.getElementById("asstSaveBtn");
-  const deleteBtn    = document.getElementById("asstDeleteBtn");
+  const form           = document.getElementById("assistantForm");
+  const saveStatusEl   = document.getElementById("asstStatus");
+  const saveBtn        = document.getElementById("asstSaveBtn");
+  const deleteBtn      = document.getElementById("asstDeleteBtn");
 
   if (!deploySection || !manageSection) {
     console.warn("Assistant sections not found; skipping assistant init");
@@ -264,129 +263,78 @@ async function initAccountAssistantView() {
   const userId  = auth.user.id;
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/assistants`;
 
-  // ---- loader notes while deploying ----
-  const deployNotes = [
-    "Customizing your model for your industry…",
-    "Choosing the best conversational flow for your calls…",
-    "Configuring memory and safety rules…",
-    "Uploading a custom language model",
-    "Checking the voice quality",
-    "Connecting your assistant to Dealvox infrastructure…",
-    "Running a quick quality check on the voice settings…",
-  ];
-  let deployNoteTimer = null;
-  let deployNoteIndex = 0;
-
-  function startDeployLoader() {
-    if (deployLoader) deployLoader.hidden = false;
-    if (deployNoteEl) {
-      deployNoteIndex = 0;
-      deployNoteEl.textContent = deployNotes[deployNoteIndex];
-    }
-    if (deployNoteTimer) clearInterval(deployNoteTimer);
-    deployNoteTimer = setInterval(() => {
-      if (!deployNoteEl) return;
-      deployNoteIndex = (deployNoteIndex + 1) % deployNotes.length;
-      deployNoteEl.textContent = deployNotes[deployNoteIndex];
-    }, 20000); // every 20 seconds
-  }
-
-  function stopDeployLoader() {
-    if (deployLoader) deployLoader.hidden = true;
-    if (deployNoteTimer) {
-      clearInterval(deployNoteTimer);
-      deployNoteTimer = null;
-    }
-  }
-
+  // helper setters
   function setIfExists(id, value) {
     const el = document.getElementById(id);
     if (el) el.value = value ?? "";
   }
 
+  // ---- LOAD ASSISTANT (detect existing vs new) ----
   async function loadAssistant() {
-  if (saveStatusEl) saveStatusEl.textContent = "Loading…";
+    if (saveStatusEl) saveStatusEl.textContent = "Loading…";
 
-  const params = new URLSearchParams();
-  params.set("select", "*");
-  params.set("user_id", `eq.${userId}`);
-  params.set("limit", "1");
+    const params = new URLSearchParams();
+    params.set("select", "*");
+    params.set("user_id", `eq.${userId}`);
+    params.set("limit", "1");
 
-  async function run(currentAuth) {
-    return fetch(`${baseUrl}?${params.toString()}`, {
-      headers: supabaseHeaders(currentAuth.accessToken),
-    });
-  }
-
-  let res = await run(auth);
-  if (res.status === 401) {
-    const newAuth = await handleJwt401(res, "load assistant");
-    if (!newAuth) {
-      if (saveStatusEl) saveStatusEl.textContent = "Session expired. Please log in.";
-      return false;
+    async function run(currentAuth) {
+      return fetch(`${baseUrl}?${params.toString()}`, {
+        headers: supabaseHeaders(currentAuth.accessToken),
+      });
     }
-    auth = newAuth;
-    res  = await run(auth);
-  }
 
-  if (!res.ok) {
-    console.error("Assistant load HTTP error:", res.status, await res.text());
-    if (saveStatusEl) saveStatusEl.textContent = "Could not load assistant.";
-    return false;
-  }
+    let res = await run(auth);
+    if (res.status === 401) {
+      const newAuth = await handleJwt401(res, "load assistant");
+      if (!newAuth) {
+        if (saveStatusEl) saveStatusEl.textContent = "Session expired. Please log in.";
+        return;
+      }
+      auth = newAuth;
+      res  = await run(auth);
+    }
 
-  const rows = await res.json();
-  const data = rows[0];
+    if (!res.ok) {
+      console.error("Assistant load HTTP error:", res.status, await res.text());
+      if (saveStatusEl) saveStatusEl.textContent = "Could not load assistant.";
+      return;
+    }
 
-  const phoneInput = document.getElementById("asstPhoneNumber");
-  const phoneHint  = document.getElementById("asstPhoneHint");
+    const rows = await res.json();
+    const data = rows[0];
 
-  if (data) {
-    deploySection.hidden = true;
-    manageSection.hidden = false;
+    if (data) {
+      // Existing assistant → show manage section
+      deploySection.hidden = true;
+      manageSection.hidden = false;
 
-    setIfExists("asstAgentId", data.agent_id);
-    setIfExists("asstAgentName", data.agent_name);
-    setIfExists("asstAgentType", data.agent_type);
-    setIfExists("asstAgentVoice", data.agent_voice);
-    setIfExists("asstPublished", data.is_published ? "true" : "false");
-    setIfExists("asstPrompt", data.prompt);
-    setIfExists("asstIntroPrompt", data.intro_prompt);
-    setIfExists("asstWebhookUrl", data.webhook_url);
+      setIfExists("asstAgentId", data.agent_id);
+      setIfExists("asstAgentName", data.agent_name);
+      setIfExists("asstAgentType", data.agent_type);
+      setIfExists("asstPhoneNumber", data.phone_number);
+      // voice from agent_voice or agent_type fallback
+      setIfExists("asstAgentVoice", data.agent_voice || data.agent_type);
+      setIfExists("asstPublished", data.is_published ? "true" : "false");
+      setIfExists("asstPrompt", data.prompt);
+      setIfExists("asstIntroPrompt", data.intro_prompt);
+      setIfExists("asstWebhookUrl", data.webhook_url);
 
-    // ---- PHONE NUMBER HANDLING ----
-    phoneInput.value = data.phone_number || "";
-    phoneInput.readOnly = true;
-
-    if (!data.phone_number) {
-      phoneHint.hidden = false;
-      saveBtn.disabled = true;
+      // If phone number is empty → show the "Buy a phone number" card (HTML already handles this)
+      const phoneInput = document.getElementById("asstPhoneNumber");
+      if (phoneInput && !phoneInput.value) {
+        phoneInput.placeholder = "Buy a phone number below first";
+      }
     } else {
-      phoneHint.hidden = true;
-      saveBtn.disabled = false;
+      // No assistant yet → initial deploy flow
+      deploySection.hidden = false;
+      manageSection.hidden = true;
     }
 
-  } else {
-    deploySection.hidden = false;
-    manageSection.hidden = true;
+    if (saveStatusEl) saveStatusEl.textContent = "";
   }
 
-  if (saveStatusEl) saveStatusEl.textContent = "";
-  return !!data;
-}
-
-  // Poll for record after webhook deployment
-  async function pollForAssistantRecord(timeoutMs = 5 * 60 * 1000, intervalMs = 15000) {
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
-      const hasAssistant = await loadAssistant();
-      if (hasAssistant) return true;
-      await new Promise(r => setTimeout(r, intervalMs));
-    }
-    return false;
-  }
-
-  // ---- DEPLOY ASSISTANT (STEP 1) – WEBHOOK ONLY ----
+  // ---- DEPLOY ASSISTANT (STEP 1) ----
   async function deployAssistant() {
     if (!deployForm) return;
 
@@ -397,80 +345,68 @@ async function initAccountAssistantView() {
 
     const agentName  = newNameEl ? newNameEl.value.trim() : "";
     const agentType  = newTypeEl ? newTypeEl.value : "conversation_flow_381392a33119";
-    const phoneArea  = newPhoneAreaEl ? newPhoneAreaEl.value.trim() : "";
+    const phoneArea  = newPhoneAreaEl ? newPhoneAreaEl.value : "custom";
     const agentVoice = newVoiceEl ? newVoiceEl.value : "11labs-Billy";
 
-    if (!agentName) {
-      if (deployStatus) deployStatus.textContent = "Please enter an assistant name first.";
-      return;
+    // Generate agent ID
+    let agentId;
+    if (crypto && typeof crypto.randomUUID === "function") {
+      agentId = crypto.randomUUID().replace(/-/g, "").slice(0, 28);
+    } else {
+      agentId = "agent_" + Math.random().toString(36).slice(2, 18);
     }
 
-    if (deployStatus) {
-      deployStatus.textContent = "Deployment started. This usually takes 3–4 minutes…";
-    }
-    startDeployLoader();
+    // Local “deploying…” UI
+    if (deployLoader) deployLoader.hidden = false;
+    if (deployNoteEl) deployNoteEl.textContent = "Customizing your model…";
 
-    const webhookUrl =
-      "https://dealvox-840984531750.us-east4.run.app/webhook/05020ee1-4a28-4ca7-9603-783e6430934e";
+    // simple rotating notes
+    const notes = [
+      "Customizing your model…",
+      "Choosing the best conversation flow…",
+      "Training assistant on your prompts…",
+      "Preparing voice and routing…",
+      "Final checks before going live…"
+    ];
+    let noteIndex = 0;
+    const noteTimer = setInterval(() => {
+      noteIndex = (noteIndex + 1) % notes.length;
+      if (deployNoteEl) deployNoteEl.textContent = notes[noteIndex];
+    }, 30000); // every 30s
 
+    // Fire webhook to n8n / backend
     try {
-      const resp = await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          userId:    userId,
-          agentName: agentName,
-          agentType: agentType,
-          agentVoice: agentVoice,
-          phoneArea: phoneArea || null,
-        }),
-      });
-
-      if (!resp.ok) {
-        console.error("Deploy webhook error:", resp.status, await resp.text());
-        if (deployStatus) deployStatus.textContent = "Could not start deployment. Try again.";
-        stopDeployLoader();
-        return;
-      }
-
-      if (deployStatus) {
-        deployStatus.textContent =
-          "Your assistant is being prepared. We’ll open the settings as soon as it’s ready…";
-      }
-
-      const ok = await pollForAssistantRecord();
-      stopDeployLoader();
-
-      if (!ok) {
-        if (deployStatus) {
-          deployStatus.textContent =
-            "Still deploying… You can refresh this page in a couple of minutes.";
+      await fetch(
+        "https://dealvox-840984531750.us-east4.run.app/webhook/05020ee1-4a28-4ca7-9603-783e6430934e",
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            userId: userId,
+            agentId,
+            agentName,
+            agentType,
+            agentVoice,
+            phoneArea,
+          }),
         }
-        return;
-      }
+      );
 
-      if (deployStatus) {
-        deployStatus.textContent = "Assistant deployed. You can now adjust details below.";
-      }
-    } catch (e) {
-      console.error("Assistant deploy error:", e);
-      stopDeployLoader();
-      if (deployStatus) deployStatus.textContent = "Failed to deploy. Try again.";
+      // n8n will write to Supabase; we just wait a bit then reload
+      setTimeout(() => {
+        clearInterval(noteTimer);
+        if (deployLoader) deployLoader.hidden = true;
+        loadAssistant();
+      }, 1000 * 5); // small delay; your flow takes longer but reload is cheap
+    } catch (err) {
+      console.error("Assistant deploy error:", err);
+      clearInterval(noteTimer);
+      if (deployLoader) deployLoader.hidden = true;
+      if (deployNoteEl) deployNoteEl.textContent = "Failed to deploy. Try again.";
     }
   }
 
-  // ---- helper: file → base64 for webhook payload ----
-  async function fileToBase64(file) {
-    const buf = await file.arrayBuffer();
-    let binary = "";
-    const bytes = new Uint8Array(buf);
-    for (let i = 0; i < bytes.length; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
-  }
-
-  // ---- SAVE ASSISTANT (STEP 2) – WEBHOOK ONLY ----
+  // ---- SAVE ASSISTANT (STEP 2) – webhook only ----
   async function saveAssistant() {
     if (!form || !saveBtn) return;
     saveBtn.disabled = true;
@@ -485,56 +421,40 @@ async function initAccountAssistantView() {
     const webhookUrlEl    = document.getElementById("asstWebhookUrl");
     const kbFileEl        = document.getElementById("asstKnowledgeFile");
 
-    const agentId   = agentIdEl   ? agentIdEl.value.trim()                : null;
-    const agentName = agentNameEl ? agentNameEl.value.trim() || null      : null;
-    const agentVoice = agentVoiceEl ? agentVoiceEl.value || null          : null;
-
-    const rawPublished = publishedEl ? publishedEl.value : "false";
-    const isPublished  = rawPublished === "true";
-
-    const generalPrompt = promptEl      ? promptEl.value.trim()      || null : null;
-    const intro         = introPromptEl ? introPromptEl.value.trim() || null : null;
-    const webhookURL    = webhookUrlEl  ? webhookUrlEl.value.trim()  || null : null;
+    const agentId   = agentIdEl   ? agentIdEl.value.trim()           : null;
+    const agentName = agentNameEl ? agentNameEl.value.trim()         : null;
+    const agentVoice= agentVoiceEl? agentVoiceEl.value               : null;
+    const rawPub    = publishedEl ? publishedEl.value                : "false";
+    const isPub     = rawPub === "true";
+    const generalPrompt = promptEl      ? promptEl.value.trim()      : "";
+    const intro         = introPromptEl ? introPromptEl.value.trim() : "";
+    const webhookUrl    = webhookUrlEl  ? webhookUrlEl.value.trim()  : "";
 
     const kbFile = kbFileEl && kbFileEl.files && kbFileEl.files[0]
       ? kbFileEl.files[0]
       : null;
 
-    let knowledgeBase = null;
-    try {
-      if (kbFile) {
-        const contentBase64 = await fileToBase64(kbFile);
-        knowledgeBase = {
-          filename: kbFile.name,
-          mimeType: kbFile.type || "application/octet-stream",
-          size: kbFile.size,
-          contentBase64,
-        };
-      }
-    } catch (fileErr) {
-      console.warn("Failed to encode knowledge base file:", fileErr);
-    }
-
-    const payload = {
-      agentName,
-      agentVoice,
-      isPublished,
-      generalPrompt,
-      intro,
-      knowledgeBase,
-      webhookURL,
-      userId,
-      agentId,
-    };
-
-    const saveWebhookUrl =
+    const webhookEndpoint =
       "https://dealvox-840984531750.us-east4.run.app/webhook/316d5604-22ab-4285-b0ad-6c2a886d822f";
 
     try {
-      const res = await fetch(saveWebhookUrl, {
+      const formData = new FormData();
+      formData.append("agentName", agentName || "");
+      formData.append("agentVoice", agentVoice || "");
+      formData.append("isPublished", String(isPub));
+      formData.append("generalPrompt", generalPrompt || "");
+      formData.append("intro", intro || "");
+      formData.append("webhookURL", webhookUrl || "");
+      formData.append("userId", userId);
+      formData.append("agentId", agentId || "");
+
+      if (kbFile) {
+        formData.append("knowledgeBase", kbFile, kbFile.name);
+      }
+
+      const res = await fetch(webhookEndpoint, {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       if (!res.ok) {
@@ -552,44 +472,70 @@ async function initAccountAssistantView() {
     }
   }
 
-  // ---- DELETE ASSISTANT – WEBHOOK ----
+  // ---- DELETE ASSISTANT (STEP 2) – webhook only ----
   async function deleteAssistant() {
+    if (!deleteBtn) return;
+
     const agentIdEl = document.getElementById("asstAgentId");
     const agentId   = agentIdEl ? agentIdEl.value.trim() : "";
 
     if (!agentId) {
-      if (saveStatusEl) saveStatusEl.textContent = "No assistant ID to delete.";
+      if (saveStatusEl) saveStatusEl.textContent = "No assistant ID found.";
       return;
     }
 
-    if (saveStatusEl) saveStatusEl.textContent = "Deleting assistant…";
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this assistant?"
+    );
+    if (!confirmed) return;
 
-    const deleteWebhookUrl =
+    deleteBtn.disabled = true;
+    if (saveStatusEl) saveStatusEl.textContent = "Deleting…";
+
+    const deleteEndpoint =
       "https://dealvox-840984531750.us-east4.run.app/webhook/40bc6a49-5009-4c66-905f-828e45fe6654";
 
     try {
-      const res = await fetch(deleteWebhookUrl, {
+      const res = await fetch(deleteEndpoint, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ userId, agentId, agentType }),
+        body: JSON.stringify({
+          userId,
+          agentId,
+        }),
       });
 
       if (!res.ok) {
-        console.error("Delete assistant webhook error:", res.status, await res.text());
+        console.error("Assistant delete webhook error:", res.status, await res.text());
         if (saveStatusEl) saveStatusEl.textContent = "Delete failed. Try again.";
+        deleteBtn.disabled = false;
         return;
       }
 
-      if (saveStatusEl) {
-        saveStatusEl.textContent =
-          "Delete requested. This can take a moment while we clean everything up.";
-      }
+      if (saveStatusEl) saveStatusEl.textContent = "Assistant deleted.";
 
-      // Give backend a moment and then reload
-      setTimeout(() => loadAssistant(), 4000);
+      // Locally reset UI to Step 1
+      manageSection.hidden = true;
+      deploySection.hidden = false;
+
+      // Clear fields
+      const clearIds = [
+        "asstAgentId",
+        "asstAgentName",
+        "asstAgentType",
+        "asstPhoneNumber",
+        "asstAgentVoice",
+        "asstPrompt",
+        "asstIntroPrompt",
+        "asstWebhookUrl",
+      ];
+      clearIds.forEach(id => setIfExists(id, ""));
+
+      deleteBtn.disabled = false;
     } catch (err) {
-      console.error("Delete assistant error:", err);
+      console.error("Assistant delete error:", err);
       if (saveStatusEl) saveStatusEl.textContent = "Delete failed. Try again.";
+      deleteBtn.disabled = false;
     }
   }
 
@@ -617,7 +563,7 @@ async function initAccountAssistantView() {
     });
   }
 
-  // Initial load – decide which step to show
+  // Initial load
   loadAssistant();
 }
 
