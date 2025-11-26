@@ -74,17 +74,19 @@
           </p>
         </div>
       </div>
-<div style="margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
   <button type="submit" class="btn-primary" id="asstDeployBtn">
     Deploy assistant
   </button>
-
-  <!-- Inline loader + note -->
+  <!-- Inline loader + note (spinner visible) -->
   <span id="asstDeployNote"
         class="muted"
-        style="font-size:0.85rem;display:flex;align-items:center;gap:6px;"
+        style="font-size:0.85rem;display:flex;align-items:center;gap:8px;"
         hidden>
-    <div class="spinner" style="width:16px;height:16px;border-width:2px;"></div>
+
+    <!-- Use the native Dealvox spinner -->
+    <div class="spinner" style="margin-right:2px;"></div>
+
     <span id="asstDeployNoteText">Customizing your model…</span>
   </span>
 </div>
