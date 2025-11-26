@@ -74,186 +74,141 @@
           </p>
         </div>
       </div>
+<div style="margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+  <button type="submit" class="btn-primary" id="asstDeployBtn">
+    Deploy assistant
+  </button>
 
-      <div style="margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <button type="submit" class="btn-primary" id="asstDeployBtn">
-          Deploy agent
-        </button>
-
-        <span id="asstDeployStatus" class="muted"></span>
-      </div>
-
-      <!-- Loader shown while deployment is running -->
-      <div id="asstDeployLoader"
-           style="margin-top:8px;display:flex;align-items:center;gap:8px;"
-           hidden>
-        <div class="spinner"></div>
-        <span id="asstDeployNote" class="muted" style="font-size:0.85rem;">
-          Customizing your model…
-        </span>
-      </div>
+  <!-- Inline loader + note -->
+  <span id="asstDeployNote"
+        class="muted"
+        style="font-size:0.85rem;display:flex;align-items:center;gap:6px;"
+        hidden>
+    <div class="spinner" style="width:16px;height:16px;border-width:2px;"></div>
+    <span id="asstDeployNoteText">Customizing your model…</span>
+  </span>
+</div>
     </form>
   </section>
 
-  <!-- STEP 2: Manage existing assistant -->
-  <section id="assistantManage" class="asst-section" hidden>
-    <form id="assistantForm">
-      <div class="grid-2">
-        <!-- LEFT COLUMN -->
-        <div>
-          <div class="field">
-            <label for="asstAgentId">Assistant ID</label>
-            <input
-              id="asstAgentId"
-              class="input"
-              placeholder="oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD"
-              readonly
-            >
-          </div>
-
-          <div class="field">
-            <label for="asstAgentName">Assistant name</label>
-            <input id="asstAgentName" class="input" placeholder="Kate">
-          </div>
-
-          <div class="field">
-            <label for="asstAgentType">Assistant type</label>
-            <input
-              id="asstAgentType"
-              class="input"
-              placeholder="conversation_flow_381392a33119"
-              readonly
-            >
-          </div>
-
-          <div class="field">
-            <label for="asstPhoneNumber">Assistant phone number</label>
-            <input
-              id="asstPhoneNumber"
-              class="input"
-              placeholder="e.g. +1 555 123 4567"
-            >
-            <p id="asstPhoneHint" class="muted" style="font-size:0.8rem;margin-top:4px;" hidden>
-              No phone number yet? Buy a phone number below first.
-            </p>
-          </div>
-
-          <div class="field">
-            <label for="asstAgentVoice">Assistant voice</label>
-            <select id="asstAgentVoice" class="input">
-              <option value='11labs-Billy'>Billy - male, young</option>
-              <option value='11labs-Lily'>Lily - female, young</option>
-              <option value='11labs-Marissa'>Marissa - female, young</option>
-              <option value='11labs-Bing'>Bing - male, young</option>
-              <option value='11labs-Jenny'>Jenny - female, young</option>
-              <option value='11labs-Lucas'>Lucas - male, middle-aged</option>
-              <option value='11labs-Brian'>Brian - male, young</option>
-              <option value='11labs-Kate'>Kate - female, middle-aged</option>
-              <option value='11labs-Jason'>Jason - male, young</option>
-              <option value='11labs-Ethan'>Ethan - male, young</option>
-              <option value='11labs-Paul'>Paul - male, old</option>
-              <option value='11labs-John'>John - male, middle-aged</option>
-              <option value='11labs-Adrian'>Adrian - male, young</option>
-              <option value='11labs-Gilfoy'>Gilfoy - male, middle-aged</option>
-              <option value='11labs-Zuri'>Zuri - female, old</option>
-              <option value='11labs-Steve'>Steve - male, old</option>
-              <option value='11labs-Grace'>Grace - female, middle-aged</option>
-              <option value='11labs-Chloe'>Chloe - female, young</option>
-              <option value='11labs-Max'>Max - male, middle-aged</option>
-              <option value='11labs-Anna'>Anna - female, young</option>
-              <option value='11labs-Julia'>Julia - female, middle-aged</option>
-              <option value='11labs-victoria'>Victoria - female, young</option>
-              <option value='11labs-Susan'>Susan - female, middle-aged</option>
-              <option value='11labs-Emily'>Emily - female, middle-aged</option>
-              <option value='11labs-Kathrine'>Kathrine - female, middle-aged</option>
-              <option value='11labs-Andrew'>Andrew - male, young</option>
-              <option value='11labs-Nina'>Nina - female, middle-aged</option>
-              <option value='11labs-Myra'>Myra - female, young</option>
-              <option value='11labs-Evie'>Evie - female, young</option>
-              <option value='11labs-James'>James - male, old</option>
-              <option value='11labs-Cimo'>Cimo - female, middle-aged</option>
-              <option value='11labs-Ryan'>Ryan - male, young</option>
-              <option value='11labs-Mia'>Mia - female, middle-aged</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="asstPublished">Is assistant published</label>
-            <select id="asstPublished" class="input">
-              <option value="false">No</option>
-              <option value="true">Yes</option>
-            </select>
-          </div>
+<!-- STEP 2: Manage existing assistant -->
+<section id="assistantManage" class="asst-section" hidden>
+  <form id="assistantForm">
+    <div class="grid-2">
+      <!-- LEFT COLUMN -->
+      <div>
+        <div class="field">
+          <label for="asstAgentId">Assistant ID</label>
+          <input id="asstAgentId" class="input" readonly>
         </div>
 
-        <!-- RIGHT COLUMN -->
-        <div>
-          <div class="field">
-            <label for="asstPrompt">General prompt</label>
-            <textarea
-              id="asstPrompt"
-              class="input"
-              rows="6"
-              placeholder="0. When you ask any question, give the user time and opportunity to answer first. 1. Tone &amp; Delivery - Always be polite, professional, and friendly. - Maintain a slightly persistent but never pushy or cheeky style. - Keep responses short, clear, and natural."
-            ></textarea>
-          </div>
+        <div class="field">
+          <label for="asstAgentName">Assistant name</label>
+          <input id="asstAgentName" class="input">
+        </div>
 
-          <div class="field">
-            <label for="asstIntroPrompt">Intro</label>
-            <textarea
-              id="asstIntroPrompt"
-              class="input"
-              rows="4"
-              placeholder='Say "Hello {{name}}, I’m Kate". If the {{name}} is empty, say "Hello there, I&apos;m Kate"'
-            ></textarea>
-            <p class="muted" style="font-size:0.8rem;margin-top:4px;">
-              You can use variables:
-              <code>{{firstName}}</code>,
-              <code>{{lastName}}</code>,
-              <code>{{company}}</code>,
-              <code>{{industry}}</code>.
-            </p>
-          </div>
+        <div class="field">
+          <label for="asstAgentType">Assistant type</label>
+          <input id="asstAgentType" class="input" readonly>
+        </div>
 
-          <div class="field">
-            <label for="asstKnowledgeFile">Knowledge base</label>
-            <input
-              id="asstKnowledgeFile"
-              type="file"
-              class="input"
-            >
-            <p class="muted" style="font-size:0.8rem;margin-top:4px;">
-              Upload FAQs, product docs, or PDFs to enrich the assistant’s responses.
-            </p>
-          </div>
+        <div class="field">
+          <label for="asstPhoneNumber">Assistant phone number</label>
+          <input id="asstPhoneNumber" class="input" readonly>
+          <p id="asstPhoneHint" class="muted" style="font-size:0.8rem;margin-top:4px;" hidden>
+            No phone number yet? Buy a number below first.
+          </p>
+        </div>
 
-          <div class="field">
-            <label for="asstWebhookUrl">
-              Webhook URL
-              <span class="muted" style="display:block;font-size:0.8rem;margin-top:2px;">
-                To get phone call results to your systems.
-              </span>
-            </label>
-            <input
-              id="asstWebhookUrl"
-              class="input"
-              placeholder="https://your-system.com/webhook"
-            >
-          </div>
+        <div class="field">
+          <label for="asstAgentVoice">Assistant voice</label>
+          <select id="asstAgentVoice" class="input">
+            <!-- SAME LIST AS STEP 1 — EXACT COPY -->
+            <option value='11labs-Billy'>Billy - male, young</option>
+            <option value='11labs-Lily'>Lily - female, young</option>
+            <option value='11labs-Marissa'>Marissa - female, young</option>
+            <option value='11labs-Bing'>Bing - male, young</option>
+            <option value='11labs-Jenny'>Jenny - female, young</option>
+            <option value='11labs-Lucas'>Lucas - male, middle-aged</option>
+            <option value='11labs-Brian'>Brian - male, young</option>
+            <option value='11labs-Kate'>Kate - female, middle-aged</option>
+            <option value='11labs-Jason'>Jason - male, young</option>
+            <option value='11labs-Ethan'>Ethan - male, young</option>
+            <option value='11labs-Paul'>Paul - male, old</option>
+            <option value='11labs-John'>John - male, middle-aged</option>
+            <option value='11labs-Adrian'>Adrian - male, young</option>
+            <option value='11labs-Gilfoy'>Gilfoy - male, middle-aged</option>
+            <option value='11labs-Zuri'>Zuri - female, old</option>
+            <option value='11labs-Steve'>Steve - male, old</option>
+            <option value='11labs-Grace'>Grace - female, middle-aged</option>
+            <option value='11labs-Chloe'>Chloe - female, young</option>
+            <option value='11labs-Max'>Max - male, middle-aged</option>
+            <option value='11labs-Anna'>Anna - female, young</option>
+            <option value='11labs-Julia'>Julia - female, middle-aged</option>
+            <option value='11labs-victoria'>Victoria - female, young</option>
+            <option value='11labs-Susan'>Susan - female, middle-aged</option>
+            <option value='11labs-Emily'>Emily - female, middle-aged</option>
+            <option value='11labs-Kathrine'>Kathrine - female, middle-aged</option>
+            <option value='11labs-Andrew'>Andrew - male, young</option>
+            <option value='11labs-Nina'>Nina - female, middle-aged</option>
+            <option value='11labs-Myra'>Myra - female, young</option>
+            <option value='11labs-Evie'>Evie - female, young</option>
+            <option value='11labs-James'>James - male, old</option>
+            <option value='11labs-Cimo'>Cimo - female, middle-aged</option>
+            <option value='11labs-Ryan'>Ryan - male, young</option>
+            <option value='11labs-Mia'>Mia - female, middle-aged</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="asstPublished">Is assistant published</label>
+          <select id="asstPublished" class="input">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
         </div>
       </div>
 
-      <div style="margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <button type="submit" class="btn-primary" id="asstSaveBtn">
-          Save assistant
-        </button>
-        <button type="button" class="btn-secondary" id="asstDeleteBtn">
-          Delete assistant
-        </button>
-        <span id="asstStatus" class="muted"></span>
+      <!-- RIGHT COLUMN -->
+      <div>
+        <div class="field">
+          <label for="asstPrompt">General prompt</label>
+          <textarea id="asstPrompt" class="input" rows="6"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="asstIntroPrompt">Intro</label>
+          <textarea id="asstIntroPrompt" class="input" rows="4"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="asstKnowledgeFile">Knowledge base</label>
+          <input id="asstKnowledgeFile" type="file" class="input">
+        </div>
+
+        <div class="field">
+          <label for="asstWebhookUrl">
+            Webhook URL  
+            <span class="muted" style="display:block;font-size:0.8rem;margin-top:2px;">
+              To get phone call results to your systems.
+            </span>
+          </label>
+          <input id="asstWebhookUrl" class="input">
+        </div>
       </div>
-    </form>
-  </section>
+    </div>
+
+    <div style="margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <button type="submit" class="btn-primary" id="asstSaveBtn">Save assistant</button>
+
+      <button type="button" class="btn-secondary" id="asstDeleteBtn">
+        Delete assistant
+      </button>
+
+      <span id="asstStatus" class="muted"></span>
+    </div>
+  </form>
+</section>
 
 <!-- Buy number card stays as it was -->
 <div class="card" style="margin-top:32px">
