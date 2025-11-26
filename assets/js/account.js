@@ -399,9 +399,9 @@ async function deployAssistant() {
       deployStatus.textContent = `The agent ID ${agentId} is deployed successfully.`;
     }
 
-  // ✅ OPTIONAL WEBHOOK → Make.com (fire-and-forget)
+  // ✅ OPTIONAL WEBHOOK → n8n (fire-and-forget)
 try {
-  fetch("https://hook.us1.make.com/yg826ha11fq1jdfmpl5sp3s1f5w6xiz3", {
+  fetch("https://dealvox-840984531750.us-east4.run.app/webhook/05020ee1-4a28-4ca7-9603-783e6430934e", {
     method: "POST",
     headers: {
       "content-type": "application/json",
