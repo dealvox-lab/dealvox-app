@@ -269,6 +269,8 @@ async function initAccountAssistantView() {
     "Customizing your model for your industry…",
     "Choosing the best conversational flow for your calls…",
     "Configuring memory and safety rules…",
+    "Uploading a custom language model",
+    "Checking the voice quality",
     "Connecting your assistant to Dealvox infrastructure…",
     "Running a quick quality check on the voice settings…",
   ];
@@ -286,7 +288,7 @@ async function initAccountAssistantView() {
       if (!deployNoteEl) return;
       deployNoteIndex = (deployNoteIndex + 1) % deployNotes.length;
       deployNoteEl.textContent = deployNotes[deployNoteIndex];
-    }, 30000); // every 30 seconds
+    }, 20000); // every 20 seconds
   }
 
   function stopDeployLoader() {
@@ -302,72 +304,76 @@ async function initAccountAssistantView() {
     if (el) el.value = value ?? "";
   }
 
-  // ---- LOAD ASSISTANT (detect existing vs new) ----
   async function loadAssistant() {
-    if (saveStatusEl) saveStatusEl.textContent = "Loading…";
+  if (saveStatusEl) saveStatusEl.textContent = "Loading…";
 
-    const params = new URLSearchParams();
-    params.set("select", "*");
-    params.set("user_id", `eq.${userId}`);
-    params.set("limit", "1");
+  const params = new URLSearchParams();
+  params.set("select", "*");
+  params.set("user_id", `eq.${userId}`);
+  params.set("limit", "1");
 
-    async function run(currentAuth) {
-      return fetch(`${baseUrl}?${params.toString()}`, {
-        headers: supabaseHeaders(currentAuth.accessToken),
-      });
-    }
+  async function run(currentAuth) {
+    return fetch(`${baseUrl}?${params.toString()}`, {
+      headers: supabaseHeaders(currentAuth.accessToken),
+    });
+  }
 
-    let res = await run(auth);
-    if (res.status === 401) {
-      const newAuth = await handleJwt401(res, "load assistant");
-      if (!newAuth) {
-        if (saveStatusEl) saveStatusEl.textContent = "Session expired. Please log in.";
-        return false;
-      }
-      auth = newAuth;
-      res  = await run(auth);
-    }
-
-    if (!res.ok) {
-      console.error("Assistant load HTTP error:", res.status, await res.text());
-      if (saveStatusEl) saveStatusEl.textContent = "Could not load assistant.";
+  let res = await run(auth);
+  if (res.status === 401) {
+    const newAuth = await handleJwt401(res, "load assistant");
+    if (!newAuth) {
+      if (saveStatusEl) saveStatusEl.textContent = "Session expired. Please log in.";
       return false;
     }
+    auth = newAuth;
+    res  = await run(auth);
+  }
 
-    const rows = await res.json();
-    const data = rows[0];
+  if (!res.ok) {
+    console.error("Assistant load HTTP error:", res.status, await res.text());
+    if (saveStatusEl) saveStatusEl.textContent = "Could not load assistant.";
+    return false;
+  }
 
-    const phoneHintEl = document.getElementById("asstPhoneHint");
+  const rows = await res.json();
+  const data = rows[0];
 
-    if (data) {
-      // We have an assistant: show manage section
-      deploySection.hidden = true;
-      manageSection.hidden = false;
+  const phoneInput = document.getElementById("asstPhoneNumber");
+  const phoneHint  = document.getElementById("asstPhoneHint");
 
-      setIfExists("asstAgentId", data.agent_id);
-      setIfExists("asstAgentName", data.agent_name);
-      setIfExists("asstAgentType", data.agent_type);
-      // phone_area is still stored but not editable in UI
-      setIfExists("asstPhoneNumber", data.phone_number);
-      setIfExists("asstAgentVoice", data.agent_voice);
-      setIfExists("asstPublished", data.is_published ? "true" : "false");
-      setIfExists("asstPrompt", data.prompt);
-      setIfExists("asstIntroPrompt", data.intro_prompt);
-      setIfExists("asstWebhookUrl", data.webhook_url);
+  if (data) {
+    deploySection.hidden = true;
+    manageSection.hidden = false;
 
-      if (phoneHintEl) {
-        phoneHintEl.hidden = !!data.phone_number;
-      }
+    setIfExists("asstAgentId", data.agent_id);
+    setIfExists("asstAgentName", data.agent_name);
+    setIfExists("asstAgentType", data.agent_type);
+    setIfExists("asstAgentVoice", data.agent_voice);
+    setIfExists("asstPublished", data.is_published ? "true" : "false");
+    setIfExists("asstPrompt", data.prompt);
+    setIfExists("asstIntroPrompt", data.intro_prompt);
+    setIfExists("asstWebhookUrl", data.webhook_url);
+
+    // ---- PHONE NUMBER HANDLING ----
+    phoneInput.value = data.phone_number || "";
+    phoneInput.readOnly = true;
+
+    if (!data.phone_number) {
+      phoneHint.hidden = false;
+      saveBtn.disabled = true;
     } else {
-      // No assistant yet → initial deploy flow
-      deploySection.hidden = false;
-      manageSection.hidden = true;
-      if (phoneHintEl) phoneHintEl.hidden = true;
+      phoneHint.hidden = true;
+      saveBtn.disabled = false;
     }
 
-    if (saveStatusEl) saveStatusEl.textContent = "";
-    return !!data;
+  } else {
+    deploySection.hidden = false;
+    manageSection.hidden = true;
   }
+
+  if (saveStatusEl) saveStatusEl.textContent = "";
+  return !!data;
+}
 
   // Poll for record after webhook deployment
   async function pollForAssistantRecord(timeoutMs = 5 * 60 * 1000, intervalMs = 15000) {
