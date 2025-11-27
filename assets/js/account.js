@@ -269,7 +269,12 @@ async function initAccountAssistantView() {
     if (el) el.value = value ?? "";
   }
 
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   // ---- LOAD ASSISTANT (detect existing vs new) ----
+  // Returns true if an assistant row exists for this user, false otherwise.
   async function loadAssistant() {
     if (saveStatusEl) saveStatusEl.textContent = "Loading…";
 
@@ -289,7 +294,7 @@ async function initAccountAssistantView() {
       const newAuth = await handleJwt401(res, "load assistant");
       if (!newAuth) {
         if (saveStatusEl) saveStatusEl.textContent = "Session expired. Please log in.";
-        return;
+        return false;
       }
       auth = newAuth;
       res  = await run(auth);
@@ -298,11 +303,13 @@ async function initAccountAssistantView() {
     if (!res.ok) {
       console.error("Assistant load HTTP error:", res.status, await res.text());
       if (saveStatusEl) saveStatusEl.textContent = "Could not load assistant.";
-      return;
+      return false;
     }
 
     const rows = await res.json();
     const data = rows[0];
+
+    console.log("[assistants] loadAssistant rows:", rows);
 
     if (data) {
       // Existing assistant → show manage section
@@ -313,7 +320,6 @@ async function initAccountAssistantView() {
       setIfExists("asstAgentName", data.agent_name);
       setIfExists("asstAgentType", data.agent_type);
       setIfExists("asstPhoneNumber", data.phone_number);
-      // voice from agent_voice or agent_type fallback
       setIfExists("asstAgentVoice", data.agent_voice || data.agent_type);
       setIfExists("asstPublished", data.is_published ? "true" : "false");
       setIfExists("asstPrompt", data.prompt);
@@ -324,13 +330,16 @@ async function initAccountAssistantView() {
       if (phoneInput && !phoneInput.value) {
         phoneInput.placeholder = "Buy a phone number below first";
       }
+
+      if (saveStatusEl) saveStatusEl.textContent = "";
+      return true;
     } else {
       // No assistant yet → initial deploy flow
       deploySection.hidden = false;
       manageSection.hidden = true;
+      if (saveStatusEl) saveStatusEl.textContent = "";
+      return false;
     }
-
-    if (saveStatusEl) saveStatusEl.textContent = "";
   }
 
   // ---- DEPLOY ASSISTANT (STEP 1) ----
@@ -397,24 +406,43 @@ async function initAccountAssistantView() {
       if (deployNoteEl) {
         deployNoteEl.textContent = "Failed to deploy. Try again.";
       }
-    } finally {
+    }
+
+    if (failed) {
       clearInterval(noteTimer);
+      if (deployLoader) deployLoader.style.display = "none";
+      return;
+    }
 
-      if (failed) {
-        if (deployLoader) deployLoader.style.display = "none";
-        return;
+    // Success path: poll Supabase every 30s, up to ~2 minutes
+    if (deployNoteEl) {
+      deployNoteEl.textContent = "Final checks before showing your assistant…";
+    }
+
+    let found = false;
+    const maxAttempts = 4;      // 4 * 30s = 2 minutes
+    const delayMs     = 30000;  // 30 seconds
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      console.log(`[assistants] polling attempt ${attempt}/${maxAttempts}`);
+      await sleep(delayMs);
+      const exists = await loadAssistant();
+      if (exists) {
+        found = true;
+        break;
       }
+    }
 
+    clearInterval(noteTimer);
+    if (deployLoader) deployLoader.style.display = "none";
+
+    if (found) {
+      if (deployNoteEl) deployNoteEl.textContent = "Assistant ready.";
+    } else {
       if (deployNoteEl) {
-        deployNoteEl.textContent = "Final checks before showing your assistant…";
+        deployNoteEl.textContent =
+          "Assistant is still deploying in the background. Refresh this page in a moment.";
       }
-
-      // Let n8n write to Supabase → then reload into Step 2
-      setTimeout(async () => {
-        if (deployLoader) deployLoader.style.display = "none";
-        if (deployNoteEl) deployNoteEl.textContent = "Assistant ready.";
-        await loadAssistant();
-      }, 5000);
     }
   }
 
