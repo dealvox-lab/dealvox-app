@@ -320,7 +320,6 @@ async function initAccountAssistantView() {
       setIfExists("asstIntroPrompt", data.intro_prompt);
       setIfExists("asstWebhookUrl", data.webhook_url);
 
-      // If phone number is empty → show the "Buy a phone number" card (HTML already handles this)
       const phoneInput = document.getElementById("asstPhoneNumber");
       if (phoneInput && !phoneInput.value) {
         phoneInput.placeholder = "Buy a phone number below first";
@@ -338,23 +337,19 @@ async function initAccountAssistantView() {
   async function deployAssistant() {
     if (!deployForm) return;
 
-    const newNameEl      = document.getElementById("asstNewName");
-    const newTypeEl      = document.getElementById("asstNewType");
-    const newVoiceEl     = document.getElementById("asstNewVoice");
+    const newNameEl  = document.getElementById("asstNewName");
+    const newTypeEl  = document.getElementById("asstNewType");
+    const newVoiceEl = document.getElementById("asstNewVoice");
 
     const agentName  = newNameEl ? newNameEl.value.trim() : "";
     const agentType  = newTypeEl ? newTypeEl.value : "conversation_flow_381392a33119";
     const agentVoice = newVoiceEl ? newVoiceEl.value : "11labs-Billy";
 
-    //
-    // SHOW LOADER (only after button click)
-    //
+    // SHOW LOADER
     if (deployLoader) deployLoader.style.display = "inline-flex";
     if (deployNoteEl) deployNoteEl.textContent = "Customizing your model…";
 
-    //
     // ROTATING NOTES
-    //
     const notes = [
       "Customizing your model…",
       "Choosing the best conversation flow…",
@@ -413,6 +408,13 @@ async function initAccountAssistantView() {
       if (deployNoteEl) {
         deployNoteEl.textContent = "Final checks before showing your assistant…";
       }
+
+      // Let n8n write to Supabase → then reload into Step 2
+      setTimeout(async () => {
+        if (deployLoader) deployLoader.style.display = "none";
+        if (deployNoteEl) deployNoteEl.textContent = "Assistant ready.";
+        await loadAssistant();
+      }, 5000);
     }
   }
 
@@ -528,7 +530,6 @@ async function initAccountAssistantView() {
       manageSection.hidden = true;
       deploySection.hidden = false;
 
-      // Clear fields
       const clearIds = [
         "asstAgentId",
         "asstAgentName",
