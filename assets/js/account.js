@@ -447,70 +447,77 @@ async function initAccountAssistantView() {
   }
 
   // ---- SAVE ASSISTANT (STEP 2) – webhook only ----
-  async function saveAssistant() {
-    if (!form || !saveBtn) return;
-    saveBtn.disabled = true;
-    if (saveStatusEl) saveStatusEl.textContent = "Saving…";
+async function saveAssistant() {
+  if (!form || !saveBtn) return;
+  saveBtn.disabled = true;
+  if (saveStatusEl) saveStatusEl.textContent = "Saving…";
 
-    const agentIdEl       = document.getElementById("asstAgentId");
-    const agentNameEl     = document.getElementById("asstAgentName");
-    const agentVoiceEl    = document.getElementById("asstAgentVoice");
-    const publishedEl     = document.getElementById("asstPublished");
-    const promptEl        = document.getElementById("asstPrompt");
-    const introPromptEl   = document.getElementById("asstIntroPrompt");
-    const webhookUrlEl    = document.getElementById("asstWebhookUrl");
-    const kbFileEl        = document.getElementById("asstKnowledgeFile");
+  const agentIdEl     = document.getElementById("asstAgentId");
+  const agentNameEl   = document.getElementById("asstAgentName");
+  // Try all likely IDs so we always pick up the voice
+  const agentVoiceEl  =
+    document.getElementById("asstAgentVoice") ||
+    document.getElementById("asstNewVoice") ||
+    document.getElementById("asstVoice");
 
-    const agentId   = agentIdEl   ? agentIdEl.value.trim()           : null;
-    const agentName = agentNameEl ? agentNameEl.value.trim()         : null;
-    const agentVoice= agentVoiceEl? agentVoiceEl.value               : null;
-    const rawPub    = publishedEl ? publishedEl.value                : "false";
-    const isPub     = rawPub === "true";
-    const generalPrompt = promptEl      ? promptEl.value.trim()      : "";
-    const intro         = introPromptEl ? introPromptEl.value.trim() : "";
-    const webhookUrl    = webhookUrlEl  ? webhookUrlEl.value.trim()  : "";
+  const publishedEl   = document.getElementById("asstPublished");
+  const promptEl      = document.getElementById("asstPrompt");
+  const introPromptEl = document.getElementById("asstIntroPrompt");
+  const webhookUrlEl  = document.getElementById("asstWebhookUrl");
+  const kbFileEl      = document.getElementById("asstKnowledgeFile");
 
-    const kbFile = kbFileEl && kbFileEl.files && kbFileEl.files[0]
-      ? kbFileEl.files[0]
-      : null;
+  const agentId   = agentIdEl   ? agentIdEl.value.trim()       : "";
+  const agentName = agentNameEl ? agentNameEl.value.trim()     : "";
+  const agentVoice =
+    agentVoiceEl && agentVoiceEl.value ? agentVoiceEl.value : "";
 
-    const webhookEndpoint =
-      "https://dealvox-840984531750.us-east4.run.app/webhook/316d5604-22ab-4285-b0ad-6c2a886d822f";
+  const rawPub    = publishedEl ? publishedEl.value            : "false";
+  const isPub     = rawPub === "true";
+  const generalPrompt = promptEl      ? promptEl.value.trim()      : "";
+  const intro         = introPromptEl ? introPromptEl.value.trim() : "";
+  const webhookUrl    = webhookUrlEl  ? webhookUrlEl.value.trim()  : "";
 
-    try {
-      const formData = new FormData();
-      formData.append("agentName", agentName || "");
-      formData.append("agentVoice", agentVoice || "");
-      formData.append("isPublished", String(isPub));
-      formData.append("generalPrompt", generalPrompt || "");
-      formData.append("intro", intro || "");
-      formData.append("webhookURL", webhookUrl || "");
-      formData.append("userId", userId);
-      formData.append("agentId", agentId || "");
+  const kbFile = kbFileEl && kbFileEl.files && kbFileEl.files[0]
+    ? kbFileEl.files[0]
+    : null;
 
-      if (kbFile) {
-        formData.append("knowledgeBase", kbFile, kbFile.name);
-      }
+  const webhookEndpoint =
+    "https://dealvox-840984531750.us-east4.run.app/webhook/316d5604-22ab-4285-b0ad-6c2a886d822f";
 
-      const res = await fetch(webhookEndpoint, {
-        method: "POST",
-        body: formData,
-      });
+  try {
+    const formData = new FormData();
+    formData.append("agentName", agentName);
+    formData.append("agentVoice", agentVoice);       // ✅ always a string
+    formData.append("isPublished", String(isPub));
+    formData.append("generalPrompt", generalPrompt);
+    formData.append("intro", intro);
+    formData.append("webhookURL", webhookUrl);
+    formData.append("userId", userId);
+    formData.append("agentId", agentId);
 
-      if (!res.ok) {
-        console.error("Assistant save webhook error:", res.status, await res.text());
-        if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
-      } else {
-        if (saveStatusEl) saveStatusEl.textContent = "Saved.";
-        setTimeout(() => saveStatusEl && (saveStatusEl.textContent = ""), 1500);
-      }
-    } catch (e) {
-      console.error("Assistant save error:", e);
-      if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
-    } finally {
-      if (saveBtn) saveBtn.disabled = false;
+    if (kbFile) {
+      formData.append("knowledgeBase", kbFile, kbFile.name);
     }
+
+    const res = await fetch(webhookEndpoint, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      console.error("Assistant save webhook error:", res.status, await res.text());
+      if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
+    } else {
+      if (saveStatusEl) saveStatusEl.textContent = "Saved.";
+      setTimeout(() => saveStatusEl && (saveStatusEl.textContent = ""), 1500);
+    }
+  } catch (e) {
+    console.error("Assistant save error:", e);
+    if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
+  } finally {
+    if (saveBtn) saveBtn.disabled = false;
   }
+}
 
   // ---- DELETE ASSISTANT (STEP 2) – webhook only ----
   async function deleteAssistant() {
