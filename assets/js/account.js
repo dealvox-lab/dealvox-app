@@ -335,87 +335,94 @@ async function initAccountAssistantView() {
   }
 
   // ---- DEPLOY ASSISTANT (STEP 1) ----
-async function deployAssistant() {
-  if (!deployForm) return;
+  async function deployAssistant() {
+    if (!deployForm) return;
 
-  const newNameEl      = document.getElementById("asstNewName");
-  const newTypeEl      = document.getElementById("asstNewType");
-  const newPhoneAreaEl = document.getElementById("asstNewPhoneArea");
-  const newVoiceEl     = document.getElementById("asstNewVoice");
+    const newNameEl      = document.getElementById("asstNewName");
+    const newTypeEl      = document.getElementById("asstNewType");
+    const newVoiceEl     = document.getElementById("asstNewVoice");
 
-  const agentName  = newNameEl ? newNameEl.value.trim() : "";
-  const agentType  = newTypeEl ? newTypeEl.value : "conversation_flow_381392a33119";
-  const phoneArea  = newPhoneAreaEl ? newPhoneAreaEl.value : "custom";
-  const agentVoice = newVoiceEl ? newVoiceEl.value : "11labs-Billy";
+    const agentName  = newNameEl ? newNameEl.value.trim() : "";
+    const agentType  = newTypeEl ? newTypeEl.value : "conversation_flow_381392a33119";
+    const agentVoice = newVoiceEl ? newVoiceEl.value : "11labs-Billy";
 
-  // Generate agent ID
-  let agentId;
-  if (crypto && typeof crypto.randomUUID === "function") {
-    agentId = crypto.randomUUID().replace(/-/g, "").slice(0, 28);
-  } else {
-    agentId = "agent_" + Math.random().toString(36).slice(2, 18);
-  }
+    //
+    // SHOW LOADER (only after button click)
+    //
+    if (deployLoader) deployLoader.style.display = "inline-flex";
+    if (deployNoteEl) deployNoteEl.textContent = "Customizing your model…";
 
-  //
-  // SHOW LOADER (only after button click)
-  //
-  if (deployLoader) deployLoader.style.display = "inline-flex";
-  if (deployNoteEl) deployNoteEl.textContent = "Customizing your model…";
+    //
+    // ROTATING NOTES
+    //
+    const notes = [
+      "Customizing your model…",
+      "Choosing the best conversation flow…",
+      "Training assistant on your prompts…",
+      "Preparing voice and routing…",
+      "Final checks before going live…"
+    ];
+    let noteIndex = 0;
+    const noteTimer = setInterval(() => {
+      noteIndex = (noteIndex + 1) % notes.length;
+      if (deployNoteEl) deployNoteEl.textContent = notes[noteIndex];
+    }, 30000);
 
-  //
-  // ROTATING NOTES
-  //
-  const notes = [
-    "Customizing your model…",
-    "Choosing the best conversation flow…",
-    "Training assistant on your prompts…",
-    "Preparing voice and routing…",
-    "Final checks before going live…"
-  ];
-  let noteIndex = 0;
-  const noteTimer = setInterval(() => {
-    noteIndex = (noteIndex + 1) % notes.length;
-    if (deployNoteEl) deployNoteEl.textContent = notes[noteIndex];
-  }, 30000);
+    let failed = false;
 
-  //
-  // MAIN TRY BLOCK (your previous code was missing this)
-  //
-  try {
-    await fetch(
-      "https://dealvox-840984531750.us-east4.run.app/webhook/05020ee1-4a28-4ca7-9603-783e6430934e",
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          userId: userId,
-          agentId,
-          agentName,
-          agentType,
-          agentVoice,
-          phoneArea,
-        }),
+    try {
+      const res = await fetch(
+        "https://dealvox-840984531750.us-east4.run.app/webhook/05020ee1-4a28-4ca7-9603-783e6430934e",
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            agentName,
+            agentType,
+            agentVoice,
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        failed = true;
+        console.error(
+          "Assistant deploy webhook error:",
+          res.status,
+          await res.text()
+        );
+        if (deployNoteEl) {
+          deployNoteEl.textContent = "Failed to deploy. Try again.";
+        }
       }
-    );
-
-  } catch (err) {
-    //
-    // ERROR HANDLING
-    //
-    console.error("Assistant deploy error:", err);
-    clearInterval(noteTimer);
-
-    if (deployLoader) deployLoader.style.display = "none";
-    if (deployNoteEl) deployNoteEl.textContent = "Failed to deploy. Try again.";
-  }
-}
-  // Let n8n write → then reload
-    setTimeout(async () => {
+    } catch (err) {
+      failed = true;
+      console.error("Assistant deploy error:", err);
+      if (deployNoteEl) {
+        deployNoteEl.textContent = "Failed to deploy. Try again.";
+      }
+    } finally {
       clearInterval(noteTimer);
-      if (deployLoader) deployLoader.style.display = "none";
-      await loadAssistant();
-    }, 5000);
-  
+
+      if (failed) {
+        if (deployLoader) deployLoader.style.display = "none";
+        return;
+      }
+
+      if (deployNoteEl) {
+        deployNoteEl.textContent = "Final checks before showing your assistant…";
+      }
+
+      // Let n8n write to Supabase → then reload into Step 2
+      setTimeout(async () => {
+        if (deployLoader) deployLoader.style.display = "none";
+        if (deployNoteEl) deployNoteEl.textContent = "Assistant ready.";
+        await loadAssistant();
+      }, 5000);
+    }
+  }
+
   // ---- SAVE ASSISTANT (STEP 2) – webhook only ----
   async function saveAssistant() {
     if (!form || !saveBtn) return;
