@@ -446,16 +446,31 @@ async function initAccountAssistantView() {
     }
   }
 
+// ---- SAVE ASSISTANT (STEP 2) – webhook + Supabase check ----
+// Small helper to safely get a Supabase client instance
+function getSupabaseClient() {
+  const candidate = window.supabaseClient || window.supabase || null;
+
+  if (!candidate || typeof candidate.from !== "function") {
+    console.warn("Supabase client not available or invalid, skipping DB check.");
+    return null;
+  }
+
+  return candidate;
+}
+
 // Helper: wait for Supabase row update
 async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
   timeoutMs = 120000,    // 2 minutes
   intervalMs = 5000      // 5 seconds
 } = {}) {
-  if (!window.supabase || !agentId) return false;
+  const supabase = getSupabaseClient();
+  if (!supabase || !agentId) {
+    // No usable client → don't block save, treat as "updated"
+    return true;
+  }
 
-  const supabase = window.supabase;
   const AGENT_TABLE_NAME = "agents"; // 🔧 change to your real table name
-
   const start = Date.now();
 
   while (Date.now() - start < timeoutMs) {
@@ -489,7 +504,7 @@ async function saveAssistant() {
 
   const agentIdEl     = document.getElementById("asstAgentId");
   const agentNameEl   = document.getElementById("asstAgentName");
-  const agentVoiceEl  = document.getElementById("asstAgentVoice"); // ✅ unified
+  const agentVoiceEl  = document.getElementById("asstAgentVoice"); // unified
 
   const publishedEl   = document.getElementById("asstPublished");
   const promptEl      = document.getElementById("asstPrompt");
@@ -501,7 +516,7 @@ async function saveAssistant() {
   const agentName = agentNameEl ? agentNameEl.value.trim()     : "";
   const agentVoice = agentVoiceEl && agentVoiceEl.value
     ? agentVoiceEl.value
-    : ""; // ✅ always a string
+    : "";
 
   const rawPub    = publishedEl ? publishedEl.value            : "false";
   const isPub     = rawPub === "true";
@@ -520,9 +535,9 @@ async function saveAssistant() {
 
   // 1) Read current updated_at before sending webhook (if possible)
   try {
-    if (window.supabase && agentId) {
-      const supabase = window.supabase;
-      const AGENT_TABLE_NAME = "agents"; // 🔧 change to your real table name
+    const supabase = getSupabaseClient();
+    if (supabase && agentId) {
+      const AGENT_TABLE_NAME = "agents"; // 🔧 change if needed
 
       const { data, error } = await supabase
         .from(AGENT_TABLE_NAME)
@@ -541,7 +556,7 @@ async function saveAssistant() {
   try {
     const formData = new FormData();
     formData.append("agentName", agentName);
-    formData.append("agentVoice", agentVoice); // ✅ unified key in payload
+    formData.append("agentVoice", agentVoice);
     formData.append("isPublished", String(isPub));
     formData.append("generalPrompt", generalPrompt);
     formData.append("intro", intro);
