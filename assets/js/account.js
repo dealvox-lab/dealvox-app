@@ -413,13 +413,6 @@ async function initAccountAssistantView() {
       if (deployNoteEl) {
         deployNoteEl.textContent = "Final checks before showing your assistant…";
       }
-
-      // Let n8n write to Supabase → then reload into Step 2
-      setTimeout(async () => {
-        if (deployLoader) deployLoader.style.display = "none";
-        if (deployNoteEl) deployNoteEl.textContent = "Assistant ready.";
-        await loadAssistant();
-      }, 5000);
     }
   }
 
