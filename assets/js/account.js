@@ -398,13 +398,6 @@ async function deployAssistant() {
       }
     );
 
-    // Let n8n write → then reload
-    setTimeout(async () => {
-      clearInterval(noteTimer);
-      if (deployLoader) deployLoader.style.display = "none";
-      await loadAssistant();
-    }, 5000);
-
   } catch (err) {
     //
     // ERROR HANDLING
@@ -416,7 +409,13 @@ async function deployAssistant() {
     if (deployNoteEl) deployNoteEl.textContent = "Failed to deploy. Try again.";
   }
 }
-
+  // Let n8n write → then reload
+    setTimeout(async () => {
+      clearInterval(noteTimer);
+      if (deployLoader) deployLoader.style.display = "none";
+      await loadAssistant();
+    }, 5000);
+  
   // ---- SAVE ASSISTANT (STEP 2) – webhook only ----
   async function saveAssistant() {
     if (!form || !saveBtn) return;
