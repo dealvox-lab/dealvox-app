@@ -124,7 +124,6 @@
         <div class="field">
           <label for="asstAgentType">Assistant voice</label>
           <select id="asstAgentType" class="input">
-            <!-- SAME LIST AS STEP 1 — EXACT COPY -->
             <option value='11labs-Billy'>Billy - male, young</option>
             <option value='11labs-Lily'>Lily - female, young</option>
             <option value='11labs-Marissa'>Marissa - female, young</option>
@@ -160,6 +159,20 @@
             <option value='11labs-Mia'>Mia - female, middle-aged</option>
           </select>
         </div>
+                <div class="field">
+          <label for="asstKnowledgeFile">Knowledge base</label>
+          <input id="asstKnowledgeFile" type="file" class="input">
+        </div>
+
+        <div class="field">
+          <label for="asstWebhookUrl">
+            Webhook URL  
+            <span class="muted" style="display:block;font-size:0.8rem;margin-top:2px;">
+              To get phone call results to your systems.
+            </span>
+          </label>
+          <input id="asstWebhookUrl" class="input">
+        </div>
 
         <div class="field">
           <label for="asstPublished">Is assistant published</label>
@@ -174,27 +187,12 @@
       <div>
         <div class="field">
           <label for="asstPrompt">General prompt</label>
-          <textarea id="asstPrompt" class="input" rows="6"></textarea>
+          <textarea id="asstPrompt" class="input" rows="12"></textarea>
         </div>
 
         <div class="field">
           <label for="asstIntroPrompt">Intro</label>
-          <textarea id="asstIntroPrompt" class="input" rows="4"></textarea>
-        </div>
-
-        <div class="field">
-          <label for="asstKnowledgeFile">Knowledge base</label>
-          <input id="asstKnowledgeFile" type="file" class="input">
-        </div>
-
-        <div class="field">
-          <label for="asstWebhookUrl">
-            Webhook URL  
-            <span class="muted" style="display:block;font-size:0.8rem;margin-top:2px;">
-              To get phone call results to your systems.
-            </span>
-          </label>
-          <input id="asstWebhookUrl" class="input">
+          <textarea id="asstIntroPrompt" class="input" rows="8"></textarea>
         </div>
       </div>
     </div>
@@ -203,7 +201,7 @@
       <button type="submit" class="btn-primary" id="asstSaveBtn">Save assistant</button>
 
       <button type="button" class="btn-secondary" id="asstDeleteBtn">
-        Delete assistant
+        <span style="color:#FF0000;">Delete assistant</span>
       </button>
 
       <span id="asstStatus" class="muted"></span>
