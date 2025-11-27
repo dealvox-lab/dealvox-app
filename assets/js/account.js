@@ -348,7 +348,7 @@ async function initAccountAssistantView() {
 
     const newNameEl  = document.getElementById("asstNewName");
     const newTypeEl  = document.getElementById("asstNewType");
-    const newVoiceEl = document.getElementById("asstNewVoice");
+    const newVoiceEl = document.getElementById("asstAgentVoice");
 
     const agentName  = newNameEl ? newNameEl.value.trim() : "";
     const agentType  = newTypeEl ? newTypeEl.value : "conversation_flow_381392a33119";
@@ -446,19 +446,50 @@ async function initAccountAssistantView() {
     }
   }
 
-  // ---- SAVE ASSISTANT (STEP 2) – webhook only ----
+// Helper: wait for Supabase row update
+async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
+  timeoutMs = 120000,    // 2 minutes
+  intervalMs = 5000      // 5 seconds
+} = {}) {
+  if (!window.supabase || !agentId) return false;
+
+  const supabase = window.supabase;
+  const AGENT_TABLE_NAME = "agents"; // 🔧 change to your real table name
+
+  const start = Date.now();
+
+  while (Date.now() - start < timeoutMs) {
+    const { data, error } = await supabase
+      .from(AGENT_TABLE_NAME)
+      .select("id, updated_at")
+      .eq("id", agentId)
+      .maybeSingle();
+
+    if (!error && data) {
+      if (!previousUpdatedAt && data.updated_at) {
+        return true;
+      }
+      if (previousUpdatedAt && data.updated_at && data.updated_at !== previousUpdatedAt) {
+        return true;
+      }
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+
+  return false;
+}
+
+// ---- SAVE ASSISTANT (STEP 2) – webhook + Supabase check ----
 async function saveAssistant() {
   if (!form || !saveBtn) return;
+
   saveBtn.disabled = true;
-  if (saveStatusEl) saveStatusEl.textContent = "Saving…";
+  if (saveStatusEl) saveStatusEl.textContent = "Saving..";
 
   const agentIdEl     = document.getElementById("asstAgentId");
   const agentNameEl   = document.getElementById("asstAgentName");
-  // Try all likely IDs so we always pick up the voice
-  const agentVoiceEl  =
-    document.getElementById("asstAgentVoice") ||
-    document.getElementById("asstNewVoice") ||
-    document.getElementById("asstVoice");
+  const agentVoiceEl  = document.getElementById("asstAgentVoice"); // ✅ unified
 
   const publishedEl   = document.getElementById("asstPublished");
   const promptEl      = document.getElementById("asstPrompt");
@@ -468,8 +499,9 @@ async function saveAssistant() {
 
   const agentId   = agentIdEl   ? agentIdEl.value.trim()       : "";
   const agentName = agentNameEl ? agentNameEl.value.trim()     : "";
-  const agentVoice =
-    agentVoiceEl && agentVoiceEl.value ? agentVoiceEl.value : "";
+  const agentVoice = agentVoiceEl && agentVoiceEl.value
+    ? agentVoiceEl.value
+    : ""; // ✅ always a string
 
   const rawPub    = publishedEl ? publishedEl.value            : "false";
   const isPub     = rawPub === "true";
@@ -484,10 +516,32 @@ async function saveAssistant() {
   const webhookEndpoint =
     "https://dealvox-840984531750.us-east4.run.app/webhook/316d5604-22ab-4285-b0ad-6c2a886d822f";
 
+  let previousUpdatedAt = null;
+
+  // 1) Read current updated_at before sending webhook (if possible)
+  try {
+    if (window.supabase && agentId) {
+      const supabase = window.supabase;
+      const AGENT_TABLE_NAME = "agents"; // 🔧 change to your real table name
+
+      const { data, error } = await supabase
+        .from(AGENT_TABLE_NAME)
+        .select("id, updated_at")
+        .eq("id", agentId)
+        .maybeSingle();
+
+      if (!error && data && data.updated_at) {
+        previousUpdatedAt = data.updated_at;
+      }
+    }
+  } catch (e) {
+    console.warn("Could not read previous updated_at:", e);
+  }
+
   try {
     const formData = new FormData();
     formData.append("agentName", agentName);
-    formData.append("agentVoice", agentVoice);       // ✅ always a string
+    formData.append("agentVoice", agentVoice); // ✅ unified key in payload
     formData.append("isPublished", String(isPub));
     formData.append("generalPrompt", generalPrompt);
     formData.append("intro", intro);
@@ -508,8 +562,21 @@ async function saveAssistant() {
       console.error("Assistant save webhook error:", res.status, await res.text());
       if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
     } else {
-      if (saveStatusEl) saveStatusEl.textContent = "Saved.";
-      setTimeout(() => saveStatusEl && (saveStatusEl.textContent = ""), 1500);
+      // 2) Webhook OK – wait for Supabase to confirm via updated_at
+      const updated = await waitForAssistantUpdate(agentId, previousUpdatedAt, {
+        timeoutMs: 120000,
+        intervalMs: 5000
+      });
+
+      if (updated) {
+        if (saveStatusEl) saveStatusEl.textContent = "Saved.";
+      } else {
+        if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
+      }
+
+      setTimeout(() => {
+        if (saveStatusEl) saveStatusEl.textContent = "";
+      }, 2000);
     }
   } catch (e) {
     console.error("Assistant save error:", e);
