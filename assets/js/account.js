@@ -470,7 +470,7 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
     return true;
   }
 
-  const AGENT_TABLE_NAME = "agents"; // 🔧 change to your real table name
+  const AGENT_TABLE_NAME = "assistants"; // 🔧 change to your real table name
   const start = Date.now();
 
   while (Date.now() - start < timeoutMs) {
