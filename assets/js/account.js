@@ -416,7 +416,7 @@ async function initAccountAssistantView() {
 
     // Success path: poll Supabase every 30s, up to ~2 minutes
     if (deployNoteEl) {
-      deployNoteEl.textContent = "Final checks before showing your assistant…";
+      deployNoteEl.textContent = "Initializing the custom deployment…";
     }
 
     let found = false;
