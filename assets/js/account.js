@@ -370,7 +370,7 @@ async function initAccountAssistantView() {
     const noteTimer = setInterval(() => {
       noteIndex = (noteIndex + 1) % notes.length;
       if (deployNoteEl) deployNoteEl.textContent = notes[noteIndex];
-    }, 30000);
+    }, 20000);
 
     let failed = false;
 
@@ -504,7 +504,7 @@ async function saveAssistant() {
 
   const agentIdEl     = document.getElementById("asstAgentId");
   const agentNameEl   = document.getElementById("asstAgentName");
-  const agentVoiceEl  = document.getElementById("asstAgentVoice"); // unified
+  const agentVoiceEl  = document.getElementById("asstAgentVoice");
 
   const publishedEl   = document.getElementById("asstPublished");
   const promptEl      = document.getElementById("asstPrompt");
@@ -514,9 +514,7 @@ async function saveAssistant() {
 
   const agentId   = agentIdEl   ? agentIdEl.value.trim()       : "";
   const agentName = agentNameEl ? agentNameEl.value.trim()     : "";
-  const agentVoice = agentVoiceEl && agentVoiceEl.value
-    ? agentVoiceEl.value
-    : "";
+  const agentVoice = agentVoiceEl ? agentVoiceEl.value         : "";
 
   const rawPub    = publishedEl ? publishedEl.value            : "false";
   const isPub     = rawPub === "true";
