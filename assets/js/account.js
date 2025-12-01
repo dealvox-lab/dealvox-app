@@ -541,7 +541,7 @@ async function saveAssistant() {
 
       const { data, error } = await supabase
         .from(AGENT_TABLE_NAME)
-        .select("id, updated_at")
+        .select("agent_id, updated_at")
         .eq("id", agentId)
         .maybeSingle();
 
