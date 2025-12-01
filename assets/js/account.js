@@ -586,12 +586,12 @@ async function saveAssistant() {
    });
 
    if (updated) {
-    // Success case
-    if (saveStatusEl) saveStatusEl.textContent = "Saved.";
+    // 1. Show Success Message
+    if (saveStatusEl) saveStatusEl.textContent = "Saved. Reloading...";
     
-    // Clear the success message after 2 seconds
+    // 2. Wait 2 seconds, then Reload
     setTimeout(() => {
-     if (saveStatusEl) saveStatusEl.textContent = "";
+     window.location.reload();
     }, 2000);
 
    } else {
