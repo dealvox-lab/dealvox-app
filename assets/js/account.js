@@ -320,7 +320,7 @@ async function initAccountAssistantView() {
       setIfExists("asstAgentName", data.agent_name);
       setIfExists("asstAgentType", data.agent_type);
       setIfExists("asstPhoneNumber", data.phone_number);
-      setIfExists("asstAgentVoice", data.agent_voice || data.agent_type);
+      setIfExists("asstAgentVoice", data.agent_voice);
       setIfExists("asstPublished", data.is_published ? "true" : "false");
       setIfExists("asstPrompt", data.prompt);
       setIfExists("asstIntroPrompt", data.intro_prompt);
@@ -362,7 +362,7 @@ async function initAccountAssistantView() {
     const notes = [
       "Customizing your model…",
       "Choosing the best conversation flow…",
-      "Training assistant on your prompts…",
+      "Training assistant on basic prompts…",
       "Preparing voice and routing…",
       "Final checks before going live…"
     ];
@@ -414,14 +414,14 @@ async function initAccountAssistantView() {
       return;
     }
 
-    // Success path: poll Supabase every 30s, up to ~2 minutes
+    // Success path: poll Supabase every 15s, up to ~2 minutes
     if (deployNoteEl) {
       deployNoteEl.textContent = "Initializing the custom deployment…";
     }
 
     let found = false;
-    const maxAttempts = 4;      // 4 * 30s = 2 minutes
-    const delayMs     = 30000;  // 30 seconds
+    const maxAttempts = 8;      // 8 * 15s = 2 minutes
+    const delayMs     = 15000;  // 15 seconds
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       console.log(`[assistants] polling attempt ${attempt}/${maxAttempts}`);
