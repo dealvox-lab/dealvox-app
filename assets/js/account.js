@@ -577,22 +577,30 @@ async function saveAssistant() {
       console.error("Assistant save webhook error:", res.status, await res.text());
       if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
     } else {
-      // 2) Webhook OK – wait for Supabase to confirm via updated_at
-      const updated = await waitForAssistantUpdate(agentId, previousUpdatedAt, {
-        timeoutMs: 120000,
-        intervalMs: 1000
-      });
 
-      if (updated) {
-        if (saveStatusEl) saveStatusEl.textContent = "Saved.";
-      } else {
-        if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
-      }
+       // 2) Webhook OK – wait for Supabase to confirm via updated_at
+   const updated = await waitForAssistantUpdate(agentId, previousUpdatedAt, {
+    timeoutMs: 10000, // 🟢 Set timeout to 10 seconds (10,000 ms)
+    intervalMs: 1000  // 🟢 Check every 1 second
+   });
 
-      setTimeout(() => {
-        if (saveStatusEl) saveStatusEl.textContent = "";
-      }, 2000);
+   if (updated) {
+    // Success case
+    if (saveStatusEl) saveStatusEl.textContent = "Saved.";
+    
+    // Clear the success message after 2 seconds
+    setTimeout(() => {
+     if (saveStatusEl) saveStatusEl.textContent = "";
+    }, 2000);
+
+   } else {
+    // 🔴 Failure case (Timeout reached)
+    console.error("Database update timed out after 10 seconds");
+    if (saveStatusEl) {
+      // Set your specific error message here
+      saveStatusEl.textContent = "Save failed. Contact support if this persists.";
     }
+   }
   } catch (e) {
     console.error("Assistant save error:", e);
     if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
