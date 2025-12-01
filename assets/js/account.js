@@ -348,7 +348,7 @@ async function initAccountAssistantView() {
 
     const newNameEl  = document.getElementById("asstNewName");
     const newTypeEl  = document.getElementById("asstNewType");
-    const newVoiceEl = document.getElementById("asstAgentVoice");
+    const newVoiceEl = document.getElementById("asstNewVoice");
 
     const agentName  = newNameEl ? newNameEl.value.trim() : "";
     const agentType  = newTypeEl ? newTypeEl.value : "conversation_flow_381392a33119";
