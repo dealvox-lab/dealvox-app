@@ -476,8 +476,8 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
   while (Date.now() - start < timeoutMs) {
     const { data, error } = await supabase
       .from(AGENT_TABLE_NAME)
-      .select("id, updated_at")
-      .eq("id", agentId)
+      .select("agent_id, updated_at")
+      .eq("agent_id", agentId)
       .maybeSingle();
 
     if (!error && data) {
