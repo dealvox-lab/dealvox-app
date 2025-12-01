@@ -537,12 +537,12 @@ async function saveAssistant() {
   try {
     const supabase = getSupabaseClient();
     if (supabase && agentId) {
-      const AGENT_TABLE_NAME = "agents"; // 🔧 change if needed
+      const AGENT_TABLE_NAME = "assistants"; // 🔧 change if needed
 
       const { data, error } = await supabase
         .from(AGENT_TABLE_NAME)
         .select("agent_id, updated_at")
-        .eq("id", agentId)
+        .eq("agent_id", agentId)
         .maybeSingle();
 
       if (!error && data && data.updated_at) {
