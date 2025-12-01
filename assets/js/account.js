@@ -354,6 +354,9 @@ async function initAccountAssistantView() {
     const agentType  = newTypeEl ? newTypeEl.value : "conversation_flow_381392a33119";
     const agentVoice = newVoiceEl ? newVoiceEl.value : "11labs-Billy";
 
+    //debug
+    console.log("Sending to Webhook -> Name:", agentName, "Voice:", agentVoice);
+
     // SHOW LOADER
     if (deployLoader) deployLoader.style.display = "inline-flex";
     if (deployNoteEl) deployNoteEl.textContent = "Customizing your model…";
