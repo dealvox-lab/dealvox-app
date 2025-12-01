@@ -580,7 +580,7 @@ async function saveAssistant() {
       // 2) Webhook OK – wait for Supabase to confirm via updated_at
       const updated = await waitForAssistantUpdate(agentId, previousUpdatedAt, {
         timeoutMs: 120000,
-        intervalMs: 5000
+        intervalMs: 1000
       });
 
       if (updated) {
