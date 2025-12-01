@@ -599,9 +599,11 @@ async function saveAssistant() {
     if (saveStatusEl) {
       // Set your specific error message here
       saveStatusEl.textContent = "Save failed. Contact support if this persists.";
+       }
+     }
     }
-   }
-  } catch (e) {
+  }
+  catch (e) {
     console.error("Assistant save error:", e);
     if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
   } finally {
