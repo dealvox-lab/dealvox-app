@@ -175,15 +175,3 @@ async function openStripeCustomerPortal() {
     alert("Unable to open billing portal. Please try again later.");
   }
 }
-
-/* --------------------------
-   AUTO–INIT (if Billing is its own page)
---------------------------- */
-
-document.addEventListener("DOMContentLoaded", () => {
-  // If this file only loads on the Billing page, you can call directly:
-  initAccountBillingView();
-
-  // If you use hash routing/tabs, you can guard:
-  // if (window.location.hash.includes("#billing")) initAccountBillingView();
-});
