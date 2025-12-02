@@ -92,7 +92,7 @@
 /* UTILITY */
 
 .btn.primary {
-  background: #0070f3;
+  background: var(--accent);
   color: #fff;
   border-radius: 999px;
   padding: 8px 16px;
@@ -102,7 +102,7 @@
 
 .btn.ghost {
   background: #fff;
-  color: #1f2933;
+  color: #FF0000;
   border-radius: 999px;
   padding: 8px 16px;
   border: 1px solid #d5e0f0;
@@ -114,7 +114,7 @@
   padding: 0;
   background: none;
   border: none;
-  color: #0070f3;
+  color: var(--accent);
   cursor: pointer;
   font-size: 0.9rem;
 }
