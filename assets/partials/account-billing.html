@@ -1,17 +1,56 @@
-<div class="grid-2">
-  <div class="card">
-    <h2>Billing method</h2>
-    <div class="field">
-      <label>Cardholder name</label>
-      <input class="input" placeholder="Jane Doe">
+<div class="card">
+  <h2>Billing</h2>
+  <p>Manage your subscription, payment methods, and billing history.</p>
+
+  <!-- CURRENT PLAN -->
+  <section class="billing-block">
+    <h3 class="billing-title">Current plan</h3>
+    <div class="billing-current">
+      <div>
+        <div id="billingPlanName" class="billing-plan-name">Loading…</div>
+        <div id="billingPlanPrice" class="billing-plan-price"></div>
+        <div id="billingPlanRenewal" class="billing-plan-renewal text-muted"></div>
+      </div>
+
+      <div class="billing-actions">
+        <button id="billingChangePlanBtn" class="btn primary">Change plan</button>
+        <button id="billingCancelPlanBtn" class="btn ghost">Cancel plan</button>
+      </div>
     </div>
-    <div class="field">
-      <label>Card</label>
-      <input class="input" placeholder="**** **** **** 4242">
+  </section>
+
+  <!-- PAYMENT METHOD -->
+  <section class="billing-block">
+    <h3 class="billing-title">Payment method</h3>
+
+    <div id="billingPaymentMethod" class="billing-payment">
+      <p class="text-muted">Loading payment method…</p>
     </div>
-  </div>
-  <div class="card">
-    <h2>Invoices</h2>
-    <div class="empty">Invoices will appear once charges are generated.</div>
-  </div>
+
+    <button id="billingAddPaymentBtn" class="btn link-btn">+ Add payment method</button>
+  </section>
+
+  <!-- BILLING HISTORY -->
+  <section class="billing-block">
+    <h3 class="billing-title">Billing history</h3>
+
+    <table class="billing-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody id="billingHistoryBody">
+        <tr>
+          <td colspan="3" class="text-muted">Loading invoices…</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 </div>
+
+<!-- IMPORT FILES -->
+<link rel="stylesheet" href="/assets/css/account-billing.css">
+<script src="/assets/js/account-billing.js"></script>
