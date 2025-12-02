@@ -1139,6 +1139,14 @@ document.addEventListener("DOMContentLoaded", () => {
     assistant: initAccountAssistantView,
     api:       initApiKeySection,
     voices:    () => window.initVoicesView && window.initVoicesView(),
+      billing:   () => {
+        if (typeof initAccountBillingView === "function") {
+        console.log("[Billing] initAccountBillingView()");
+        initAccountBillingView();
+        } else {
+      console.warn("[Billing] initAccountBillingView not found");
+    }
+  },
   };
 
   function setActiveLink(view) {
