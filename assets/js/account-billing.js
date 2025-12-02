@@ -175,3 +175,8 @@ async function openStripeCustomerPortal() {
     alert("Unable to open billing portal. Please try again later.");
   }
 }
+
+async function initAccountBillingView() {
+  console.log("[Billing] initAccountBillingView called");
+  // …rest of the function…
+}
