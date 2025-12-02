@@ -109,7 +109,7 @@
   cursor: pointer;
 }
 
-.btn.link-btn {
+.btn.link-btn, a.btn.link-btn {
   margin-top: 8px;
   padding: 0;
   background: none;
