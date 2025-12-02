@@ -2,21 +2,33 @@
    BILLING VIEW (Billing tab)
    ---------------------------------------------------- */
 
+const BILLING_SUMMARY_ENDPOINT = "/api/billing-summary";
+const BILLING_PORTAL_ENDPOINT  = "/api/billing-portal";
+
 async function initAccountBillingView() {
+  console.log("[Billing] initAccountBillingView called");
+
   try {
-    const res = await fetch("/api/billing/summary", {
+    console.log("[Billing] calling", BILLING_SUMMARY_ENDPOINT);
+
+    const res = await fetch(BILLING_SUMMARY_ENDPOINT, {
       credentials: "include",
     });
 
-    if (!res.ok) throw new Error("Failed to load billing data");
+    console.log("[Billing] summary response status:", res.status);
+
+    if (!res.ok) {
+      throw new Error(`Failed to load billing data: HTTP ${res.status}`);
+    }
 
     const data = await res.json();
+    console.log("[Billing] summary data:", data);
 
     renderCurrentPlan(data.current_plan);
     renderPaymentMethods(data.payment_methods);
     renderInvoices(data.invoices);
   } catch (err) {
-    console.error(err);
+    console.error("[Billing] summary error:", err);
     const nameEl = document.getElementById("billingPlanName");
     if (nameEl) {
       nameEl.textContent = "Unable to load billing info.";
@@ -159,24 +171,24 @@ function renderInvoices(invoices) {
 --------------------------- */
 
 async function openStripeCustomerPortal() {
+  console.log("[Billing] opening portal:", BILLING_PORTAL_ENDPOINT);
+
   try {
-    const res = await fetch("/api/billing/portal", {
+    const res = await fetch(BILLING_PORTAL_ENDPOINT, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
     });
 
-    if (!res.ok) throw new Error("Failed to open billing portal");
+    console.log("[Billing] portal response status:", res.status);
+
+    if (!res.ok) throw new Error(`Failed to open billing portal: HTTP ${res.status}`);
 
     const { url } = await res.json();
+    console.log("[Billing] portal URL:", url);
     if (url) window.location.href = url;
   } catch (err) {
-    console.error(err);
+    console.error("[Billing] portal error:", err);
     alert("Unable to open billing portal. Please try again later.");
   }
-}
-
-async function initAccountBillingView() {
-  console.log("[Billing] initAccountBillingView called");
-  // …rest of the function…
 }
