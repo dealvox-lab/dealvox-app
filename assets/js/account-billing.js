@@ -7,6 +7,7 @@ async function initAccountBillingView() {
     const res = await fetch("/api/billing/summary", {
       credentials: "include",
     });
+
     if (!res.ok) throw new Error("Failed to load billing data");
 
     const data = await res.json();
@@ -16,8 +17,10 @@ async function initAccountBillingView() {
     renderInvoices(data.invoices);
   } catch (err) {
     console.error(err);
-    document.getElementById("billingPlanName").textContent =
-      "Unable to load billing info.";
+    const nameEl = document.getElementById("billingPlanName");
+    if (nameEl) {
+      nameEl.textContent = "Unable to load billing info.";
+    }
   }
 
   wireBillingButtons();
@@ -47,6 +50,8 @@ function renderCurrentPlan(plan) {
   const priceEl = document.getElementById("billingPlanPrice");
   const renewEl = document.getElementById("billingPlanRenewal");
 
+  if (!nameEl || !priceEl || !renewEl) return;
+
   if (!plan) {
     nameEl.textContent = "No active subscription";
     priceEl.textContent = "";
@@ -62,12 +67,16 @@ function renderCurrentPlan(plan) {
 
   if (plan.renews_at) {
     const d = new Date(plan.renews_at);
-    renewEl.textContent = `Renews on ${d.toLocaleDateString()}`;
+    renewEl.textContent = `Renews on ${d.toLocaleDateString()}.`;
+  } else {
+    renewEl.textContent = "";
   }
 }
 
 function renderPaymentMethods(methods) {
   const container = document.getElementById("billingPaymentMethod");
+  if (!container) return;
+
   container.innerHTML = "";
 
   if (!methods || !methods.length) {
@@ -100,6 +109,8 @@ function renderPaymentMethods(methods) {
 
 function renderInvoices(invoices) {
   const body = document.getElementById("billingHistoryBody");
+  if (!body) return;
+
   body.innerHTML = "";
 
   if (!invoices || !invoices.length) {
@@ -154,21 +165,25 @@ async function openStripeCustomerPortal() {
       credentials: "include",
       headers: { "Content-Type": "application/json" },
     });
+
     if (!res.ok) throw new Error("Failed to open billing portal");
+
     const { url } = await res.json();
     if (url) window.location.href = url;
   } catch (err) {
     console.error(err);
-    alert("Unable to open billing portal. Try again later.");
+    alert("Unable to open billing portal. Please try again later.");
   }
 }
 
 /* --------------------------
-   AUTO–INIT (optional)
+   AUTO–INIT (if Billing is its own page)
 --------------------------- */
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (window.location.hash.includes("#billing")) {
-    initAccountBillingView();
-  }
+  // If this file only loads on the Billing page, you can call directly:
+  initAccountBillingView();
+
+  // If you use hash routing/tabs, you can guard:
+  // if (window.location.hash.includes("#billing")) initAccountBillingView();
 });
