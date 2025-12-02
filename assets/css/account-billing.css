@@ -1,0 +1,124 @@
+/* ---------------------------------------------
+   ACCOUNT BILLING PAGE STYLES
+   --------------------------------------------- */
+
+.billing-block {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e5edf7;
+}
+
+.billing-title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7a8aa3;
+  margin-bottom: 12px;
+}
+
+.billing-current {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.billing-plan-name {
+  font-weight: 600;
+}
+
+.billing-plan-price {
+  font-size: 0.95rem;
+  margin-top: 4px;
+}
+
+.billing-plan-price span {
+  color: #7a8aa3;
+}
+
+.billing-plan-renewal {
+  margin-top: 4px;
+  font-size: 0.85rem;
+}
+
+.billing-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* PAYMENT METHOD */
+
+.billing-payment-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.billing-payment-meta {
+  font-size: 0.9rem;
+}
+
+.billing-payment-label {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #d5e0f0;
+  color: #7a8aa3;
+}
+
+/* BILLING TABLE */
+
+.billing-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+.billing-table th,
+.billing-table td {
+  padding: 8px 0;
+  border-bottom: 1px solid #edf2fb;
+}
+
+.billing-table th {
+  text-align: left;
+  color: #7a8aa3;
+  font-weight: 500;
+}
+
+/* UTILITY */
+
+.btn.primary {
+  background: #0070f3;
+  color: #fff;
+  border-radius: 999px;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn.ghost {
+  background: #fff;
+  color: #1f2933;
+  border-radius: 999px;
+  padding: 8px 16px;
+  border: 1px solid #d5e0f0;
+  cursor: pointer;
+}
+
+.btn.link-btn {
+  margin-top: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: #0070f3;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.text-muted {
+  color: #7a8aa3;
+}
