@@ -33,11 +33,8 @@
     </div>
   </div>
 
-  <div style="margin-top: 14px; display:flex; justify-content:flex-end;">
-    <!-- TODO: update href to your existing Stripe customer portal endpoint -->
-    <a href="/api/customer-portal" class="btn-primary">
-      Upgrade plan
-    </a>
+  <div style="margin-top: 14px; display:flex; justify-content:flex;">
+    <button class="btn-primary" id="billingChangePlanBtn">Upgrade plan</button>
   </div>
 </section>
 </div>
@@ -88,7 +85,7 @@
       <button id="applyCallFiltersBtn" class="btn-primary">
         Apply filters
       </button>
-      <button id="resetCallFiltersBtn" class="pricing-btn" style="padding:8px 16px; border-radius:999px; font-size:0.85rem;color:#FF0000;">
+      <button id="resetCallFiltersBtn" class="btn-secondary" style="color:#FF0000;">
         Reset
       </button>
     </div>
