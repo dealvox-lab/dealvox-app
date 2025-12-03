@@ -1129,7 +1129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     voices:    "/assets/partials/account-voices.html",
     api:       "/assets/partials/account-api.html",
     reports:   "/assets/partials/account-reports.html",
-    spendings: "/assets/partials/account-spendings.html",
+    calls_history: "/assets/partials/account-calls-history.html",
     billing:   "/assets/partials/account-billing.html",
     help:      "/assets/partials/account-help.html",
   };
