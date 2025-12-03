@@ -44,17 +44,20 @@ function updateUsageSummary() {
 
   const nowMs = Date.now();
 
-  const usedSeconds = usageCallsCache
-    .filter((c) => {
-      const ts = typeof c.start_timestamp === "number" ? c.start_timestamp : null;
-      return ts && ts >= usagePeriodStartMs && ts <= nowMs;
-    })
-    .reduce((sum, c) => {
-      const sec =
-        c?.call_cost?.total_duration_seconds ??
-        (c.duration_ms ? c.duration_ms / 1000 : 0);
-      return sum + (sec || 0);
-    }, 0);
+ const usedSeconds = usageCallsCache
+  .filter((c) => {
+    let ts = c.start_timestamp;
+    if (typeof ts === "string") ts = Date.parse(ts);
+    if (typeof ts !== "number" || Number.isNaN(ts)) return false;
+    return ts >= usagePeriodStartMs && ts <= nowMs;
+  })
+  .reduce((sum, c) => {
+    const sec =
+      c?.call_cost?.total_duration_seconds ??
+      (c.duration_ms ? c.duration_ms / 1000 : 0) ??
+      0;
+    return sum + sec;
+  }, 0);
 
   const usedMinutes = usedSeconds / 60;
   const remaining   = Math.max(usagePlanMinutes - usedMinutes, 0);
