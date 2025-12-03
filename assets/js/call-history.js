@@ -1,15 +1,105 @@
 // ==============================================
-// Dealvox Call History
+// Dealvox Call History + Subscription Usage
 // - Uses Supabase REST + getAuthInfo()
 // - Agent ID resolved per authenticated user
+// - Calls loaded via Cloudflare Worker → Retell
 // ==============================================
 
 // ----------------------------------------------
-// Call History – frontend fetch via Cloudflare Worker
+// API endpoints
 // ----------------------------------------------
 
-// Now we call the Worker route, NOT Retell directly
+// Worker route that proxies to Retell list-calls
 const CALL_API_URL = "/api/list-calls";
+
+// Billing summary → Stripe via CF function
+const BILLING_SUMMARY_URL = "/api/billing-summary";
+
+// ----------------------------------------------
+// Usage summary state (Subscription limits & spendings)
+// ----------------------------------------------
+let usagePlanMinutes = 200;     // placeholder for included minutes
+let usagePeriodStartMs = null;  // Stripe billing period start (ms)
+let usageCallsCache = [];       // latest full calls array (unfiltered)
+
+/**
+ * Recompute & render usage summary:
+ * - used minutes in current billing period
+ * - minutes left
+ */
+function updateUsageSummary() {
+  const startEl     = document.getElementById("billingPeriodStart");
+  const planEl      = document.getElementById("planMinutes");
+  const usedEl      = document.getElementById("usedMinutes");
+  const remainingEl = document.getElementById("remainingMinutes");
+
+  if (!startEl || !planEl || !usedEl || !remainingEl) return;
+
+  // Always show plan minutes (even if we don't yet know period/calls)
+  planEl.textContent = usagePlanMinutes.toString();
+
+  if (!usagePeriodStartMs || !Array.isArray(usageCallsCache)) {
+    return;
+  }
+
+  const nowMs = Date.now();
+
+  const usedSeconds = usageCallsCache
+    .filter((c) => {
+      const ts = typeof c.start_timestamp === "number" ? c.start_timestamp : null;
+      return ts && ts >= usagePeriodStartMs && ts <= nowMs;
+    })
+    .reduce((sum, c) => {
+      const sec =
+        c?.call_cost?.total_duration_seconds ??
+        (c.duration_ms ? c.duration_ms / 1000 : 0);
+      return sum + (sec || 0);
+    }, 0);
+
+  const usedMinutes = usedSeconds / 60;
+  const remaining   = Math.max(usagePlanMinutes - usedMinutes, 0);
+
+  usedEl.textContent      = usedMinutes.toFixed(1);
+  remainingEl.textContent = remaining.toFixed(1);
+}
+
+/**
+ * Load Stripe billing summary:
+ * - current plan
+ * - billing period start
+ */
+async function loadSubscriptionSummary() {
+  try {
+    const res = await fetch(BILLING_SUMMARY_URL);
+    if (!res.ok) {
+      console.error("[Usage] billing-summary HTTP error:", res.status);
+      return;
+    }
+
+    const data = await res.json();
+    const plan = data.current_plan;
+
+    if (!plan) return;
+
+    // Billing period start (ms)
+    if (plan.period_start) {
+      usagePeriodStartMs = plan.period_start;
+      const startEl = document.getElementById("billingPeriodStart");
+      if (startEl) {
+        const d = new Date(plan.period_start);
+        startEl.textContent = d.toLocaleString();
+      }
+    }
+
+    // Included minutes in plan
+    // TODO: replace with Stripe price metadata if you store it there
+    usagePlanMinutes = 200;
+
+    updateUsageSummary();
+  } catch (err) {
+    console.error("[Usage] billing-summary error:", err);
+  }
+}
 
 // ----------------------------------------------
 // Fetch calls (browser → Worker → Retell)
@@ -23,7 +113,10 @@ async function fetchCalls(agentId, startLower, startUpper) {
       },
       body: JSON.stringify({
         filter_criteria: {
-    agent_id: [agentId]
+          agent_id: [agentId],
+          // You can extend filter_criteria with time windows if your Worker supports it
+          // start_timestamp_lower: startLower,
+          // start_timestamp_upper: startUpper,
         },
       }),
     });
@@ -43,7 +136,6 @@ async function fetchCalls(agentId, startLower, startUpper) {
     return [];
   }
 }
-
 
 // ----------------------------------------------
 // Resolve agent_id from Supabase for this user
@@ -78,7 +170,11 @@ async function getAgentIdForUser(auth) {
   }
 
   if (!res.ok) {
-    console.error("[CallHistory] assistants load HTTP error:", res.status, await res.text());
+    console.error(
+      "[CallHistory] assistants load HTTP error:",
+      res.status,
+      await res.text()
+    );
     return null;
   }
 
@@ -97,34 +193,41 @@ async function getAgentIdForUser(auth) {
 // Row → HTML
 // ----------------------------------------------
 function rowHTML(call) {
-  const time         = new Date(call.start_timestamp).toLocaleString();
-const durationSec  = call?.call_cost?.total_duration_seconds ?? 0;
+  const tsRaw = call.start_timestamp;
+  const tsMs =
+    typeof tsRaw === "number" && tsRaw < 1e12 ? tsRaw : tsRaw; // Retell uses ms already
+  const time = tsMs ? new Date(tsMs).toLocaleString() : "-";
 
-// Custom pricing (in $)
-const costMin  = durationSec / 60;
-const costCalc = costMin * 1.5;
-const cost     = costCalc.toFixed(2);
+  const durationSec =
+    call?.call_cost?.total_duration_seconds ??
+    (call.duration_ms ? call.duration_ms / 1000 : 0) ??
+    0;
 
-const endReason    = call?.disconnection_reason ?? "-";
-const status       = call?.call_status ?? "-";
-const sentiment    = call?.call_analysis?.user_sentiment ?? "-";
-const outcomeFlag  = call?.call_analysis?.call_successful;
-const outcome      = outcomeFlag ? "Success" : "No close";
-const recordingURL = call?.recording_url ?? "";
+  // Custom pricing (in $) → durationSec / 60 * 1.5
+  const costMin  = durationSec / 60;
+  const costCalc = costMin * 1.5;
+  const cost     = costCalc.toFixed(2);
+
+  const endReason    = call?.disconnection_reason ?? "-";
+  const status       = call?.call_status ?? "-";
+  const sentiment    = call?.call_analysis?.user_sentiment ?? "-";
+  const outcomeFlag  = call?.call_analysis?.call_successful;
+  const outcome      = outcomeFlag ? "Success" : "No close";
+  const recordingURL = call?.recording_url ?? "";
 
   const recordingCell = recordingURL
-  ? `
+    ? `
     <audio controls preload="none" style="width: 160px;">
       <source src="${recordingURL}" type="audio/wav">
       <a href="${recordingURL}" target="_blank">Download</a>
     </audio>
   `
-  : "-";
+    : "-";
 
   return `
     <tr>
       <td>${time}</td>
-      <td>${durationSec}s</td>
+      <td>${durationSec.toFixed(0)}s</td>
       <td>$${cost}</td>
       <td>${endReason}</td>
       <td>${status}</td>
@@ -139,7 +242,9 @@ const recordingURL = call?.recording_url ?? "";
 // Render table
 // ----------------------------------------------
 function renderCalls(calls) {
-  const tbody = document.getElementById("callHistoryBody");
+  const tbody =
+    document.getElementById("callHistoryTableBody") ||
+    document.getElementById("callHistoryBody"); // fallback for old markup
   if (!tbody) return;
 
   if (!calls.length) {
@@ -157,15 +262,15 @@ function renderCalls(calls) {
 }
 
 // ----------------------------------------------
-// Filtering
+// Filtering (uses global usageCallsCache as source)
 // ----------------------------------------------
-function applyFilters(allCalls) {
+function applyFilters() {
   const monthVal   = document.getElementById("filterMonth")?.value ?? "";
   const endVal     = document.getElementById("filterEndReason")?.value ?? "";
   const sentVal    = document.getElementById("filterSentiment")?.value ?? "";
   const outcomeVal = document.getElementById("filterOutcome")?.value ?? "";
 
-  let filtered = [...allCalls];
+  let filtered = Array.isArray(usageCallsCache) ? [...usageCallsCache] : [];
 
   // Month-year
   if (monthVal) {
@@ -197,29 +302,13 @@ function applyFilters(allCalls) {
     );
   }
 
-  // Outcome (you can refine mapping to your exact states)
+  // Outcome (for current UI: "success" / "no_close")
   if (outcomeVal) {
     filtered = filtered.filter((call) => {
-      const customType =
-        (call?.call_analysis?.custom_analysis_data?.appointment_type ?? "")
-          .toLowerCase();
-      const success = call?.call_analysis?.call_successful;
-      const voicemail = call?.call_analysis?.in_voicemail === true;
-
-      switch (outcomeVal) {
-        case "appointment":
-          return customType === "appointment";
-        case "payment_link":
-          return customType === "payment_link";
-        case "warm_transfer":
-          return customType === "warm_transfer";
-        case "qualified_lead":
-          return success === true;
-        case "voicemail":
-          return voicemail;
-        default:
-          return true;
-      }
+      const success = call?.call_analysis?.call_successful === true;
+      if (outcomeVal === "success") return success;
+      if (outcomeVal === "no_close") return !success;
+      return true;
     });
   }
 
@@ -232,6 +321,11 @@ function applyFilters(allCalls) {
 async function initCallHistory() {
   const cardEl = document.getElementById("callHistoryCard");
   if (!cardEl) return; // not on this page
+
+  // Fire-and-forget: load Stripe billing summary
+  loadSubscriptionSummary().catch((err) =>
+    console.error("[CallHistory] loadSubscriptionSummary error:", err)
+  );
 
   let auth;
   try {
@@ -248,7 +342,7 @@ async function initCallHistory() {
 
   const agentId = await getAgentIdForUser(auth);
   if (!agentId) {
-    // nothing to show yet
+    // Nothing to show yet (no assistant for this user)
     return;
   }
 
@@ -256,27 +350,55 @@ async function initCallHistory() {
   const now       = Date.now();
   const thirtyAgo = now - 30 * 24 * 60 * 60 * 1000;
 
-  const allCalls = await fetchCalls(agentId, thirtyAgo, now);
-  renderCalls(allCalls);
+  const allCalls = await fetchCalls(agentId, thirtyAgo, now) || [];
 
-  // Bind filters
+  // Cache full calls list for filters + usage summary
+  usageCallsCache = Array.isArray(allCalls) ? allCalls : [];
+
+  // Render initial table & usage
+  renderCalls(usageCallsCache);
+  updateUsageSummary();
+
+  // Filter buttons
+  const applyBtn = document.getElementById("applyCallFiltersBtn");
+  const resetBtn = document.getElementById("resetCallFiltersBtn");
+
+  if (applyBtn) {
+    applyBtn.addEventListener("click", () => applyFilters());
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      ["filterMonth", "filterEndReason", "filterSentiment", "filterOutcome"].forEach(
+        (id) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (el.tagName === "SELECT" || el.tagName === "INPUT") {
+            el.value = "";
+          }
+        }
+      );
+      applyFilters();
+    });
+  }
+
+  // Optional: also re-filter on change for more reactive UX
   ["filterMonth", "filterEndReason", "filterSentiment", "filterOutcome"].forEach(
     (id) => {
       const el = document.getElementById(id);
       if (el) {
-        el.addEventListener("change", () => applyFilters(allCalls));
+        el.addEventListener("change", () => applyFilters());
       }
     }
   );
 
-  // (Optional) pagination buttons currently just placeholders
+  // (Optional) pagination buttons (no-op for now)
   const prevBtn = document.getElementById("prevPage");
   const nextBtn = document.getElementById("nextPage");
   const pageIdx = document.getElementById("pageIndex");
 
   if (prevBtn && nextBtn && pageIdx) {
     prevBtn.addEventListener("click", () => {
-      // TODO: hook into Retell pagination if needed
       console.log("[CallHistory] Prev page clicked (not implemented yet)");
     });
     nextBtn.addEventListener("click", () => {
