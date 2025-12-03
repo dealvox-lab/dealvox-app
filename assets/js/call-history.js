@@ -4,14 +4,15 @@
 // - Agent ID resolved per authenticated user
 // ==============================================
 
-const CALL_API_URL = "https://api.retellai.com/v2/list-calls";
+// ----------------------------------------------
+// Call History – frontend fetch via Cloudflare Worker
+// ----------------------------------------------
 
-// IMPORTANT: do NOT expose the real secret in production.
-// Use a Cloudflare Worker / backend proxy instead.
-const RETELL_SECRET_KEY = "{{ RETELL_SECRET_KEY }}";
+// Now we call the Worker route, NOT Retell directly
+const CALL_API_URL = "/api/list-calls";
 
 // ----------------------------------------------
-// Fetch calls from Retell
+// Fetch calls (browser → Worker → Retell)
 // ----------------------------------------------
 async function fetchCalls(agentId, startLower, startUpper) {
   try {
@@ -19,7 +20,6 @@ async function fetchCalls(agentId, startLower, startUpper) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${RETELL_SECRET_KEY}`,
       },
       body: JSON.stringify({
         agent_id: agentId,
@@ -31,13 +31,16 @@ async function fetchCalls(agentId, startLower, startUpper) {
     });
 
     if (!response.ok) {
-      console.error("[CallHistory] Retell list-calls HTTP error:", response.status);
+      console.error(
+        "[CallHistory] list-calls HTTP error via Worker:",
+        response.status
+      );
       return [];
     }
 
     return await response.json();
   } catch (err) {
-    console.error("[CallHistory] Retell list-calls network/JSON error:", err);
+    console.error("[CallHistory] list-calls network/JSON error:", err);
     return [];
   }
 }
