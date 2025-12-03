@@ -110,11 +110,16 @@ const status       = call?.call_status ?? "-";
 const sentiment    = call?.call_analysis?.user_sentiment ?? "-";
 const outcomeFlag  = call?.call_analysis?.call_successful;
 const outcome      = outcomeFlag ? "Success" : "No close";
-const recording = call?.recording_url ?? "";
+const recordingURL = call?.recording_url ?? "";
 
-  const recordLink = recording
-    ? `<a href="${recording}" target="_blank" class="calls-btn">Play</a>`
-    : "";
+  const recordingCell = recordingURL
+  ? `
+    <audio controls preload="none" style="width: 160px;">
+      <source src="${recordingURL}" type="audio/wav">
+      <a href="${recordingURL}" target="_blank">Download</a>
+    </audio>
+  `
+  : "-";
 
   return `
     <tr>
@@ -125,7 +130,7 @@ const recording = call?.recording_url ?? "";
       <td>${status}</td>
       <td>${sentiment}</td>
       <td>${outcome}</td>
-      <td>${recordLink}</td>
+      <td>${recordingCell}</td>
     </tr>
   `;
 }
