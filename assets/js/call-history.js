@@ -22,10 +22,8 @@ async function fetchCalls(agentId, startLower, startUpper) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        agent_id: agentId,
-        start_timestamp: {
-          lower_threshold: startLower,
-          upper_threshold: startUpper,
+        filter_criteria: {
+    agent_id: [agentId]
         },
       }),
     });
