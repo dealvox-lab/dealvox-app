@@ -103,6 +103,7 @@ export async function onRequest(context) {
         currency: price.currency,
         interval: price.recurring.interval,
         renews_at: subscription.current_period_end * 1000, // ms
+        period_start: subscription.current_period_start * 1000,
       };
     }
 
