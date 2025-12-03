@@ -1,3 +1,119 @@
+<!-- ==================== CALLS & LIMITS ==================== -->
+
+<!-- Card 1: Subscription limits and spendings -->
+<section class="text-block" id="usageSummaryCard">
+  <h2>Subscription limits and spendings, in minutes</h2>
+
+  <div class="usage-summary-grid">
+    <div class="usage-summary-row">
+      <span class="usage-label">Billing period start:</span>
+      <span class="usage-value" id="billingPeriodStart">Loading…</span>
+    </div>
+
+    <div class="usage-summary-row">
+      <span class="usage-label">Total minutes in plan:</span>
+      <span class="usage-value">
+        <span id="planMinutes">200</span> min
+      </span>
+    </div>
+
+    <div class="usage-summary-row">
+      <span class="usage-label">Used minutes this period:</span>
+      <span class="usage-value">
+        <span id="usedMinutes">0.0</span> min
+      </span>
+    </div>
+
+    <div class="usage-summary-row">
+      <span class="usage-label">Minutes left:</span>
+      <span class="usage-value">
+        <span id="remainingMinutes">200.0</span> min
+      </span>
+    </div>
+  </div>
+
+  <div style="margin-top: 14px; display:flex; justify-content:flex-end;">
+    <!-- TODO: update href to your existing Stripe customer portal endpoint -->
+    <a href="/api/customer-portal" class="cta-button">
+      Upgrade plan
+    </a>
+  </div>
+</section>
+
+<!-- Card 2: Call history & filters -->
+<section class="text-block" id="callHistoryCard">
+  <h2 style="margin-bottom: 10px;">Call history</h2>
+
+  <!-- Filters row -->
+  <div class="call-filters-row" style="display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; margin-bottom:12px;">
+    <div>
+      <label for="filterMonth" style="font-size:0.8rem; color:#6b7280; display:block;">Month</label>
+      <input type="month" id="filterMonth" class="input" style="max-width: 170px;">
+    </div>
+
+    <div>
+      <label for="filterEndReason" style="font-size:0.8rem; color:#6b7280; display:block;">End reason</label>
+      <select id="filterEndReason" class="input" style="max-width: 170px;">
+        <option value="">All</option>
+        <option value="user_hangup">User hangup</option>
+        <option value="agent_hangup">Agent hangup</option>
+        <option value="no_answer">No answer</option>
+        <option value="voicemail">Voicemail</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="filterSentiment" style="font-size:0.8rem; color:#6b7280; display:block;">User sentiment</label>
+      <select id="filterSentiment" class="input" style="max-width: 170px;">
+        <option value="">All</option>
+        <option value="Positive">Positive</option>
+        <option value="Neutral">Neutral</option>
+        <option value="Negative">Negative</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="filterOutcome" style="font-size:0.8rem; color:#6b7280; display:block;">Session outcome</label>
+      <select id="filterOutcome" class="input" style="max-width: 170px;">
+        <option value="">All</option>
+        <option value="success">Success</option>
+        <option value="no_close">No close</option>
+      </select>
+    </div>
+
+    <div style="margin-left:auto; display:flex; gap:8px;">
+      <button id="applyCallFiltersBtn" class="pricing-btn primary" style="padding:8px 16px; border-radius:999px; font-size:0.85rem;">
+        Apply filters
+      </button>
+      <button id="resetCallFiltersBtn" class="pricing-btn" style="padding:8px 16px; border-radius:999px; font-size:0.85rem;">
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+      <thead>
+        <tr style="text-align:left; border-bottom:1px solid #e5e7eb;">
+          <th style="padding:6px 4px;">Time</th>
+          <th style="padding:6px 4px;">Duration</th>
+          <th style="padding:6px 4px;">Cost ($)</th>
+          <th style="padding:6px 4px;">End reason</th>
+          <th style="padding:6px 4px;">Status</th>
+          <th style="padding:6px 4px;">User sentiment</th>
+          <th style="padding:6px 4px;">Session outcome</th>
+          <th style="padding:6px 4px;">Recording</th>
+        </tr>
+      </thead>
+      <tbody id="callHistoryTableBody">
+        <!-- rows injected by JS -->
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
 <!-- ===================== CALLS & LIMITS – CALL HISTORY ===================== -->
 
 <section id="callHistoryCard" class="calls-history-section">
