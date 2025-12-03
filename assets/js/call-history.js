@@ -17,7 +17,7 @@ const CALL_API_URL = "/api/list-calls";
 async function fetchCalls(agentId, startLower, startUpper) {
   try {
     const response = await fetch(CALL_API_URL, {
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
