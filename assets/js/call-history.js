@@ -97,18 +97,20 @@ async function getAgentIdForUser(auth) {
 // Row → HTML
 // ----------------------------------------------
 function rowHTML(call) {
-  const time        = new Date(call.start_timestamp).toLocaleString();
-  const durationSec = call?.call_cost?.total_duration_seconds ?? 0;
-  const cost        =
-    call?.call_cost?.combined_cost != null
-      ? call.call_cost.combined_cost.toFixed(2)
-      : "0.00";
-  const endReason   = call?.disconnection_reason ?? "-";
-  const status      = call?.call_status ?? "-";
-  const sentiment   = call?.call_analysis?.user_sentiment ?? "-";
-  const outcomeFlag = call?.call_analysis?.call_successful;
-  const outcome     = outcomeFlag ? "Success" : "No close";
-  const recording   = call?.recording_url ?? "";
+  const time         = new Date(call.start_timestamp).toLocaleString();
+const durationSec  = call?.call_cost?.total_duration_seconds ?? 0;
+
+// Custom pricing (in $)
+const costMin  = durationSec / 60;
+const costCalc = costMin * 1.5;
+const cost     = costCalc.toFixed(2);
+
+const endReason    = call?.disconnection_reason ?? "-";
+const status       = call?.call_status ?? "-";
+const sentiment    = call?.call_analysis?.user_sentiment ?? "-";
+const outcomeFlag  = call?.call_analysis?.call_successful;
+const outcome      = outcomeFlag ? "Success" : "No close";
+const recording = call?.recording_url ?? "";
 
   const recordLink = recording
     ? `<a href="${recording}" target="_blank" class="calls-btn">Play</a>`
