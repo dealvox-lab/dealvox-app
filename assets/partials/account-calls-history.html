@@ -1,101 +1,284 @@
-<div class="card" id="callHistoryCard">
+<!-- ===================== CALLS & LIMITS – CALL HISTORY ===================== -->
 
-  <h2>Call History</h2>
-  <p>Review completed sessions, filter by month or call outcome, and download recordings.</p>
+<section id="callHistoryCard" class="calls-history-section">
 
-  <!-- ===========================
-       FILTERS
-  ============================ -->
-  <div class="grid-4 mb-4">
+  <style>
+    /* ---------- Layout shell ---------- */
+    .calls-history-section {
+      padding: 32px 0 40px;
+    }
 
-    <!-- Month-Year Filter -->
-    <div class="field">
-      <label>Month – Year</label>
-      <input type="month" id="filterMonth" class="input" />
+    .calls-history-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 18px 24px 22px;
+      background-color: #ffffff;
+      border-radius: 22px;
+      border: 1px solid rgba(148,163,253,0.18);
+      box-shadow: 0 10px 28px rgba(15,23,42,0.06);
+    }
+
+    .calls-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px 16px;
+      align-items: flex-end;
+      margin-bottom: 12px;
+    }
+
+    .calls-header-left h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .calls-header-left p {
+      font-size: 0.86rem;
+      color: #6b7280;
+    }
+
+    /* ---------- Filters row (compact, inline) ---------- */
+    .calls-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+      max-width: 60%; /* ~half page */
+      margin-bottom: 10px;
+    }
+
+    .calls-filter {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 150px;
+      flex: 1 1 auto;
+    }
+
+    .calls-filter label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #9ca3af;
+    }
+
+    .calls-filter .input,
+    .calls-filter select {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      background-color: #ffffff;
+      height: 32px;
+    }
+
+    /* ---------- Table “sheet” ---------- */
+    .calls-table-wrap {
+      width: 100%;
+      margin-top: 6px;
+      overflow-x: auto;
+    }
+
+    .calls-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .calls-table thead {
+      background: #eff6ff;
+    }
+
+    .calls-table th,
+    .calls-table td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+      white-space: nowrap;
+    }
+
+    .calls-table th {
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7280;
+    }
+
+    .calls-table tbody tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+
+    .calls-table tbody tr:hover {
+      background-color: #eff6ff;
+    }
+
+    .calls-table-empty td {
+      padding: 16px 10px;
+      text-align: center;
+      color: #9ca3af;
+    }
+
+    /* ---------- Buttons (updated style) ---------- */
+    .calls-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 18px;
+      border-radius: 999px;
+      border: none;
+      background-color: #2075ae;
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.2s ease, transform 0.2s ease,
+        box-shadow 0.2s ease;
+      box-shadow: 0 4px 12px rgba(32,117,174,0.35);
+      white-space: nowrap;
+    }
+
+    .calls-btn:hover {
+      background-color: #15597f;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15,23,42,0.28);
+    }
+
+    .calls-btn.secondary {
+      background-color: #e5e7eb;
+      color: #111827;
+      box-shadow: none;
+    }
+
+    .calls-btn.secondary:hover {
+      background-color: #d1d5db;
+    }
+
+    .calls-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .calls-page-index {
+      padding: 0 4px;
+      min-width: 26px;
+      text-align: center;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 900px) {
+      .calls-history-inner {
+        padding: 16px 16px 18px;
+      }
+      .calls-filters {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .calls-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .calls-pagination {
+        justify-content: center;
+      }
+    }
+  </style>
+
+  <div class="calls-history-inner">
+
+    <div class="calls-header">
+      <div class="calls-header-left">
+        <h2>Call history</h2>
+        <p>Track every assistant call with cost, sentiment, and outcomes in one place.</p>
+      </div>
+      <!-- Filters: inline & compact -->
+      <div class="calls-filters">
+
+        <!-- Month-Year Filter -->
+        <div class="calls-filter">
+          <label for="filterMonth">Month – Year</label>
+          <input type="month" id="filterMonth" class="input">
+        </div>
+
+        <!-- End Reason Filter -->
+        <div class="calls-filter">
+          <label for="filterEndReason">End reason</label>
+          <select id="filterEndReason" class="input">
+            <option value="">All</option>
+            <option value="user_hangup">User hangup</option>
+            <option value="agent_hangup">Agent hangup</option>
+            <option value="timeout">Timeout</option>
+            <option value="error">Error</option>
+          </select>
+        </div>
+
+        <!-- User Sentiment Filter -->
+        <div class="calls-filter">
+          <label for="filterSentiment">User sentiment</label>
+          <select id="filterSentiment" class="input">
+            <option value="">All</option>
+            <option value="Positive">Positive</option>
+            <option value="Neutral">Neutral</option>
+            <option value="Negative">Negative</option>
+          </select>
+        </div>
+
+        <!-- Session Outcome Filter -->
+        <div class="calls-filter">
+          <label for="filterOutcome">Session outcome</label>
+          <select id="filterOutcome" class="input">
+            <option value="">All</option>
+            <option value="appointment">Appointment</option>
+            <option value="payment_link">Payment link sent</option>
+            <option value="warm_transfer">Warm transfer</option>
+            <option value="qualified_lead">Qualified lead</option>
+            <option value="voicemail">Voicemail</option>
+          </select>
+        </div>
+
+      </div>
     </div>
 
-    <!-- End Reason Filter -->
-    <div class="field">
-      <label>End Reason</label>
-      <select id="filterEndReason" class="input">
-        <option value="">All</option>
-        <option value="user_hangup">User Hangup</option>
-        <option value="agent_hangup">Agent Hangup</option>
-        <option value="timeout">Timeout</option>
-        <option value="error">Error</option>
-      </select>
+    <!-- Full-width “sheet” table -->
+    <div class="calls-table-wrap">
+      <table class="calls-table" id="callHistoryTable">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Duration</th>
+            <th>Cost</th>
+            <th>End reason</th>
+            <th>Session status</th>
+            <th>User sentiment</th>
+            <th>Outcome</th>
+            <th>Recording</th>
+          </tr>
+        </thead>
+        <tbody id="callHistoryBody">
+          <!-- Default state, removed once JS renders real data -->
+          <tr class="calls-table-empty">
+            <td colspan="8">No calls yet for this assistant.</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- User Sentiment Filter -->
-    <div class="field">
-      <label>User Sentiment</label>
-      <select id="filterSentiment" class="input">
-        <option value="">All</option>
-        <option value="Positive">Positive</option>
-        <option value="Neutral">Neutral</option>
-        <option value="Negative">Negative</option>
-      </select>
+    <!-- Pagination (buttons updated) -->
+    <div class="calls-pagination">
+      <button class="calls-btn secondary" id="prevPage">← Prev</button>
+      <span class="calls-page-index" id="pageIndex">1</span>
+      <button class="calls-btn" id="nextPage">Next →</button>
     </div>
 
-    <!-- Session Outcome Filter -->
-    <div class="field">
-      <label>Session Outcome</label>
-      <select id="filterOutcome" class="input">
-        <option value="">All</option>
-        <option value="appointment">Appointment</option>
-        <option value="payment_link">Payment Link Sent</option>
-        <option value="warm_transfer">Warm Transfer</option>
-        <option value="qualified_lead">Qualified Lead</option>
-        <option value="voicemail">Voicemail</option>
-      </select>
-    </div>
   </div>
-
-
-  <!-- ===========================
-       TABLE
-  ============================ -->
-  <div class="table-wrapper">
-    <table class="table" id="callHistoryTable">
-      <thead>
-        <tr>
-          <th>Time</th>
-          <th>Duration</th>
-          <th>Cost</th>
-          <th>End Reason</th>
-          <th>Session Status</th>
-          <th>User Sentiment</th>
-          <th>Outcome</th>
-          <th>Recording</th>
-        </tr>
-      </thead>
-      <tbody id="callHistoryBody">
-
-        <!-- Example static row (removed once API connected) -->
-        <tr>
-          <td>2025-01-05 14:23</td>
-          <td>00:01:20</td>
-          <td>$0.15</td>
-          <td>user_hangup</td>
-          <td>ended</td>
-          <td>Neutral</td>
-          <td>Not successful</td>
-          <td>
-            <a href="#" class="btn small">Play</a>
-          </td>
-        </tr>
-
-      </tbody>
-    </table>
-  </div>
-
-  <!-- ===========================
-       PAGINATION
-  ============================ -->
-  <div class="pagination mt-4 center">
-    <button class="btn small" id="prevPage">← Prev</button>
-    <span id="pageIndex" class="mx-2">1</span>
-    <button class="btn small" id="nextPage">Next →</button>
-  </div>
-
-</div>
+</section>
