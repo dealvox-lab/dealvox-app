@@ -78,22 +78,23 @@ async function loadSubscriptionSummary() {
 
     const data = await res.json();
     const plan = data.current_plan;
-
     if (!plan) return;
 
-    // Billing period start (ms)
+    // Plan minutes from Stripe, fallback to 200
+    usagePlanMinutes = plan.included_minutes || 200;
+
+    // Billing period start
     if (plan.period_start) {
       usagePeriodStartMs = plan.period_start;
-      const startEl = document.getElementById("billingPeriodStart");
-      if (startEl) {
-        const d = new Date(plan.period_start);
-        startEl.textContent = d.toLocaleString();
-      }
+    } else if (plan.renews_at) {
+      // crude fallback: 30 days before renew
+      usagePeriodStartMs = plan.renews_at - 30 * 24 * 60 * 60 * 1000;
     }
 
-    // Included minutes in plan
-    // TODO: replace with Stripe price metadata if you store it there
-    usagePlanMinutes = 200;
+    const startEl = document.getElementById("billingPeriodStart");
+    if (startEl && usagePeriodStartMs) {
+      startEl.textContent = new Date(usagePeriodStartMs).toLocaleString();
+    }
 
     updateUsageSummary();
   } catch (err) {
