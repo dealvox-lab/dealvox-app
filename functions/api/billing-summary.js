@@ -81,31 +81,57 @@ export async function onRequest(context) {
 
     const customerId = await findStripeCustomerIdByEmail(env, email);
 
-    // 1) Subscriptions
     const subs = await stripeRequest(
-      env,
-      "GET",
-      `/v1/subscriptions?customer=${encodeURIComponent(
-        customerId
-      )}&limit=1&status=all`
-    );
+  env,
+  "GET",
+  `/v1/subscriptions?customer=${encodeURIComponent(
+    customerId
+  )}&limit=1&status=all`
+);
 
-    const subscription = subs.data && subs.data[0];
-    let current_plan = null;
+const subscription = subs.data && subs.data[0];
+let current_plan = null;
 
-    if (subscription && subscription.items.data[0]) {
-      const item = subscription.items.data[0];
-      const price = item.price;
+if (subscription) {
+  const item  = subscription.items?.data?.[0] || null;
+  const price = item?.price || item?.plan || subscription.plan || null;
 
-      current_plan = {
-        name: price.nickname || "Dealvox AI plan",
-        amount: price.unit_amount,
-        currency: price.currency,
-        interval: price.recurring.interval,
-        renews_at: subscription.current_period_end * 1000, // ms
-        period_start: subscription.current_period_start * 1000,
-      };
-    }
+  // Stripe sends period timestamps in several places.
+  // Try the most accurate ones in order:
+  const periodStartSec =
+    item?.current_period_start ??
+    subscription.current_period_start ??
+    subscription.billing_cycle_anchor ??
+    subscription.start_date ??
+    null;
+
+  const periodEndSec =
+    item?.current_period_end ??
+    subscription.current_period_end ??
+    null;
+
+  current_plan = {
+    name:     price?.nickname || "Dealvox AI plan",
+    amount:   price?.unit_amount ?? price?.amount ?? null,
+    currency: price?.currency ?? subscription.currency ?? "usd",
+    interval:
+      price?.recurring?.interval ||
+      subscription.plan?.interval ||
+      "month",
+
+    // ✅ what the frontend needs
+    period_start: periodStartSec ? periodStartSec * 1000 : null, // ms
+    period_end:   periodEndSec   ? periodEndSec   * 1000 : null, // ms
+    renews_at:    periodEndSec   ? periodEndSec   * 1000 : null, // kept for compatibility
+
+    // Optional: minutes included in plan (fallback 200)
+    included_minutes:
+      price?.metadata?.included_minutes
+        ? Number(price.metadata.included_minutes)
+        : 200,
+  };
+}
+
 
     // 2) Payment methods
     const pms = await stripeRequest(
