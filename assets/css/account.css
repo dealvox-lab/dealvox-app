@@ -652,6 +652,11 @@
       text-align: center;
     }
 
+  .usage-summary-row {
+     padding: 0 5px;
+     color: #374151;
+  }
+
     /* ---------- Responsive ---------- */
     @media (max-width: 900px) {
       .calls-history-inner {
