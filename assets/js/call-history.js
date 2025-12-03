@@ -1,68 +1,114 @@
 // ==============================================
 // Dealvox Call History
-// Fetch + Render + Filter (v1)
+// - Uses Supabase REST + getAuthInfo()
+// - Agent ID resolved per authenticated user
 // ==============================================
 
 const CALL_API_URL = "https://api.retellai.com/v2/list-calls";
 
-// ----------------------------------------------
-// CONFIG: Replace these server-side
-// ----------------------------------------------
+// IMPORTANT: do NOT expose the real secret in production.
+// Use a Cloudflare Worker / backend proxy instead.
 const RETELL_SECRET_KEY = "{{ RETELL_SECRET_KEY }}";
-const USER_AGENT_ID     = "{{ USER_AGENT_ID }}";
-
 
 // ----------------------------------------------
-// FETCH CALLS
+// Fetch calls from Retell
 // ----------------------------------------------
-async function fetchCalls(startLower, startUpper) {
+async function fetchCalls(agentId, startLower, startUpper) {
   try {
     const response = await fetch(CALL_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${RETELL_SECRET_KEY}`
+        "Authorization": `Bearer ${RETELL_SECRET_KEY}`,
       },
       body: JSON.stringify({
-        agent_id: USER_AGENT_ID,
+        agent_id: agentId,
         start_timestamp: {
           lower_threshold: startLower,
-          upper_threshold: startUpper
-        }
-      })
+          upper_threshold: startUpper,
+        },
+      }),
     });
 
     if (!response.ok) {
-      console.error("Failed to fetch calls:", response.status);
+      console.error("[CallHistory] Retell list-calls HTTP error:", response.status);
       return [];
     }
 
     return await response.json();
-
   } catch (err) {
-    console.error("Network or JSON error:", err);
+    console.error("[CallHistory] Retell list-calls network/JSON error:", err);
     return [];
   }
 }
 
+// ----------------------------------------------
+// Resolve agent_id from Supabase for this user
+// (same style as Assistant view loader)
+// ----------------------------------------------
+async function getAgentIdForUser(auth) {
+  const userId = auth.user.id;
+  const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/assistants`;
+
+  const params = new URLSearchParams();
+  params.set("select", "agent_id");
+  params.set("user_id", `eq.${userId}`);
+  params.set("limit", "1");
+
+  async function run(currentAuth) {
+    return fetch(`${baseUrl}?${params.toString()}`, {
+      headers: supabaseHeaders(currentAuth.accessToken),
+    });
+  }
+
+  let res = await run(auth);
+
+  if (res.status === 401) {
+    // reuse the same helper you already use in assistant view
+    const newAuth = await handleJwt401(res, "load agent_id for calls");
+    if (!newAuth) {
+      console.warn("[CallHistory] Session expired while loading agent_id");
+      return null;
+    }
+    auth = newAuth;
+    res = await run(auth);
+  }
+
+  if (!res.ok) {
+    console.error("[CallHistory] assistants load HTTP error:", res.status, await res.text());
+    return null;
+  }
+
+  const rows = await res.json();
+  const data = rows[0];
+
+  if (!data || !data.agent_id) {
+    console.warn("[CallHistory] No assistant row / agent_id for user");
+    return null;
+  }
+
+  return data.agent_id;
+}
 
 // ----------------------------------------------
-// RENDER ROW
+// Row → HTML
 // ----------------------------------------------
 function rowHTML(call) {
-  // Safe access / defaults
-  const time         = new Date(call.start_timestamp).toLocaleString();
-  const durationSec  = call?.call_cost?.total_duration_seconds ?? 0;
-  const cost         = call?.call_cost?.combined_cost?.toFixed(2) ?? "0.00";
-  const endReason    = call?.disconnection_reason ?? "-";
-  const status       = call?.call_status ?? "-";
-  const sentiment    = call?.call_analysis?.user_sentiment ?? "-";
-  const outcomeFlag  = call?.call_analysis?.call_successful;
-  const outcome      = outcomeFlag ? "Success" : "No Close";
-  const recordingURL = call?.recording_url ?? "";
+  const time        = new Date(call.start_timestamp).toLocaleString();
+  const durationSec = call?.call_cost?.total_duration_seconds ?? 0;
+  const cost        =
+    call?.call_cost?.combined_cost != null
+      ? call.call_cost.combined_cost.toFixed(2)
+      : "0.00";
+  const endReason   = call?.disconnection_reason ?? "-";
+  const status      = call?.call_status ?? "-";
+  const sentiment   = call?.call_analysis?.user_sentiment ?? "-";
+  const outcomeFlag = call?.call_analysis?.call_successful;
+  const outcome     = outcomeFlag ? "Success" : "No close";
+  const recording   = call?.recording_url ?? "";
 
-  const recordLink = recordingURL
-    ? `<a href="${recordingURL}" target="_blank" class="btn small">Play</a>`
+  const recordLink = recording
+    ? `<a href="${recording}" target="_blank" class="calls-btn">Play</a>`
     : "";
 
   return `
@@ -79,101 +125,157 @@ function rowHTML(call) {
   `;
 }
 
-
 // ----------------------------------------------
-// RENDER TABLE
+// Render table
 // ----------------------------------------------
 function renderCalls(calls) {
   const tbody = document.getElementById("callHistoryBody");
   if (!tbody) return;
 
-  tbody.innerHTML = "";
+  if (!calls.length) {
+    tbody.innerHTML = `
+      <tr class="calls-table-empty">
+        <td colspan="8">No calls yet for this assistant.</td>
+      </tr>`;
+    return;
+  }
 
-  calls.forEach(call => {
+  tbody.innerHTML = "";
+  calls.forEach((call) => {
     tbody.insertAdjacentHTML("beforeend", rowHTML(call));
   });
 }
 
-
 // ----------------------------------------------
-// FILTER HANDLERS (to extend later)
+// Filtering
 // ----------------------------------------------
-function applyFilters(calls) {
-  const monthVal    = document.getElementById("filterMonth")?.value ?? "";
-  const endVal      = document.getElementById("filterEndReason")?.value ?? "";
-  const sentVal     = document.getElementById("filterSentiment")?.value ?? "";
-  const outcomeVal  = document.getElementById("filterOutcome")?.value ?? "";
+function applyFilters(allCalls) {
+  const monthVal   = document.getElementById("filterMonth")?.value ?? "";
+  const endVal     = document.getElementById("filterEndReason")?.value ?? "";
+  const sentVal    = document.getElementById("filterSentiment")?.value ?? "";
+  const outcomeVal = document.getElementById("filterOutcome")?.value ?? "";
 
-  let filtered = [...calls];
+  let filtered = [...allCalls];
 
-  // Month-Year filter
+  // Month-year
   if (monthVal) {
     const [year, month] = monthVal.split("-");
-    filtered = filtered.filter(call => {
+    filtered = filtered.filter((call) => {
       const d = new Date(call.start_timestamp);
       return (
-        d.getFullYear() === parseInt(year) &&
-        (d.getMonth() + 1) === parseInt(month)
+        d.getFullYear() === parseInt(year, 10) &&
+        d.getMonth() + 1 === parseInt(month, 10)
       );
     });
   }
 
-  // End Reason filter
+  // End reason
   if (endVal) {
-    filtered = filtered.filter(call =>
-      (call.disconnection_reason ?? "").toLowerCase() === endVal.toLowerCase()
+    filtered = filtered.filter(
+      (call) =>
+        (call.disconnection_reason ?? "").toLowerCase() ===
+        endVal.toLowerCase()
     );
   }
 
-  // Sentiment filter
+  // User sentiment
   if (sentVal) {
-    filtered = filtered.filter(call =>
-      (call?.call_analysis?.user_sentiment ?? "").toLowerCase() === sentVal.toLowerCase()
+    filtered = filtered.filter(
+      (call) =>
+        (call?.call_analysis?.user_sentiment ?? "").toLowerCase() ===
+        sentVal.toLowerCase()
     );
   }
 
-  // Outcome filter
+  // Outcome (you can refine mapping to your exact states)
   if (outcomeVal) {
-    // TODO: adjust for your exact custom outcomes
-    filtered = filtered.filter(call =>
-      (call?.call_analysis?.appointment_type ?? "").toLowerCase() === outcomeVal.toLowerCase()
-    );
+    filtered = filtered.filter((call) => {
+      const customType =
+        (call?.call_analysis?.custom_analysis_data?.appointment_type ?? "")
+          .toLowerCase();
+      const success = call?.call_analysis?.call_successful;
+      const voicemail = call?.call_analysis?.in_voicemail === true;
+
+      switch (outcomeVal) {
+        case "appointment":
+          return customType === "appointment";
+        case "payment_link":
+          return customType === "payment_link";
+        case "warm_transfer":
+          return customType === "warm_transfer";
+        case "qualified_lead":
+          return success === true;
+        case "voicemail":
+          return voicemail;
+        default:
+          return true;
+      }
+    });
   }
 
   renderCalls(filtered);
 }
 
-
 // ----------------------------------------------
-// INIT
+// Init
 // ----------------------------------------------
 async function initCallHistory() {
-  // 1) Load 30 days by default
+  const cardEl = document.getElementById("callHistoryCard");
+  if (!cardEl) return; // not on this page
+
+  let auth;
+  try {
+    auth = await getAuthInfo();
+  } catch (e) {
+    console.error("[CallHistory] getAuthInfo failed:", e);
+    return;
+  }
+
+  if (!auth.user || !auth.accessToken) {
+    console.warn("[CallHistory] No auth user / token");
+    return;
+  }
+
+  const agentId = await getAgentIdForUser(auth);
+  if (!agentId) {
+    // nothing to show yet
+    return;
+  }
+
+  // Default period: last 30 days
   const now       = Date.now();
-  const thirtyDay = now - (30 * 24 * 60 * 60 * 1000);
+  const thirtyAgo = now - 30 * 24 * 60 * 60 * 1000;
 
-  // Convert to thresholds (Retell wants ms timestamps)
-  const calls = await fetchCalls(thirtyDay, now);
+  const allCalls = await fetchCalls(agentId, thirtyAgo, now);
+  renderCalls(allCalls);
 
-  // Render initial list
-  renderCalls(calls);
-
-  // Bind filter listeners
-  [
-    "filterMonth",
-    "filterEndReason",
-    "filterSentiment",
-    "filterOutcome"
-  ].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener("change", () => applyFilters(calls));
+  // Bind filters
+  ["filterMonth", "filterEndReason", "filterSentiment", "filterOutcome"].forEach(
+    (id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("change", () => applyFilters(allCalls));
+      }
     }
-  });
+  );
+
+  // (Optional) pagination buttons currently just placeholders
+  const prevBtn = document.getElementById("prevPage");
+  const nextBtn = document.getElementById("nextPage");
+  const pageIdx = document.getElementById("pageIndex");
+
+  if (prevBtn && nextBtn && pageIdx) {
+    prevBtn.addEventListener("click", () => {
+      // TODO: hook into Retell pagination if needed
+      console.log("[CallHistory] Prev page clicked (not implemented yet)");
+    });
+    nextBtn.addEventListener("click", () => {
+      console.log("[CallHistory] Next page clicked (not implemented yet)");
+    });
+  }
 }
 
-
 // ----------------------------------------------
-// RUN
+// Run on DOM ready
 // ----------------------------------------------
 document.addEventListener("DOMContentLoaded", initCallHistory);
