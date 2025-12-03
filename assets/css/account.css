@@ -653,9 +653,13 @@
     }
 
   .usage-summary-row {
-     padding: 0 5px;
+     padding: 10 0px;
      color: #374151;
   }
+
+ .usage-value {
+   font-weight: 600;
+ }
 
     /* ---------- Responsive ---------- */
     @media (max-width: 900px) {
