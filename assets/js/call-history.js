@@ -38,12 +38,14 @@ async function fetchCalls(agentId, startLower, startUpper) {
       return [];
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data;
   } catch (err) {
     console.error("[CallHistory] list-calls network/JSON error:", err);
     return [];
   }
 }
+
 
 // ----------------------------------------------
 // Resolve agent_id from Supabase for this user
