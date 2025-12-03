@@ -1,0 +1,101 @@
+<div class="card" id="callHistoryCard">
+
+  <h2>Call History</h2>
+  <p>Review completed sessions, filter by month or call outcome, and download recordings.</p>
+
+  <!-- ===========================
+       FILTERS
+  ============================ -->
+  <div class="grid-4 mb-4">
+
+    <!-- Month-Year Filter -->
+    <div class="field">
+      <label>Month – Year</label>
+      <input type="month" id="filterMonth" class="input" />
+    </div>
+
+    <!-- End Reason Filter -->
+    <div class="field">
+      <label>End Reason</label>
+      <select id="filterEndReason" class="input">
+        <option value="">All</option>
+        <option value="user_hangup">User Hangup</option>
+        <option value="agent_hangup">Agent Hangup</option>
+        <option value="timeout">Timeout</option>
+        <option value="error">Error</option>
+      </select>
+    </div>
+
+    <!-- User Sentiment Filter -->
+    <div class="field">
+      <label>User Sentiment</label>
+      <select id="filterSentiment" class="input">
+        <option value="">All</option>
+        <option value="Positive">Positive</option>
+        <option value="Neutral">Neutral</option>
+        <option value="Negative">Negative</option>
+      </select>
+    </div>
+
+    <!-- Session Outcome Filter -->
+    <div class="field">
+      <label>Session Outcome</label>
+      <select id="filterOutcome" class="input">
+        <option value="">All</option>
+        <option value="appointment">Appointment</option>
+        <option value="payment_link">Payment Link Sent</option>
+        <option value="warm_transfer">Warm Transfer</option>
+        <option value="qualified_lead">Qualified Lead</option>
+        <option value="voicemail">Voicemail</option>
+      </select>
+    </div>
+  </div>
+
+
+  <!-- ===========================
+       TABLE
+  ============================ -->
+  <div class="table-wrapper">
+    <table class="table" id="callHistoryTable">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Duration</th>
+          <th>Cost</th>
+          <th>End Reason</th>
+          <th>Session Status</th>
+          <th>User Sentiment</th>
+          <th>Outcome</th>
+          <th>Recording</th>
+        </tr>
+      </thead>
+      <tbody id="callHistoryBody">
+
+        <!-- Example static row (removed once API connected) -->
+        <tr>
+          <td>2025-01-05 14:23</td>
+          <td>00:01:20</td>
+          <td>$0.15</td>
+          <td>user_hangup</td>
+          <td>ended</td>
+          <td>Neutral</td>
+          <td>Not successful</td>
+          <td>
+            <a href="#" class="btn small">Play</a>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===========================
+       PAGINATION
+  ============================ -->
+  <div class="pagination mt-4 center">
+    <button class="btn small" id="prevPage">← Prev</button>
+    <span id="pageIndex" class="mx-2">1</span>
+    <button class="btn small" id="nextPage">Next →</button>
+  </div>
+
+</div>
