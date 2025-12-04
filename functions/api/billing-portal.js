@@ -1,8 +1,68 @@
 // /functions/api/billing-portal.js
 
+/**
+ * Step 1 - requests a user email from a Supabase
+ */
 async function getUserEmail(request, env) {
-  // Same as in billing-summary.js – replace with real Supabase logic later.
-  return "roman.rushey@gmail.com";
+  try {
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.warn("[billing-portal] No bearer token");
+      return null;
+    }
+
+    const token = authHeader.replace("Bearer ", "").trim();
+
+    // Step 1: validate auth token → extract user ID
+    const validateRes = await fetch(
+      `${env.SUPABASE_URL}/auth/v1/user`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    if (!validateRes.ok) {
+      console.error("[billing-portal] validate user failed:", validateRes.status);
+      return null;
+    }
+
+    const authUser = await validateRes.json();
+    const userId = authUser?.id;
+    if (!userId) {
+      console.warn("[billing-portal] No user ID in auth response");
+      return null;
+    }
+
+    // Step 2: get full user from auth admin (requires SERVICE ROLE key)
+    const adminRes = await fetch(
+      `${env.SUPABASE_URL}/auth/v1/admin/users/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    if (!adminRes.ok) {
+      console.error("[billing-portal] admin users lookup failed:", adminRes.status);
+      return null;
+    }
+
+    const adminUser = await adminRes.json();
+    const email = adminUser?.email;
+
+    if (!email) {
+      console.warn("[billing-portal] No email on admin user record");
+      return null;
+    }
+
+    return email;
+  } catch (err) {
+    console.error("[billing-portal] getUserEmail ERR:", err);
+    return null;
+  }
 }
 
 async function stripeRequest(env, method, path, body) {
