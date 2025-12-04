@@ -4,13 +4,36 @@
  * Helper: read user email (replace with Supabase-based auth)
  */
 async function getUserEmail(request, env) {
-  // TODO:
-  // 1) Read Supabase token from cookie or header.
-  // 2) Call Supabase Auth API or decode JWT to get email.
-  //
-  // For now, use a fixed test email that matches a Stripe test customer.
-  return "roman.rushey@gmail.com";
-}
+  try {
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.warn("[billing-portal] No bearer token");
+      return null;
+    }
+
+    const token = authHeader.replace("Bearer ", "").trim();
+
+    // Step 1: validate auth token → extract user ID
+    const validateRes = await fetch(
+      `${env.SUPABASE_URL}/auth/v1/user`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    if (!validateRes.ok) {
+      console.error("[billing-portal] validate user failed:", validateRes.status);
+      return null;
+    }
+
+    const authUser = await validateRes.json();
+    const userId = authUser?.id;
+    if (!userId) {
+      console.warn("[billing-portal] No user ID in auth response");
+      return null;
+    }
 
 /**
  * Helper: make a request to Stripe API (using fetch)
