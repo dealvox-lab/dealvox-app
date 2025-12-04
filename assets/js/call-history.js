@@ -337,4 +337,57 @@ async function initCallHistory() {
   if (!cardEl) return; // not on this view
 
   let auth;
-  try
+  try {
+    auth = await getAuthInfo();
+  } catch (e) {
+    console.error("[CallHistory] getAuthInfo failed:", e);
+    return;
+  }
+
+  if (!auth.user || !auth.accessToken) {
+    console.warn("[CallHistory] No auth user / token");
+    return;
+  }
+
+  const agentId = await getAgentIdForUser(auth);
+  if (!agentId) return;
+
+  // Fetch all calls for this agent
+  const calls = await fetchCalls(agentId);
+  allCallsCache = Array.isArray(calls) ? calls : [];
+
+  // Initial render
+  applyFilters(); // uses allCallsCache internally
+
+  // Init usage summary (period start + minutes)
+  await initUsageSummary(allCallsCache);
+
+  // Bind filters
+  ["filterMonth", "filterEndReason", "filterSentiment", "filterOutcome"].forEach(
+    (id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("change", () => applyFilters());
+      }
+    }
+  );
+
+  // Optional: pagination placeholders (still no backend pagination)
+  const prevBtn = document.getElementById("prevPage");
+  const nextBtn = document.getElementById("nextPage");
+  const pageIdx = document.getElementById("pageIndex");
+
+  if (prevBtn && nextBtn && pageIdx) {
+    prevBtn.addEventListener("click", () => {
+      console.log("[CallHistory] Prev page clicked (not implemented yet)");
+    });
+    nextBtn.addEventListener("click", () => {
+      console.log("[CallHistory] Next page clicked (not implemented yet)");
+    });
+  }
+}
+
+// ----------------------------------------------
+// Run on DOM ready
+// ----------------------------------------------
+document.addEventListener("DOMContentLoaded", initCallHistory);
