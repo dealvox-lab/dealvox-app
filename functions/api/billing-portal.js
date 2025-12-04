@@ -65,6 +65,47 @@ async function getUserEmail(request, env) {
   }
 }
 
+async function getCurrentUserEmail() {
+  let auth;
+  try {
+    auth = await getAuthInfo();
+  } catch (e) {
+    console.error("[Billing] getAuthInfo failed:", e);
+    return null;
+  }
+
+  // 1) Try email directly from Supabase auth user
+  if (auth?.user?.email) {
+    return auth.user.email;
+  }
+
+  // 2) Optional fallback: same approach as loadProfile()
+  try {
+    const userId = auth.user.id;
+    const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/profiles`;
+
+    const params = new URLSearchParams();
+    params.set("select", "email");
+    params.set("id", `eq.${userId}`);
+    params.set("limit", "1");
+
+    const res = await fetch(`${baseUrl}?${params.toString()}`, {
+      headers: supabaseHeaders(auth.accessToken),
+    });
+
+    if (!res.ok) {
+      console.error("[Billing] fetch email from profiles failed:", res.status);
+      return null;
+    }
+
+    const rows = await res.json();
+    return rows[0]?.email || null;
+  } catch (err) {
+    console.error("[Billing] error getting email from profiles:", err);
+    return null;
+  }
+}
+
 async function stripeRequest(env, method, path, body) {
   const url = "https://api.stripe.com" + path;
 
