@@ -231,6 +231,30 @@ function applyFilters(allCalls) {
     });
   }
 
+ // Hook filter buttons
+  const applyBtn =
+    document.getElementById("callFiltersApplyBtn") ||
+    document.getElementById("applyFiltersBtn");
+  const resetBtn =
+    document.getElementById("callFiltersResetBtn") ||
+    document.getElementById("resetFiltersBtn");
+
+  if (applyBtn) {
+    applyBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      applyFilters(
+        let filtered = [...allCalls];
+      );
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      resetFilters();
+    });
+  }
+
   renderCalls(filtered);
 }
 
@@ -409,28 +433,6 @@ async function initCallHistory() {
       }
     }
   );
-
-   // Hook filter buttons
-  const applyBtn =
-    document.getElementById("callFiltersApplyBtn") ||
-    document.getElementById("applyFiltersBtn");
-  const resetBtn =
-    document.getElementById("callFiltersResetBtn") ||
-    document.getElementById("resetFiltersBtn");
-
-  if (applyBtn) {
-    applyBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      applyFilters();
-    });
-  }
-
-  if (resetBtn) {
-    resetBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      resetFilters();
-    });
-  }
 
   // (Optional) pagination buttons currently just placeholders
   const prevBtn = document.getElementById("prevPage");
