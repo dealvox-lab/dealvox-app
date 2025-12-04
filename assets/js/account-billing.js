@@ -5,26 +5,32 @@
 const BILLING_SUMMARY_ENDPOINT = "/api/billing-summary";
 const BILLING_PORTAL_ENDPOINT  = "/api/billing-portal";
 
+
+/* ----------------------------------------------------
+   #3 — EMAIL RESOLUTION (Required)
+---------------------------------------------------- */
+
 /**
- * Get the current user's email.
- * - First tries Supabase Auth user (getAuthInfo()).
- * - Fallback: queries profiles table for the logged-in user.
+ * Returns the current user's email string
+ * using:
+ *  - Supabase Auth (preferred)
+ *  - Profiles table fallback (same style as loadProfile)
  */
 async function getCurrentUserEmail() {
   let auth;
   try {
-    auth = await getAuthInfo();
-  } catch (e) {
-    console.error("[Billing] getAuthInfo failed:", e);
+    auth = await getAuthInfo();   // <-- existing global helper
+  } catch (err) {
+    console.error("[Billing] getAuthInfo failed:", err);
     return null;
   }
 
-  // 1) Prefer auth user email if present
+  // 1) Preferred: Supabase Auth user.email
   if (auth?.user?.email) {
     return auth.user.email;
   }
 
-  // 2) Fallback: read from profiles table (same style as loadProfile)
+  // 2) Fallback to profiles table
   try {
     const userId = auth.user.id;
     const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/profiles`;
@@ -44,83 +50,66 @@ async function getCurrentUserEmail() {
 
     if (res.status === 401) {
       const newAuth = await handleJwt401(res, "load billing email");
-      if (!newAuth) {
-        console.warn("[Billing] Session expired while loading email");
-        return null;
-      }
+      if (!newAuth) return null;
       auth = newAuth;
       res = await run(auth);
     }
 
     if (!res.ok) {
-      console.error(
-        "[Billing] profiles email HTTP error:",
-        res.status,
-        await res.text()
-      );
+      console.error("[Billing] profiles email HTTP error:", res.status);
       return null;
     }
 
     const rows = await res.json();
-    const data = rows[0];
-    const email = data?.email || null;
-
-    if (!email) {
-      console.warn("[Billing] No email in profiles row");
-    }
-
-    return email;
+    return rows?.[0]?.email ?? null;
   } catch (err) {
-    console.error("[Billing] error getting email from profiles:", err);
+    console.error("[Billing] error loading email fallback:", err);
     return null;
   }
 }
+
+
+/* ----------------------------------------------------
+   INIT
+---------------------------------------------------- */
 
 async function initAccountBillingView() {
   console.log("[Billing] initAccountBillingView called");
 
   try {
     const email = await getCurrentUserEmail();
-    if (!email) {
-      throw new Error("No email available for billing");
-    }
-
-    console.log("[Billing] calling", BILLING_SUMMARY_ENDPOINT);
+    if (!email) throw new Error("No email available for billing");
 
     const res = await fetch(BILLING_SUMMARY_ENDPOINT, {
       method: "GET",
       credentials: "include",
       headers: {
-        "x-user-email": email,
-      },
+        "x-user-email": email
+      }
     });
-
-    console.log("[Billing] summary response status:", res.status);
 
     if (!res.ok) {
       throw new Error(`Failed to load billing data: HTTP ${res.status}`);
     }
 
     const data = await res.json();
-    console.log("[Billing] summary data:", data);
-
     renderCurrentPlan(data.current_plan);
     renderPaymentMethods(data.payment_methods);
     renderInvoices(data.invoices);
+
   } catch (err) {
     console.error("[Billing] summary error:", err);
     const nameEl = document.getElementById("billingPlanName");
-    if (nameEl) {
-      nameEl.textContent = "Unable to load billing info.";
-    }
+    if (nameEl) nameEl.textContent = "Unable to load billing info.";
   }
 
   wireBillingButtons();
 }
 
-/* --------------------------
+
+/* ----------------------------------------------------
    EVENT WIRING
---------------------------- */
+---------------------------------------------------- */
 
 function wireBillingButtons() {
   const changeBtn = document.getElementById("billingChangePlanBtn");
@@ -129,13 +118,13 @@ function wireBillingButtons() {
 
   if (changeBtn) changeBtn.addEventListener("click", openStripeCustomerPortal);
   if (cancelBtn) cancelBtn.addEventListener("click", openStripeCustomerPortal);
-  if (addPaymentBtn)
-    addPaymentBtn.addEventListener("click", openStripeCustomerPortal);
+  if (addPaymentBtn) addPaymentBtn.addEventListener("click", openStripeCustomerPortal);
 }
 
-/* --------------------------
-   RENDER HELPERS
---------------------------- */
+
+/* ----------------------------------------------------
+   RENDER HELPERS (unchanged)
+---------------------------------------------------- */
 
 function renderCurrentPlan(plan) {
   const nameEl = document.getElementById("billingPlanName");
@@ -151,15 +140,15 @@ function renderCurrentPlan(plan) {
     return;
   }
 
-  nameEl.textContent = plan.name || "Current plan";
+  nameEl.textContent = plan.name;
 
   const amount = (plan.amount / 100).toFixed(2);
-  const currency = (plan.currency || "usd").toUpperCase();
+  const currency = plan.currency.toUpperCase();
   priceEl.innerHTML = `${amount} ${currency} <span>/${plan.interval}</span>`;
 
   if (plan.renews_at) {
     const d = new Date(plan.renews_at);
-    renewEl.textContent = `Renews on ${d.toLocaleDateString()}.`;
+    renewEl.textContent = `Renews on ${d.toLocaleDateString()}`;
   } else {
     renewEl.textContent = "";
   }
@@ -172,29 +161,21 @@ function renderPaymentMethods(methods) {
   container.innerHTML = "";
 
   if (!methods || !methods.length) {
-    container.innerHTML =
-      '<p class="text-muted">No payment method on file.</p>';
+    container.innerHTML = `<p class="text-muted">No payment method on file.</p>`;
     return;
   }
 
   const pm = methods[0];
-
   const wrapper = document.createElement("div");
   wrapper.className = "billing-payment-card";
 
-  const meta = document.createElement("div");
-  meta.className = "billing-payment-meta";
-  meta.innerHTML = `
-    <div>**** **** **** ${pm.last4}</div>
-    <div class="text-muted">Expires ${pm.exp_month}/${pm.exp_year}</div>
+  wrapper.innerHTML = `
+    <div class="billing-payment-meta">
+      <div>**** **** **** ${pm.last4}</div>
+      <div class="text-muted">Expires ${pm.exp_month}/${pm.exp_year}</div>
+    </div>
+    <span class="billing-payment-label">Default</span>
   `;
-
-  const label = document.createElement("span");
-  label.className = "billing-payment-label";
-  label.textContent = "Default";
-
-  wrapper.appendChild(meta);
-  wrapper.appendChild(label);
 
   container.appendChild(wrapper);
 }
@@ -206,10 +187,7 @@ function renderInvoices(invoices) {
   body.innerHTML = "";
 
   if (!invoices || !invoices.length) {
-    const row = document.createElement("tr");
-    row.innerHTML =
-      '<td colspan="3" class="text-muted">No invoices yet.</td>';
-    body.appendChild(row);
+    body.innerHTML = `<tr><td colspan="3" class="text-muted">No invoices yet.</td></tr>`;
     return;
   }
 
@@ -220,65 +198,47 @@ function renderInvoices(invoices) {
     const amount = (inv.amount_paid / 100).toFixed(2);
     const currency = (inv.currency || "usd").toUpperCase();
 
-    const dateCell = document.createElement("td");
-    if (inv.hosted_invoice_url) {
-      const link = document.createElement("a");
-      link.href = inv.hosted_invoice_url;
-      link.target = "_blank";
-      link.rel = "noopener";
-      link.textContent = date.toLocaleDateString();
-      dateCell.appendChild(link);
-    } else {
-      dateCell.textContent = date.toLocaleDateString();
-    }
-
-    const amountCell = document.createElement("td");
-    amountCell.textContent = `${amount} ${currency}`;
-
-    const descCell = document.createElement("td");
-    descCell.textContent = inv.description || "Subscription";
-
-    row.appendChild(dateCell);
-    row.appendChild(amountCell);
-    row.appendChild(descCell);
+    row.innerHTML = `
+      <td>
+        <a href="${inv.hosted_invoice_url}" target="_blank" rel="noopener">
+          ${date.toLocaleDateString()}
+        </a>
+      </td>
+      <td>${amount} ${currency}</td>
+      <td>${inv.description || "Subscription"}</td>
+    `;
 
     body.appendChild(row);
   });
 }
 
-/* --------------------------
+
+/* ----------------------------------------------------
    STRIPE PORTAL
---------------------------- */
+---------------------------------------------------- */
 
 async function openStripeCustomerPortal() {
-  console.log("[Billing] opening portal:", BILLING_PORTAL_ENDPOINT);
-
   try {
     const email = await getCurrentUserEmail();
-    if (!email) {
-      throw new Error("No email available for billing portal");
-    }
+    if (!email) throw new Error("No email for portal");
 
     const res = await fetch(BILLING_PORTAL_ENDPOINT, {
       method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        "x-user-email": email,
+        "x-user-email": email
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify({})
     });
 
-    console.log("[Billing] portal response status:", res.status);
-
-    if (!res.ok)
-      throw new Error(`Failed to open billing portal: HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`Portal error ${res.status}`);
 
     const { url } = await res.json();
-    console.log("[Billing] portal URL:", url);
     if (url) window.location.href = url;
+
   } catch (err) {
     console.error("[Billing] portal error:", err);
-    alert("Unable to open billing portal. Please try again later.");
+    alert("Unable to open billing portal.");
   }
 }
