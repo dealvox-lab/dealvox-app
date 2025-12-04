@@ -29,8 +29,7 @@ async function fetchCalls(agentId, startLower, startUpper) {
       body: JSON.stringify({
         filter_criteria: {
           agent_id: [agentId],
-          // If you later want to filter by time in Worker,
-          // you can also pass timestamps here.
+          // You can add time filtering here later if needed
           // start_timestamp: {
           //   lower_threshold: startLower,
           //   upper_threshold: startUpper,
@@ -77,7 +76,6 @@ async function getAgentIdForUser(auth) {
   let res = await run(auth);
 
   if (res.status === 401) {
-    // reuse the same helper you already use in assistant view
     const newAuth = await handleJwt401(res, "load agent_id for calls");
     if (!newAuth) {
       console.warn("[CallHistory] Session expired while loading agent_id");
@@ -127,7 +125,7 @@ function rowHTML(call) {
   const outcome = outcomeFlag ? "Success" : "No close";
   const recordingURL = call?.recording_url ?? "";
 
-  // Audio player – will *play* in browser instead of direct download
+  // Audio player – play in browser instead of direct download
   const recordingCell = recordingURL
     ? `
       <audio controls preload="none" style="width: 160px;">
@@ -165,7 +163,7 @@ function renderCalls(calls) {
     return;
   }
 
-  if (!calls.length) {
+  if (!calls || !calls.length) {
     tbody.innerHTML = `
       <tr class="calls-table-empty">
         <td colspan="8">No calls yet for this assistant.</td>
@@ -183,9 +181,10 @@ function renderCalls(calls) {
 // Filtering
 // ----------------------------------------------
 function applyFilters() {
-  const allCalls = CALLS_CACHE;
-  if (!Array.isArray(allCalls) || !allCalls.length) {
-    renderCalls(allCalls || []);
+  const allCalls = Array.isArray(CALLS_CACHE) ? CALLS_CACHE : [];
+
+  if (!allCalls.length) {
+    renderCalls(allCalls);
     return;
   }
 
@@ -194,7 +193,7 @@ function applyFilters() {
   const sentVal    = document.getElementById("filterSentiment")?.value ?? "";
   const outcomeVal = document.getElementById("filterOutcome")?.value ?? "";
 
-  let filtered = [...allCalls];
+  let filtered = allCalls.slice();
 
   // Month-year
   if (monthVal) {
@@ -297,8 +296,6 @@ function secondsToMinutes(sec) {
 
 /**
  * Update the “Subscription limits and spendings, in minutes” card.
- * - Uses /api/billing-summary for period start/end (or renews_at fallback)
- * - Uses already-loaded call list to compute used minutes in the period
  */
 async function initUsageSummary(allCalls) {
   const card = document.getElementById("usageSummaryCard");
@@ -351,14 +348,17 @@ async function initUsageSummary(allCalls) {
   }
 
   // Sum used seconds for calls within the billing period
-  const usedSeconds = allCalls.reduce((acc, call) => {
-    const ts = call.start_timestamp;
-    if (typeof ts !== "number") return acc;
-    if (ts < periodStartMs || ts >= periodEndMs) return acc;
+  const usedSeconds = (Array.isArray(allCalls) ? allCalls : []).reduce(
+    (acc, call) => {
+      const ts = call.start_timestamp;
+      if (typeof ts !== "number") return acc;
+      if (ts < periodStartMs || ts >= periodEndMs) return acc;
 
-    const dur = call?.call_cost?.total_duration_seconds ?? 0;
-    return acc + (typeof dur === "number" ? dur : 0);
-  }, 0);
+      const dur = call?.call_cost?.total_duration_seconds ?? 0;
+      return acc + (typeof dur === "number" ? dur : 0);
+    },
+    0
+  );
 
   const usedMinutes = secondsToMinutes(usedSeconds);
   const remainingMinutes = Math.max(planTotalMinutes - usedMinutes, 0);
@@ -436,10 +436,9 @@ async function initCallHistory() {
 
   const allCalls = await fetchCalls(agentId, thirtyAgo, now);
   CALLS_CACHE = allCalls;
-  renderCalls(allCalls);
 
-  // Init usage summary card with these calls
-  initUsageSummary(allCalls);
+  renderCalls(CALLS_CACHE);
+  initUsageSummary(CALLS_CACHE);
 
   // Bind filters on change
   ["filterMonth", "filterEndReason", "filterSentiment", "filterOutcome"].forEach(
