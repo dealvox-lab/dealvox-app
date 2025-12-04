@@ -35,6 +35,36 @@ async function getUserEmail(request, env) {
       return null;
     }
 
+    // Step 2: get full user from auth admin (requires SERVICE ROLE key)
+    const adminRes = await fetch(
+      `${env.SUPABASE_URL}/auth/v1/admin/users/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    if (!adminRes.ok) {
+      console.error("[billing-portal] admin users lookup failed:", adminRes.status);
+      return null;
+    }
+
+    const adminUser = await adminRes.json();
+    const email = adminUser?.email;
+
+    if (!email) {
+      console.warn("[billing-portal] No email on admin user record");
+      return null;
+    }
+
+    return email;
+  } catch (err) {
+    console.error("[billing-portal] getUserEmail ERR:", err);
+    return null;
+  }
+}
+
 /**
  * Helper: make a request to Stripe API (using fetch)
  */
