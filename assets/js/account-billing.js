@@ -5,14 +5,94 @@
 const BILLING_SUMMARY_ENDPOINT = "/api/billing-summary";
 const BILLING_PORTAL_ENDPOINT  = "/api/billing-portal";
 
+/**
+ * Get the current user's email.
+ * - First tries Supabase Auth user (getAuthInfo()).
+ * - Fallback: queries profiles table for the logged-in user.
+ */
+async function getCurrentUserEmail() {
+  let auth;
+  try {
+    auth = await getAuthInfo();
+  } catch (e) {
+    console.error("[Billing] getAuthInfo failed:", e);
+    return null;
+  }
+
+  // 1) Prefer auth user email if present
+  if (auth?.user?.email) {
+    return auth.user.email;
+  }
+
+  // 2) Fallback: read from profiles table (same style as loadProfile)
+  try {
+    const userId = auth.user.id;
+    const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/profiles`;
+
+    const params = new URLSearchParams();
+    params.set("select", "email");
+    params.set("id", `eq.${userId}`);
+    params.set("limit", "1");
+
+    async function run(currentAuth) {
+      return fetch(`${baseUrl}?${params.toString()}`, {
+        headers: supabaseHeaders(currentAuth.accessToken),
+      });
+    }
+
+    let res = await run(auth);
+
+    if (res.status === 401) {
+      const newAuth = await handleJwt401(res, "load billing email");
+      if (!newAuth) {
+        console.warn("[Billing] Session expired while loading email");
+        return null;
+      }
+      auth = newAuth;
+      res = await run(auth);
+    }
+
+    if (!res.ok) {
+      console.error(
+        "[Billing] profiles email HTTP error:",
+        res.status,
+        await res.text()
+      );
+      return null;
+    }
+
+    const rows = await res.json();
+    const data = rows[0];
+    const email = data?.email || null;
+
+    if (!email) {
+      console.warn("[Billing] No email in profiles row");
+    }
+
+    return email;
+  } catch (err) {
+    console.error("[Billing] error getting email from profiles:", err);
+    return null;
+  }
+}
+
 async function initAccountBillingView() {
   console.log("[Billing] initAccountBillingView called");
 
   try {
+    const email = await getCurrentUserEmail();
+    if (!email) {
+      throw new Error("No email available for billing");
+    }
+
     console.log("[Billing] calling", BILLING_SUMMARY_ENDPOINT);
 
     const res = await fetch(BILLING_SUMMARY_ENDPOINT, {
+      method: "GET",
       credentials: "include",
+      headers: {
+        "x-user-email": email,
+      },
     });
 
     console.log("[Billing] summary response status:", res.status);
@@ -174,15 +254,25 @@ async function openStripeCustomerPortal() {
   console.log("[Billing] opening portal:", BILLING_PORTAL_ENDPOINT);
 
   try {
+    const email = await getCurrentUserEmail();
+    if (!email) {
+      throw new Error("No email available for billing portal");
+    }
+
     const res = await fetch(BILLING_PORTAL_ENDPOINT, {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-user-email": email,
+      },
+      body: JSON.stringify({}),
     });
 
     console.log("[Billing] portal response status:", res.status);
 
-    if (!res.ok) throw new Error(`Failed to open billing portal: HTTP ${res.status}`);
+    if (!res.ok)
+      throw new Error(`Failed to open billing portal: HTTP ${res.status}`);
 
     const { url } = await res.json();
     console.log("[Billing] portal URL:", url);
