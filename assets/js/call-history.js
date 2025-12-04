@@ -276,9 +276,83 @@ function resetFilters() {
 // ----------------------------------------------
 // Billing helpers for usage card
 // ----------------------------------------------
+
+/**
+ * Resolve the current user's email via Supabase Auth,
+ * with a profiles-table fallback (same as billing view).
+ */
+async function getCurrentUserEmailForUsage() {
+  let auth;
+  try {
+    auth = await getAuthInfo();
+  } catch (err) {
+    console.error("[UsageSummary] getAuthInfo failed:", err);
+    return null;
+  }
+
+  // 1) Preferred: auth.user.email
+  if (auth?.user?.email) {
+    return auth.user.email;
+  }
+
+  // 2) Fallback: profiles table
+  try {
+    const userId = auth.user.id;
+    const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/profiles`;
+
+    const params = new URLSearchParams();
+    params.set("select", "email");
+    params.set("id", `eq.${userId}`);
+    params.set("limit", "1");
+
+    async function run(currentAuth) {
+      return fetch(`${baseUrl}?${params.toString()}`, {
+        headers: supabaseHeaders(currentAuth.accessToken),
+      });
+    }
+
+    let res = await run(auth);
+
+    if (res.status === 401) {
+      const newAuth = await handleJwt401(res, "load billing email (usage)");
+      if (!newAuth) return null;
+      auth = newAuth;
+      res = await run(auth);
+    }
+
+    if (!res.ok) {
+      console.error(
+        "[UsageSummary] profiles email HTTP error:",
+        res.status,
+        await res.text()
+      );
+      return null;
+    }
+
+    const rows = await res.json();
+    return rows?.[0]?.email ?? null;
+  } catch (err) {
+    console.error("[UsageSummary] error loading email fallback:", err);
+    return null;
+  }
+}
+
 async function getBillingSummary() {
   try {
-    const res = await fetch("/api/billing-summary", { method: "GET" });
+    const email = await getCurrentUserEmailForUsage();
+    if (!email) {
+      console.warn("[UsageSummary] No email resolved for billing-summary");
+      return null;
+    }
+
+    const res = await fetch("/api/billing-summary", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "x-user-email": email,
+      },
+    });
+
     if (!res.ok) {
       console.error("[UsageSummary] billing-summary HTTP error:", res.status);
       return null;
@@ -372,11 +446,26 @@ async function initUsageSummary(allCalls) {
   if (changePlanBtn) {
     changePlanBtn.addEventListener("click", async () => {
       try {
+        const email = await getCurrentUserEmailForUsage();
+        if (!email) {
+          console.warn("[UsageSummary] No email resolved for billing-portal");
+          return;
+        }
+
         changePlanBtn.disabled = true;
         const originalText = changePlanBtn.textContent;
         changePlanBtn.textContent = "Opening…";
 
-        const res = await fetch("/api/billing-portal", { method: "POST" });
+        const res = await fetch("/api/billing-portal", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-email": email,
+          },
+          body: JSON.stringify({}),
+        });
+
         if (!res.ok) {
           console.error(
             "[UsageSummary] billing-portal HTTP error:",
@@ -403,6 +492,7 @@ async function initUsageSummary(allCalls) {
     });
   }
 }
+
 
 // ----------------------------------------------
 // Init
