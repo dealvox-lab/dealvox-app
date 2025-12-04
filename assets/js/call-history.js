@@ -9,8 +9,11 @@
 // Call History – frontend fetch via Cloudflare Worker
 // ----------------------------------------------
 
-// Now we call the Worker route, NOT Retell directly
+// We call the Worker route, NOT Retell directly
 const CALL_API_URL = "/api/list-calls";
+
+// Cache of all calls loaded for this page
+let CALLS_CACHE = [];
 
 // ----------------------------------------------
 // Fetch calls (browser → Worker → Retell)
@@ -26,6 +29,12 @@ async function fetchCalls(agentId, startLower, startUpper) {
       body: JSON.stringify({
         filter_criteria: {
           agent_id: [agentId],
+          // If you later want to filter by time in Worker,
+          // you can also pass timestamps here.
+          // start_timestamp: {
+          //   lower_threshold: startLower,
+          //   upper_threshold: startUpper,
+          // },
         },
       }),
     });
@@ -146,8 +155,15 @@ function rowHTML(call) {
 // Render table
 // ----------------------------------------------
 function renderCalls(calls) {
-  const tbody = document.getElementById("callHistoryBody");
-  if (!tbody) return;
+  // Support both IDs just in case:
+  const tbody =
+    document.getElementById("callHistoryBody") ||
+    document.getElementById("callHistoryTableBody");
+
+  if (!tbody) {
+    console.warn("[CallHistory] Table body element not found");
+    return;
+  }
 
   if (!calls.length) {
     tbody.innerHTML = `
@@ -166,10 +182,16 @@ function renderCalls(calls) {
 // ----------------------------------------------
 // Filtering
 // ----------------------------------------------
-function applyFilters(allCalls) {
-  const monthVal = document.getElementById("filterMonth")?.value ?? "";
-  const endVal = document.getElementById("filterEndReason")?.value ?? "";
-  const sentVal = document.getElementById("filterSentiment")?.value ?? "";
+function applyFilters() {
+  const allCalls = CALLS_CACHE;
+  if (!Array.isArray(allCalls) || !allCalls.length) {
+    renderCalls(allCalls || []);
+    return;
+  }
+
+  const monthVal   = document.getElementById("filterMonth")?.value ?? "";
+  const endVal     = document.getElementById("filterEndReason")?.value ?? "";
+  const sentVal    = document.getElementById("filterSentiment")?.value ?? "";
   const outcomeVal = document.getElementById("filterOutcome")?.value ?? "";
 
   let filtered = [...allCalls];
@@ -231,29 +253,25 @@ function applyFilters(allCalls) {
     });
   }
 
- // Hook filter buttons
-  const applyBtn =
-    document.getElementById("callFiltersApplyBtn") ||
-    document.getElementById("applyFiltersBtn");
-  const resetBtn =
-    document.getElementById("callFiltersResetBtn") ||
-    document.getElementById("resetFiltersBtn");
-
-  if (applyBtn) {
-    applyBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      applyFilters();
-    });
-  }
-
-  if (resetBtn) {
-    resetBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      resetFilters();
-    });
-  }
-
   renderCalls(filtered);
+}
+
+function resetFilters() {
+  const ids = [
+    "filterMonth",
+    "filterEndReason",
+    "filterSentiment",
+    "filterOutcome",
+  ];
+
+  ids.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = "";
+  });
+
+  // Re-render with all calls
+  applyFilters();
 }
 
 // ----------------------------------------------
@@ -417,20 +435,43 @@ async function initCallHistory() {
   const thirtyAgo = now - 30 * 24 * 60 * 60 * 1000;
 
   const allCalls = await fetchCalls(agentId, thirtyAgo, now);
+  CALLS_CACHE = allCalls;
   renderCalls(allCalls);
 
   // Init usage summary card with these calls
   initUsageSummary(allCalls);
 
-  // Bind filters
+  // Bind filters on change
   ["filterMonth", "filterEndReason", "filterSentiment", "filterOutcome"].forEach(
     (id) => {
       const el = document.getElementById(id);
       if (el) {
-        el.addEventListener("change", () => applyFilters(allCalls));
+        el.addEventListener("change", () => applyFilters());
       }
     }
   );
+
+  // Hook filter buttons
+  const applyBtn =
+    document.getElementById("callFiltersApplyBtn") ||
+    document.getElementById("applyFiltersBtn");
+  const resetBtn =
+    document.getElementById("callFiltersResetBtn") ||
+    document.getElementById("resetFiltersBtn");
+
+  if (applyBtn) {
+    applyBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      applyFilters();
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      resetFilters();
+    });
+  }
 
   // (Optional) pagination buttons currently just placeholders
   const prevBtn = document.getElementById("prevPage");
@@ -439,7 +480,6 @@ async function initCallHistory() {
 
   if (prevBtn && nextBtn && pageIdx) {
     prevBtn.addEventListener("click", () => {
-      // TODO: hook into Retell pagination if needed
       console.log("[CallHistory] Prev page clicked (not implemented yet)");
     });
     nextBtn.addEventListener("click", () => {
