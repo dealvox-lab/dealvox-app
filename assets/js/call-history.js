@@ -242,9 +242,7 @@ function applyFilters(allCalls) {
   if (applyBtn) {
     applyBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      applyFilters(
-        let filtered = [...allCalls];
-      );
+      applyFilters();
     });
   }
 
