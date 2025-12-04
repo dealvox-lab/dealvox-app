@@ -431,7 +431,6 @@ async function initCallHistory() {
       resetFilters();
     });
   }
-}
 
   // (Optional) pagination buttons currently just placeholders
   const prevBtn = document.getElementById("prevPage");
