@@ -8,14 +8,14 @@
   border-top: 1px solid #e5edf7;
 }
 
-.billing-block a, billing-table a {
-  margin-top: 8px;
+.billing-block a{
+  margin-top: 28px;
   padding: 0;
   background: none;
   border: none;
   color: var(--accent);
   cursor: pointer;
-  font-size: 0.9rem;
+  text-decoration: none;
 }
 
 .billing-title {
@@ -97,6 +97,17 @@
   text-align: left;
   color: #7a8aa3;
   font-weight: 500;
+}
+
+billing-table a {
+  margin-top: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
 }
 
 /* UTILITY */
