@@ -1128,7 +1128,6 @@ document.addEventListener("DOMContentLoaded", () => {
     assistant: "/assets/partials/account-assistant.html",
     voices:    "/assets/partials/account-voices.html",
     api:       "/assets/partials/account-api.html",
-    reports:   "/assets/partials/account-reports.html",
     calls_history: "/assets/partials/account-calls-history.html",
     billing:   "/assets/partials/account-billing.html",
     help:      "/assets/partials/account-help.html",
