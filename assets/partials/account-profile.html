@@ -36,8 +36,46 @@
     </div>
   </form>
 </div>
+<!-- SUBSCRIPTION CARD (shown only if user has active sub) -->
+<div
+  id="subscriptionCard"
+  class="card card-profile"
+  style="margin-top:18px; display:none;"
+>
+  <h2>Your subscription</h2>
+  <p class="pricing-sub">Current plan and usage.</p>
+
+  <div class="sub-layout">
+    <div>
+      <div class="sub-label">Plan</div>
+      <div class="sub-plan-name" id="subPlanName">—</div>
+      <div class="sub-plan-type" id="subPlanType">—</div>
+    </div>
+
+    <div>
+      <div class="sub-label">Price</div>
+      <div class="sub-price" id="subPrice">—</div>
+    </div>
+
+    <div>
+      <div class="sub-label">Minutes</div>
+      <div class="sub-minutes" id="subMinutesTotal">—</div>
+      <div class="sub-minutes-detail">
+        Used <span id="subMinutesSpent">0</span> · Left
+        <span id="subMinutesLeft">0</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="sub-label">Started</div>
+      <div class="sub-date" id="subStartDate">—</div>
+      <div class="sub-status" id="subStatus">—</div>
+    </div>
+  </div>
+</div>
+
  <!-- PRICING SECTION -->
-  <div class="card card-profile" style="margin-top:18px;">
+  <div id="pricingCard" class="card card-profile" style="margin-top:18px;">
     <h2 class="pricing-title">Choose your subscription from $0.4/min</h2>
     <p class="pricing-sub">
       Flexible plans designed for every stage — from first experiments to full-scale AI sales teams.
