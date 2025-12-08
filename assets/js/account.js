@@ -220,6 +220,161 @@ async function initAccountProfileView() {
   loadProfile();
 }
 
+//----------------------------------------------------
+// SUBSCRIPTION CHECKING PROFILE PART
+// ---------------------------------------------------
+
+async function initProfileSubscriptionSection() {
+  const pricingCard = document.getElementById("pricingCard");
+  const subscriptionCard = document.getElementById("subscriptionCard");
+
+  if (!pricingCard || !subscriptionCard) return;
+
+  // Hide both while loading
+  pricingCard.style.display = "none";
+  subscriptionCard.style.display = "none";
+
+  let auth;
+  try {
+    auth = await getAuthInfo();
+  } catch (err) {
+    console.error("[Profile] getAuthInfo failed:", err);
+    // Fallback: show pricing if we cannot auth
+    pricingCard.style.display = "block";
+    return;
+  }
+
+  const userId = auth?.user?.id;
+  if (!userId) {
+    console.warn("[Profile] No user id – showing pricing.");
+    pricingCard.style.display = "block";
+    return;
+  }
+
+  const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/subscription`;
+
+  const params = new URLSearchParams();
+  params.set("select", "*");
+  params.set("user_id", `eq.${userId}`);
+  params.set("sub_active", "eq.true");
+  params.set("limit", "1");
+
+  async function run(currentAuth) {
+    return fetch(`${baseUrl}?${params.toString()}`, {
+      headers: supabaseHeaders(currentAuth.accessToken),
+    });
+  }
+
+  let res;
+  try {
+    res = await run(auth);
+
+    if (res.status === 401) {
+      const newAuth = await handleJwt401(res, "load subscription");
+      if (!newAuth) {
+        pricingCard.style.display = "block";
+        return;
+      }
+      auth = newAuth;
+      res = await run(auth);
+    }
+
+    if (!res.ok) {
+      console.error("[Profile] subscription HTTP error:", res.status);
+      pricingCard.style.display = "block";
+      return;
+    }
+
+    const rows = await res.json();
+    const sub = rows?.[0];
+
+    if (!sub) {
+      // No active subscription – show pricing
+      pricingCard.style.display = "block";
+      return;
+    }
+
+    // We have an active subscription – fill UI
+    fillSubscriptionCard(sub);
+    subscriptionCard.style.display = "block";
+  } catch (err) {
+    console.error("[Profile] error loading subscription:", err);
+    pricingCard.style.display = "block";
+  }
+}
+
+function fillSubscriptionCard(sub) {
+  const planNameEl = document.getElementById("subPlanName");
+  const planTypeEl = document.getElementById("subPlanType");
+  const priceEl = document.getElementById("subPrice");
+  const minutesTotalEl = document.getElementById("subMinutesTotal");
+  const minutesSpentEl = document.getElementById("subMinutesSpent");
+  const minutesLeftEl = document.getElementById("subMinutesLeft");
+  const startDateEl = document.getElementById("subStartDate");
+  const statusEl = document.getElementById("subStatus");
+
+  const {
+    sub_name,
+    sub_type,
+    sub_amount,
+    minutes_total,
+    minutes_spent,
+    minutes_to_spend,
+    start_date,
+    sub_active,
+  } = sub;
+
+  const currency = "$"; // adjust if you add currency column
+
+  if (planNameEl) planNameEl.textContent = sub_name || "Custom plan";
+  if (planTypeEl) planTypeEl.textContent = sub_type || "";
+
+  if (priceEl) {
+    // e.g. 239 -> $239/mo
+    const amount = typeof sub_amount === "number" ? sub_amount : Number(sub_amount);
+    priceEl.textContent = Number.isFinite(amount)
+      ? `${currency}${amount.toFixed(0)}/mo`
+      : "—";
+  }
+
+  if (minutesTotalEl) {
+    minutesTotalEl.textContent = minutes_total != null ? `${minutes_total} min` : "—";
+  }
+  if (minutesSpentEl) {
+    minutesSpentEl.textContent =
+      minutes_spent != null ? minutes_spent : minutes_total - minutes_to_spend || 0;
+  }
+  if (minutesLeftEl) {
+    minutesLeftEl.textContent =
+      minutes_to_spend != null ? minutes_to_spend : "—";
+  }
+
+  if (startDateEl) {
+    if (start_date) {
+      const d = new Date(start_date);
+      startDateEl.textContent = isNaN(d.getTime())
+        ? "—"
+        : d.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+    } else {
+      startDateEl.textContent = "—";
+    }
+  }
+
+  if (statusEl) {
+    const active = sub_active !== false;
+    statusEl.textContent = active ? "Active" : "Inactive";
+    if (!active) {
+      statusEl.style.background = "#fee2e2";
+      statusEl.style.color = "#991b1b";
+    }
+  }
+}
+
+
 // ----------------------------------------------------
 // ASSISTANT VIEW (Assistant tab) - TWO-STEP FLOW
 // ----------------------------------------------------
