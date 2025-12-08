@@ -234,6 +234,426 @@
   }
 }
 
+/* ========== PRICING SECTION (MAGAZINE STYLE) ========== */
+
+.pricing {
+  padding: 80px 0;
+  background: #f9fafb;
+}
+
+.pricing-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  text-align: center;
+}
+
+.pricing-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.pricing-sub {
+  color: #6b7280;
+  margin: 8px 0 24px;
+  font-size: 0.95rem;
+}
+
+/* Billing toggle */
+
+.billing-toggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 32px;
+  color: #374151;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #cbd5e1;
+  transition: 0.4s;
+  border-radius: 22px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 3px;
+  background-color: #ffffff;
+  transition: 0.3s;
+  border-radius: 999px;
+}
+
+input:checked + .slider {
+  background-color: #2075ae;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* Cards grid */
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-bottom: 28px;
+}
+
+/* Base card */
+
+.pricing-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px 20px 20px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(32, 117, 174, 0.1);
+  transition: 0.3s ease;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-card h3 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.pricing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(32, 117, 174, 0.2);
+}
+
+/* Featured / Most Popular */
+
+.pricing-card.featured {
+  background: radial-gradient(circle at top, rgba(32,117,174,0.06), #ffffff);
+  transform: translateY(-6px);
+  box-shadow: 0 14px 32px rgba(32,117,174,0.22);
+  border-width: 2px;
+  border-color: #2075ae;
+}
+
+.pricing-card.featured:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 40px rgba(32,117,174,0.28);
+}
+
+.pricing-card.featured::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid rgba(32,117,174,0.18);
+  pointer-events: none;
+}
+
+.badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2075ae;
+  color: #ffffff;
+  font-size: 0.7rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+/* Minutes label, slider, marks */
+
+.minutes-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #9ca3af;
+  margin-top: 6px;
+}
+
+.minutes-slider {
+  width: 100%;
+  margin: 4px 0 2px;
+  accent-color: #2075ae;
+}
+
+.minutes-marks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.minutes-marks span.active {
+  color: #2075ae;
+  font-weight: 600;
+}
+
+.minutes-display {
+  font-size: 0.8rem;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+/* Features list: custom checkmarks */
+
+.pricing-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 14px;
+}
+
+.pricing-card ul li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 0.8rem;
+  color: #4b5563;
+  margin-bottom: 4px;
+}
+
+.pricing-card ul li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 0.7rem;
+  color: #2075ae;
+  line-height: 1.4;
+}
+
+/* Price + CTA (aligned bottoms) */
+
+.price-cta {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.price-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 4px 0 0;
+}
+
+.price-tag span {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.effective-rate {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2075ae;
+}
+
+/* CTA buttons (1.5x larger) */
+
+.pricing-btn {
+  background: #374151;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  padding: 16px 26px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.pricing-btn:hover {
+  background: #111827;
+}
+
+.pricing-btn.accent,
+.pricing-btn.primary {
+  background: #2075ae;
+}
+
+.pricing-btn.accent:hover,
+.pricing-btn.primary:hover {
+  background: #15597f;
+}
+
+/* ----- PAYG redesigned (unified with other pricing cards) ----- */
+.payg-card {
+  margin-top: 20px;
+  padding: 28px 32px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(32,117,174,0.16);
+  box-shadow: 0 6px 20px rgba(15,23,42,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  text-align: left;
+}
+
+/* Left column */
+.payg-left h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+/* 'Unlimited minutes a month' label */
+.unlimited-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #9ca3af;
+  margin-top: 2px;
+  margin-bottom: 10px;
+}
+
+/* Features — matching other cards */
+.payg-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.payg-features li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 0.85rem;
+  color: #4b5563;
+  margin-bottom: 6px;
+}
+
+.payg-features li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 0.75rem;
+  color: #2075ae;
+  line-height: 1.4;
+}
+
+/* Right column */
+.payg-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  min-width: 240px;
+  text-align: right;
+}
+
+.payg-price {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.payg-price-main {
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: #2075ae;
+}
+
+.payg-price span:last-child {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+/* Full-width bottom button under price */
+.payg-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px 26px;
+  font-size: 1rem;
+  border-radius: 14px;
+  text-align: center;
+}
+
+/* Responsive layout */
+@media (max-width: 900px) {
+  .payg-card {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .payg-right {
+    align-items: stretch;
+    text-align: left;
+  }
+  .payg-price {
+    justify-content: space-between;
+  }
+}
+
+/* Animations for value changes */
+
+.price-tag,
+.minutes-display,
+.effective-rate {
+  transition: color 0.2s ease;
+}
+
+@keyframes bump {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.bump {
+  animation: bump 0.22s ease-out;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-card.featured {
+    transform: translateY(0);
+  }
+
+  .payg-card {
+    text-align: left;
+  }
+}
+
 /* -----------------------------------------------
    API KEY SECTION
 ------------------------------------------------- */
