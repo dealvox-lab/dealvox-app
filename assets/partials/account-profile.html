@@ -1,40 +1,45 @@
-<div class="grid-2">
-  <div class="card">
-    <h2>Profile</h2>
-    <p>Manage your personal and company details.</p>
+<div class="card card-profile">
+  <h2>Profile</h2>
+  <p>Manage your personal and company details.</p>
 
-    <form id="profileForm">
-      <div class="field">
-        <label for="profileEmail">Email</label>
-        <input id="profileEmail" class="input" type="email" readonly>
-      </div>
+  <form id="profileForm" class="profile-grid">
+    <div class="field field-full">
+      <label for="profileEmail">Email</label>
+      <input id="profileEmail" class="input" type="email" readonly>
+    </div>
 
-      <div class="field">
-        <label for="profileFirstName">First name</label>
-        <input id="profileFirstName" class="input" autocomplete="given-name">
-      </div>
+    <div class="field">
+      <label for="profileFirstName">First name</label>
+      <input id="profileFirstName" class="input" autocomplete="given-name">
+    </div>
 
-      <div class="field">
-        <label for="profileLastName">Last name</label>
-        <input id="profileLastName" class="input" autocomplete="family-name">
-      </div>
+    <div class="field">
+      <label for="profileLastName">Last name</label>
+      <input id="profileLastName" class="input" autocomplete="family-name">
+    </div>
 
-      <div class="field">
-        <label for="profileJobTitle">Job title</label>
-        <input id="profileJobTitle" class="input" placeholder="Head of Sales">
-      </div>
+    <div class="field">
+      <label for="profileJobTitle">Job title</label>
+      <input id="profileJobTitle" class="input" placeholder="Head of Sales">
+    </div>
 
-      <div class="field">
-        <label for="profileCompanyName">Company name</label>
-        <input id="profileCompanyName" class="input" placeholder="Acme Inc.">
-      </div>
+    <div class="field">
+      <label for="profileCompanyName">Company name</label>
+      <input id="profileCompanyName" class="input" placeholder="Acme Inc.">
+    </div>
 
+    <div class="profile-actions field-full">
       <button type="submit" class="btn-primary" id="profileSaveBtn">
         Save changes
       </button>
       <span id="profileStatus" class="muted"></span>
-    </form>
-  </div>
-
-  <!-- Security card unchanged -->
+    </div>
+  </form>
 </div>
+
+<!-- Security card can stay as a separate full-width card below, unchanged -->
+<!--
+<div class="card">
+  ...
+</div>
+-->
