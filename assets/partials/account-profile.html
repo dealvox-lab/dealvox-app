@@ -36,10 +36,144 @@
     </div>
   </form>
 </div>
+ <!-- PRICING SECTION -->
+  <div class="card">
+    <h2 class="pricing-title">Rent an AI Agent from $0.4/min</h2>
+    <p class="pricing-sub">
+      Flexible plans designed for every stage — from first experiments to full-scale AI sales teams.
+    </p>
 
-<!-- Security card can stay as a separate full-width card below, unchanged -->
-<!--
-<div class="card">
-  ...
+    <!-- Billing toggle -->
+    <div class="billing-toggle">
+      <span>Monthly</span>
+      <label class="switch">
+        <input type="checkbox" id="billingToggle">
+        <span class="slider"></span>
+      </label>
+      <span>Yearly</span>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Starter -->
+      <div class="pricing-card" data-plan="starter">
+        <h3>Starter</h3>
+
+        <div class="minutes-label">Minutes a month</div>
+        <input
+          type="range"
+          min="200"
+          max="400"
+          step="100"
+          value="200"
+          class="minutes-slider"
+        />
+        <div class="minutes-marks">
+          <span data-value="200">200 min</span>
+          <span data-value="300">300 min</span>
+          <span data-value="400">400 min</span>
+        </div>
+
+        <p class="minutes-display">200 minutes</p>
+
+        <ul>
+          <li>Chosen agent persona rent</li>
+          <li>Dealvox API + prompt editor</li>
+          <li>1 connected knowledge base</li>
+          <li>5 concurrent calls</li>
+          <li>Standard Google Sheet reporting</li>
+          <li>Tech support included</li>
+          <li><div class="effective-rate">$1.20 per minute / min</div></li>
+        </ul>
+
+        <div class="price-cta">
+          <div class="price-tag">$239<span>/mo</span></div>
+          <button class="pricing-btn primary" onclick="window.open('https://buy.stripe.com/test_5kQ3cvc1M6HD5K62sAfYY00', '_blank')">Rent Agent</button>
+        </div>
+      </div>
+
+      <!-- Growth -->
+      <div class="pricing-card featured" data-plan="growth">
+        <div class="badge">Most Popular</div>
+        <h3>Growth</h3>
+
+        <div class="minutes-label">Minutes a month</div>
+        <input
+          type="range"
+          min="500"
+          max="5000"
+          step="500"
+          value="500"
+          class="minutes-slider"
+          data-tiers="500,1000,1500,2000,3000,5000"
+        />
+        <div class="minutes-marks">
+          <span data-value="500">500</span>
+          <span data-value="1000">1,000</span>
+          <span data-value="1500">1,500</span>
+          <span data-value="2000">2,000</span>
+          <span data-value="3000">3,000</span>
+          <span data-value="5000">5,000</span>
+        </div>
+
+        <p class="minutes-display">500 minutes</p>
+
+        <ul>
+          <li>Chosen agent persona rent</li>
+          <li>Advanced prompt editor</li>
+          <li>3+ connected knowledge bases</li>
+          <li>10+ concurrent calls</li>
+          <li>Extended Google Sheet reporting</li>
+          <li>Premium tech support</li>
+          <li><div class="effective-rate">$1.00 per minute / min</div></li>
+        </ul>
+
+        <div class="price-cta">
+          <div class="price-tag">$499<span>/mo</span></div>
+          <button class="pricing-btn accent" onclick="window.open('https://buy.stripe.com/test_28E3cv2rcfe9a0maZ6fYY01', '_blank')">Start Trial</button>
+        </div>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="pricing-card" data-plan="enterprise">
+        <h3>Enterprise</h3>
+        <p class="minutes-display">5,000+ minutes</p>
+
+        <ul>
+          <li>Chosen agent persona & custom voice design</li>
+          <li>Full Dealvox API access</li>
+          <li>Unlimited knowledge bases</li>
+          <li>20+ concurrent calls</li>
+          <li>Custom reporting & integrations</li>
+          <li>Dedicated setup & success team</li>
+        </ul>
+
+        <div class="price-cta">
+          <div class="price-tag">From $0.4<span>/min</span></div>
+          <div class="effective-rate">Custom volume pricing</div>
+          <button class="pricing-btn">Contact Sales</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYG full-width card -->
+ <div class="payg-card">
+  <div class="payg-left">
+    <h3>Pay-as-you-go</h3>
+     <ul class="payg-features">
+      <li>Dealvox API + prompt editor</li>
+      <li>3+ connected knowledge bases</li>
+      <li>Up to 5 concurrent calls</li>
+      <li>Tech support included</li>
+    </ul>
+  </div>
+
+  <div class="payg-right">
+    <div class="unlimited-label">Unlimited minutes a month</div>
+    <p class="payg-price">
+      <span class="payg-price-main">$1.50</span><span>/min</span>
+    </p>
+    <button class="pricing-btn accent payg-btn">Rent Now</button>
+  </div>
+ </div>
+
 </div>
--->
