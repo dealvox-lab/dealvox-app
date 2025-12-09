@@ -231,7 +231,7 @@ async function initProfileSubscriptionSection() {
   if (!pricingCard || !subscriptionCard) return;
 
   // Hide both while loading
-  pricingCard.style.display = "none";
+  pricingCard.style.display = "block";
   subscriptionCard.style.display = "none";
 
   let auth;
@@ -250,51 +250,33 @@ async function initProfileSubscriptionSection() {
     return;
   }
 
-  // 🔴 IMPORTANT: use your real table name here
+// Requesting a Supabase Subscription table
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/subscriptions`;
-
-  const params = new URLSearchParams();
-  params.set("select", "*");
-  params.set("user_id", `eq.${userId}`);
-  // Take the latest subscription by start_date if there are many
-  params.set("order", "start_date.desc");
-  params.set("limit", "1");
-
-  async function run(currentAuth) {
-    return fetch(`${baseUrl}?${params.toString()}`, {
-      headers: supabaseHeaders(currentAuth.accessToken),
-    });
-  }
+  const params = new URLSearchParams({
+    select: "*",
+    user_id: `eq.${userId}`,
+    limit: "1",
+  });
 
   try {
-    let res = await run(auth);
-
-    if (res.status === 401) {
-      const newAuth = await handleJwt401(res, "load subscription");
-      if (!newAuth) {
-        pricingCard.style.display = "block";
-        return;
-      }
-      auth = newAuth;
-      res = await run(auth);
-    }
+    const res = await fetch(`${baseUrl}?${params.toString()}`, {
+      headers: supabaseHeaders(auth.accessToken),
+    });
 
     if (!res.ok) {
       console.error("[Profile] subscription HTTP error:", res.status);
-      pricingCard.style.display = "block";
-      return;
+      return; // keep pricing
     }
 
     const rows = await res.json();
-    console.log("[Profile] subscription rows:", rows); // 👈 quick debug
+    console.log("[Profile] subscription rows:", rows); // 👈 see what Supabase sends
 
-    const sub = rows?.[0];
-
-    if (!sub) {
-      // No subscription visible → show pricing
-      pricingCard.style.display = "block";
+    if (!Array.isArray(rows) || rows.length === 0) {
+      // No subscription for this user → keep pricing
       return;
     }
+
+    const sub = rows[0];
 
     // We have a subscription → fill card & show it
     fillSubscriptionCard(sub);
