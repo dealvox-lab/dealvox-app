@@ -232,26 +232,21 @@ async function initAccountProfileView() {
   }
 }
 //----------------------------------------------------
-// SUBSCRIPTION CHECKING (shared)
+// SUBSCRIPTION CHECKING PROFILE PART
 // ---------------------------------------------------
 
-async function initProfileSubscriptionSection(auth, options) {
-  const { togglePricing = true } = options || {};
-
+async function initProfileSubscriptionSection(auth) {
   const pricingCard = document.getElementById("pricingCard");
   const subscriptionCard = document.getElementById("subscriptionCard");
 
-  // We at least need the subscription card on the current view
-  if (!subscriptionCard) {
-    console.log("[Profile] subscriptionCard not found in DOM");
+  if (!pricingCard || !subscriptionCard) {
+    console.log("[Profile] pricing/subscription cards not found in DOM");
     return false;
   }
 
-  // On pages where we DO control pricing
-  if (togglePricing && pricingCard) {
-    pricingCard.style.display = "block";
-    subscriptionCard.style.display = "none";
-  }
+  // Default: show pricing, hide subscription
+  pricingCard.style.display = "block";
+  subscriptionCard.style.display = "none";
 
   try {
     if (!auth) {
@@ -264,10 +259,11 @@ async function initProfileSubscriptionSection(auth, options) {
 
   const userId = auth?.user?.id;
   if (!userId) {
-    console.warn("[Profile] No user id.");
+    console.warn("[Profile] No user id – showing pricing.");
     return false;
   }
 
+  // Supabase subscriptions table
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/subscriptions`;
   const params = new URLSearchParams({
     select: "*",
@@ -282,34 +278,23 @@ async function initProfileSubscriptionSection(auth, options) {
 
     if (!res.ok) {
       console.error("[Profile] subscription HTTP error:", res.status);
-      return false;
+      return false; // keep pricing
     }
 
     const rows = await res.json();
     console.log("[Profile] subscription rows:", rows);
 
     if (!Array.isArray(rows) || rows.length === 0) {
-      // No subscription for this user
-      if (togglePricing && pricingCard) {
-        pricingCard.style.display = "block";
-        subscriptionCard.style.display = "none";
-      } else {
-        // On other tabs just hide the card entirely
-        subscriptionCard.style.display = "none";
-      }
+      // No subscription for this user → keep pricing visible
       return false;
     }
 
     const sub = rows[0];
+
+    // We have a subscription → fill card & switch visibility
     fillSubscriptionCard(sub);
-
-    // Show card in all cases
     subscriptionCard.style.display = "block";
-
-    // Only hide pricing where we manage it (Account tab)
-    if (togglePricing && pricingCard) {
-      pricingCard.style.display = "none";
-    }
+    pricingCard.style.display = "none";
 
     return true;
   } catch (err) {
@@ -1062,82 +1047,6 @@ async function initApiKeySection() {
 
     bodyEl.textContent = JSON.stringify(examplePayload, null, 2);
   }
-
-  // ----------------------------------------------------
-// SUBSCRIPTION CARD – Calls history / limits tab
-// ----------------------------------------------------
-
-async function initSpendingsSubscriptionCard() {
-  const subscriptionCard = document.getElementById("subscriptionCard");
-  if (!subscriptionCard) {
-    console.log("[CallsHistory] subscriptionCard not found in DOM");
-    return;
-  }
-
-  let auth;
-  try {
-    auth = await getAuthInfo();
-  } catch (err) {
-    console.error("[CallsHistory] getAuthInfo failed:", err);
-    subscriptionCard.style.display = "none";
-    return;
-  }
-
-  const userId = auth?.user?.id;
-  if (!userId) {
-    console.warn("[CallsHistory] No user id");
-    subscriptionCard.style.display = "none";
-    return;
-  }
-
-  const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/subscriptions`;
-  const params = new URLSearchParams({
-    select: "*",
-    user_id: `eq.${userId}`,
-    limit: "1",
-  });
-
-  try {
-    const res = await fetch(`${baseUrl}?${params.toString()}`, {
-      headers: supabaseHeaders(auth.accessToken),
-    });
-
-    if (!res.ok) {
-      console.error("[CallsHistory] subscription HTTP error:", res.status);
-      subscriptionCard.style.display = "none";
-      return;
-    }
-
-    const rows = await res.json();
-    console.log("[CallsHistory] subscription rows:", rows);
-
-    if (!Array.isArray(rows) || rows.length === 0) {
-      // No subscription → hide the card (or leave it as empty, up to you)
-      subscriptionCard.style.display = "none";
-      return;
-    }
-
-    const sub = rows[0];
-
-    // 👇 reuse the same helper that already works on the Profile tab
-    fillSubscriptionCard(sub);
-    subscriptionCard.style.display = "block";
-  } catch (err) {
-    console.error("[CallsHistory] error loading subscription:", err);
-    subscriptionCard.style.display = "none";
-  }
-}
-
-// Wrapper init for the Calls history view
-function initCallsHistoryView() {
-  // existing logic for this tab
-  if (typeof initCallHistory === "function") {
-    initCallHistory();
-  }
-
-  // new: load the "Your subscription" card in this tab
-  initSpendingsSubscriptionCard();
-}
 
   // ---------------- Supabase helpers ----------------
 
