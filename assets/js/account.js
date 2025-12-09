@@ -225,6 +225,11 @@ async function initAccountProfileView() {
   if (!hasSub && typeof window.initAccountPricingSection === "function") {
     window.initAccountPricingSection();
   }
+
+  // Wire billing buttons (Change plan / Cancel plan)
+  if (typeof wireBillingButtons === "function") {
+  wireBillingButtons();
+  }
 }
 
 //----------------------------------------------------
