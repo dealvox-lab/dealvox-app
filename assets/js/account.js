@@ -220,16 +220,10 @@ async function initAccountProfileView() {
   // Load profile (no need to await)
   loadProfile();
 
-  // Check subscription and, if there is NO subscription,
-  // re-trigger pricing.js init via a synthetic DOMContentLoaded
+  // Check subscription; if no subscription → init pricing sliders
   const hasSub = await initProfileSubscriptionSection(auth);
-  if (!hasSub) {
-    // pricing.js listens to DOMContentLoaded; fire it again so it runs on the new DOM
-    try {
-      document.dispatchEvent(new Event("DOMContentLoaded"));
-    } catch (err) {
-      console.error("[Profile] failed to trigger pricing init:", err);
-    }
+  if (!hasSub && typeof window.initAccountPricingSection === "function") {
+    window.initAccountPricingSection();
   }
 }
 
