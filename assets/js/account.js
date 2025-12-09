@@ -217,9 +217,20 @@ async function initAccountProfileView() {
     saveProfile();
   });
 
-  // Load profile + check subscription
+  // Load profile (no need to await)
   loadProfile();
-  initProfileSubscriptionSection(auth); // 👈 use the same auth
+
+  // Check subscription and, if there is NO subscription,
+  // re-trigger pricing.js init via a synthetic DOMContentLoaded
+  const hasSub = await initProfileSubscriptionSection(auth);
+  if (!hasSub) {
+    // pricing.js listens to DOMContentLoaded; fire it again so it runs on the new DOM
+    try {
+      document.dispatchEvent(new Event("DOMContentLoaded"));
+    } catch (err) {
+      console.error("[Profile] failed to trigger pricing init:", err);
+    }
+  }
 }
 
 //----------------------------------------------------
@@ -232,7 +243,7 @@ async function initProfileSubscriptionSection(auth) {
 
   if (!pricingCard || !subscriptionCard) {
     console.log("[Profile] pricing/subscription cards not found in DOM");
-    return;
+    return false;
   }
 
   // Default: show pricing, hide subscription
@@ -245,16 +256,16 @@ async function initProfileSubscriptionSection(auth) {
     }
   } catch (err) {
     console.error("[Profile] getAuthInfo failed:", err);
-    return;
+    return false;
   }
 
   const userId = auth?.user?.id;
   if (!userId) {
     console.warn("[Profile] No user id – showing pricing.");
-    return;
+    return false;
   }
 
-  // Requesting Supabase subscriptions table
+  // Supabase subscriptions table
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/subscriptions`;
   const params = new URLSearchParams({
     select: "*",
@@ -269,7 +280,7 @@ async function initProfileSubscriptionSection(auth) {
 
     if (!res.ok) {
       console.error("[Profile] subscription HTTP error:", res.status);
-      return; // keep pricing
+      return false; // keep pricing
     }
 
     const rows = await res.json();
@@ -277,7 +288,7 @@ async function initProfileSubscriptionSection(auth) {
 
     if (!Array.isArray(rows) || rows.length === 0) {
       // No subscription for this user → keep pricing visible
-      return;
+      return false;
     }
 
     const sub = rows[0];
@@ -286,8 +297,11 @@ async function initProfileSubscriptionSection(auth) {
     fillSubscriptionCard(sub);
     subscriptionCard.style.display = "block";
     pricingCard.style.display = "none";
+
+    return true;
   } catch (err) {
     console.error("[Profile] error loading subscription:", err);
+    return false;
   }
 }
 
