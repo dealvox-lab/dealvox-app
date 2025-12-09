@@ -112,6 +112,10 @@ async function initAccountBillingView() {
 ---------------------------------------------------- */
 
 function wireBillingButtons() {
+  const actionContainer = document.querySelector(".billing-actions");
+  if (actionContainer?.dataset.bound === "1") return;
+  if (actionContainer) actionContainer.dataset.bound = "1";
+   
   const changeBtn = document.getElementById("billingChangePlanBtn");
   const cancelBtn = document.getElementById("billingCancelPlanBtn");
   const addPaymentBtn = document.getElementById("billingAddPaymentBtn");
@@ -120,7 +124,6 @@ function wireBillingButtons() {
   if (cancelBtn) cancelBtn.addEventListener("click", openStripeCustomerPortal);
   if (addPaymentBtn) addPaymentBtn.addEventListener("click", openStripeCustomerPortal);
 }
-
 
 /* ----------------------------------------------------
    RENDER HELPERS (unchanged)
