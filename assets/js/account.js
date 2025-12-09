@@ -387,6 +387,13 @@ async function initAccountAssistantView() {
   const deploySection = document.getElementById("assistantInitial");
   const manageSection = document.getElementById("assistantManage");
 
+  const buyCard        = document.getElementById("asstBuyCard");
+  const buyBtn         = document.getElementById("asstBuyNumberBtn");
+  const buyStatusEl    = document.getElementById("asstBuyStatus");
+  const buySpinner     = document.getElementById("asstBuySpinner");
+  const buySpinnerText = document.getElementById("asstBuySpinnerText");
+  const areaSelect     = document.getElementById("asstPhoneAreaSelect");
+
   const deployForm     = document.getElementById("assistantDeployForm");
   const deployLoader   = document.getElementById("asstDeployLoader");
   const deployNoteEl   = document.getElementById("asstDeployNote");
@@ -403,6 +410,30 @@ async function initAccountAssistantView() {
     return;
   }
 
+    // Populate Buy-phone area select
+  function populatePhoneAreaSelect() {
+    if (!areaSelect) return;
+
+    areaSelect.innerHTML = "";
+
+    // Optional placeholder
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Select area / code…";
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    areaSelect.appendChild(placeholder);
+
+    PHONE_AREA_CODES.forEach((item) => {
+      const opt = document.createElement("option");
+      opt.value = item.value;
+      opt.textContent = item.label;
+      areaSelect.appendChild(opt);
+    });
+  }
+
+  populatePhoneAreaSelect();
+  
   // Prevent double-binding on reloads
   if (form && form.dataset.bound === "1") return;
   if (form) form.dataset.bound = "1";
@@ -492,12 +523,22 @@ async function initAccountAssistantView() {
         phoneInput.placeholder = "Buy a phone number below first";
       }
 
+      if (buyCard) {
+        // If assistant exists but no phone yet → show Buy card
+        if (data.phone_number) {
+          buyCard.hidden = true;
+        } else {
+          buyCard.hidden = false;
+        }
+      }
+      
       if (saveStatusEl) saveStatusEl.textContent = "";
       return true;
     } else {
       // No assistant yet → initial deploy flow
       deploySection.hidden = false;
       manageSection.hidden = true;
+      if (buyCard) buyCard.hidden = true;  
       if (saveStatusEl) saveStatusEl.textContent = "";
       return false;
     }
@@ -659,6 +700,112 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
   return false;
 }
 
+  // Helper: wait until phone_number is written for this user
+  async function waitForPhoneNumber(userId, {
+    timeoutMs = 180000,   // 3 minutes
+    intervalMs = 5000     // 5 seconds
+  } = {}) {
+    const supabase = getSupabaseClient();
+    if (!supabase || !userId) {
+      console.warn("Supabase client not available, cannot poll phone_number.");
+      return null;
+    }
+
+    const AGENT_TABLE_NAME = "assistants";
+    const start = Date.now();
+
+    while (Date.now() - start < timeoutMs) {
+      const { data, error } = await supabase
+        .from(AGENT_TABLE_NAME)
+        .select("user_id, phone_number")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (!error && data && data.phone_number) {
+        return data.phone_number;
+      }
+
+      await sleep(intervalMs);
+    }
+
+    return null;
+  }
+
+  // ---- BUY PHONE NUMBER ----
+  async function handleBuyNumber() {
+    if (!buyBtn || !areaSelect) return;
+
+    const agentIdEl = document.getElementById("asstAgentId");
+    const phoneInput = document.getElementById("asstPhoneNumber");
+
+    const agentId = agentIdEl ? agentIdEl.value.trim() : "";
+    if (!agentId) {
+      if (buyStatusEl) buyStatusEl.textContent = "Deploy an assistant first.";
+      return;
+    }
+
+    const areaCode = areaSelect.value;
+    if (!areaCode) {
+      if (buyStatusEl) buyStatusEl.textContent = "Please choose an area / code first.";
+      return;
+    }
+
+    // UI: start processing
+    buyBtn.disabled = true;
+    if (buyStatusEl) buyStatusEl.textContent = "";
+    if (buySpinner) buySpinner.style.display = "inline-flex";
+    if (buySpinnerText) buySpinnerText.textContent = "Processing…";
+
+    try {
+      const res = await fetch(
+        "https://dealvox-840984531750.us-east4.run.app/webhook-test/ba071c85-bebf-4622-a0f4-27d0bcebb6ab",
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            user_id: userId,           // [auth_id]
+            outbound_agent_id: agentId, // user's agent ID
+            area_code: areaCode
+          })
+        }
+      );
+
+      if (!res.ok) {
+        console.error("Buy number webhook error:", res.status, await res.text());
+        if (buyStatusEl) buyStatusEl.textContent = "Failed to start purchase. Try again.";
+        return;
+      }
+
+      // Webhook ok – start polling Supabase for phone_number
+      if (buySpinnerText) buySpinnerText.textContent = "Provisioning your number…";
+
+      const phoneNumber = await waitForPhoneNumber(userId, {
+        timeoutMs: 180000,
+        intervalMs: 5000
+      });
+
+      if (phoneNumber) {
+        if (phoneInput) {
+          phoneInput.value = phoneNumber;
+          phoneInput.placeholder = "";
+        }
+        if (buyStatusEl) buyStatusEl.textContent = "Number purchased.";
+        if (buyCard) buyCard.hidden = true;      // hide block when number is set
+      } else {
+        if (buyStatusEl) {
+          buyStatusEl.textContent =
+            "Still provisioning your number. Refresh this page in a moment.";
+        }
+      }
+    } catch (err) {
+      console.error("Buy number error:", err);
+      if (buyStatusEl) buyStatusEl.textContent = "Purchase failed. Try again.";
+    } finally {
+      if (buySpinner) buySpinner.style.display = "none";
+      buyBtn.disabled = false;
+    }
+  }
+  
 // ---- SAVE ASSISTANT (STEP 2) – webhook + Supabase check ----
 async function saveAssistant() {
   if (!form || !saveBtn) return;
@@ -860,6 +1007,15 @@ async function saveAssistant() {
     deleteBtn.addEventListener("click", (e) => {
       e.preventDefault();
       deleteAssistant();
+    });
+  }
+
+  // NEW: Buy number button
+  if (buyBtn && !buyBtn.dataset.bound) {
+    buyBtn.dataset.bound = "1";
+    buyBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      handleBuyNumber();
     });
   }
 
