@@ -251,7 +251,7 @@ async function initProfileSubscriptionSection() {
     return;
   }
 
-  const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/subscription`;
+  const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/subscriptions`;
 
   const params = new URLSearchParams();
   params.set("select", "*");
