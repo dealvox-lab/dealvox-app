@@ -5,34 +5,42 @@
 <section class="text-block" id="usageSummaryCard">
   <h2>Subscription limits and spendings</h2>
 
-  <div class="usage-summary-grid">
-    <div class="usage-summary-row">
-      <span class="usage-label">Billing period start:</span>
-      <span class="usage-value" id="billingPeriodStart">Loading…</span>
+  <!-- SUBSCRIPTION CARD (shown only if user has active sub) -->
+<div
+  id="subscriptionCard"
+  class="card card-profile"
+  style="margin-top:18px; display:none;"
+>
+  <p class="pricing-sub">Current plan and usage.</p>
+
+  <div class="sub-layout">
+    <div>
+      <div class="sub-label">Plan</div>
+      <div class="sub-plan-name" id="subPlanName">—</div>
+      <div class="sub-plan-type" id="subPlanType">—</div>
     </div>
 
-    <div class="usage-summary-row">
-      <span class="usage-label">Total minutes in plan:</span>
-      <span class="usage-value">
-        <span id="planMinutes">200</span> min
-      </span>
+    <div>
+      <div class="sub-label">Price</div>
+      <div class="sub-price" id="subPrice">—</div>
     </div>
 
-    <div class="usage-summary-row">
-      <span class="usage-label">Used minutes this period:</span>
-      <span class="usage-value">
-        <span id="usedMinutes">0.0</span> min
-      </span>
+    <div>
+      <div class="sub-label">Minutes</div>
+      <div class="sub-minutes" id="subMinutesTotal">—</div>
+      <div class="sub-minutes-detail">
+        Used <span id="subMinutesSpent">0</span> · Left
+        <span id="subMinutesLeft">0</span>
+      </div>
     </div>
 
-    <div class="usage-summary-row">
-      <span class="usage-label">Minutes left:</span>
-      <span class="usage-value">
-        <span id="remainingMinutes">200.0</span> min
-      </span>
+    <div>
+      <div class="sub-label">Started</div>
+      <div class="sub-date" id="subStartDate">—</div>
+      <div class="sub-status" id="subStatus">—</div>
     </div>
   </div>
-
+</div>
   <div style="margin-top: 14px; display:flex; justify-content:flex;">
     <button class="btn-primary" id="billingChangePlanBtn">Upgrade plan</button>
   </div>
