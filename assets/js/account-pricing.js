@@ -4,7 +4,7 @@
 // - Minutes sliders (discrete positions)
 // - Monthly / Yearly toggle
 // - Dynamic Stripe links for each tier
-// - Adds ?preferred_email=[user_email] to Stripe links
+// - Adds ?prefilled_email=[user_email] to Stripe links
 // ---------------------------------------------
 
 (function () {
@@ -99,7 +99,7 @@
     // Enterprise is handled via "Contact Sales" – no direct Stripe links here
   };
 
-  // ----- helpers for preferred_email -----
+  // ----- helpers for prefilled_email -----
 
   async function getUserEmailForPricing() {
     // 1) Try Supabase auth helper
@@ -119,14 +119,14 @@
     return "";
   }
 
-  function appendPreferredEmail(baseLink, email) {
+  function appendPrefilledEmail(baseLink, email) {
     if (!email) return baseLink;
     const encoded = encodeURIComponent(email);
 
     if (baseLink.includes("?")) {
-      return `${baseLink}&preferred_email=${encoded}`;
+      return `${baseLink}&prefilled_email=${encoded}`;
     }
-    return `${baseLink}?preferred_email=${encoded}`;
+    return `${baseLink}?prefilled_email=${encoded}`;
   }
 
   // ----- core pricing logic -----
@@ -197,7 +197,7 @@
 
   async function handleStripeClick(tier) {
     const email = await getUserEmailForPricing();
-    const finalLink = appendPreferredEmail(tier.link, email);
+    const finalLink = appendPrefilledEmail(tier.link, email);
     window.open(finalLink, "_blank");
   }
 
@@ -236,7 +236,7 @@
     });
     priceTagEl.innerHTML = `$${formattedPrice}<span>/${periodLabel}</span>`;
 
-    // Update button click → Stripe link with preferred_email
+    // Update button click → Stripe link with prefilled_email
     buttonEl.onclick = function () {
       handleStripeClick(tier);
     };
@@ -280,13 +280,13 @@
       });
     }
 
-    // OPTIONAL: Pay-as-you-go button link (also with preferred_email if needed)
+    // OPTIONAL: Pay-as-you-go button link (also with prefilled_email if needed)
     const paygBtn = document.querySelector(".payg-btn");
     if (paygBtn) {
       paygBtn.onclick = async () => {
         const baseLink = "https://your-payg-stripe-link-here";
         const email = await getUserEmailForPricing();
-        const finalLink = appendPreferredEmail(baseLink, email);
+        const finalLink = appendPrefilledEmail(baseLink, email);
         window.open(finalLink, "_blank");
       };
     }
