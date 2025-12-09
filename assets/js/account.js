@@ -239,7 +239,6 @@ async function initProfileSubscriptionSection() {
     auth = await getAuthInfo();
   } catch (err) {
     console.error("[Profile] getAuthInfo failed:", err);
-    // Fallback: show pricing if we cannot auth
     pricingCard.style.display = "block";
     return;
   }
@@ -251,12 +250,14 @@ async function initProfileSubscriptionSection() {
     return;
   }
 
+  // 🔴 IMPORTANT: use your real table name here
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/subscriptions`;
 
   const params = new URLSearchParams();
   params.set("select", "*");
   params.set("user_id", `eq.${userId}`);
-  params.set("sub_active", "eq.true");
+  // Take the latest subscription by start_date if there are many
+  params.set("order", "start_date.desc");
   params.set("limit", "1");
 
   async function run(currentAuth) {
@@ -265,9 +266,8 @@ async function initProfileSubscriptionSection() {
     });
   }
 
-  let res;
   try {
-    res = await run(auth);
+    let res = await run(auth);
 
     if (res.status === 401) {
       const newAuth = await handleJwt401(res, "load subscription");
@@ -286,15 +286,17 @@ async function initProfileSubscriptionSection() {
     }
 
     const rows = await res.json();
+    console.log("[Profile] subscription rows:", rows); // 👈 quick debug
+
     const sub = rows?.[0];
 
     if (!sub) {
-      // No active subscription – show pricing
+      // No subscription visible → show pricing
       pricingCard.style.display = "block";
       return;
     }
 
-    // We have an active subscription – fill UI
+    // We have a subscription → fill card & show it
     fillSubscriptionCard(sub);
     subscriptionCard.style.display = "block";
   } catch (err) {
@@ -324,13 +326,12 @@ function fillSubscriptionCard(sub) {
     sub_active,
   } = sub;
 
-  const currency = "$"; // adjust if you add currency column
+  const currency = "$";
 
   if (planNameEl) planNameEl.textContent = sub_name || "Custom plan";
   if (planTypeEl) planTypeEl.textContent = sub_type || "";
 
   if (priceEl) {
-    // e.g. 239 -> $239/mo
     const amount = typeof sub_amount === "number" ? sub_amount : Number(sub_amount);
     priceEl.textContent = Number.isFinite(amount)
       ? `${currency}${amount.toFixed(0)}/mo`
@@ -338,12 +339,18 @@ function fillSubscriptionCard(sub) {
   }
 
   if (minutesTotalEl) {
-    minutesTotalEl.textContent = minutes_total != null ? `${minutes_total} min` : "—";
+    minutesTotalEl.textContent =
+      minutes_total != null ? `${minutes_total} min` : "—";
   }
-  if (minutesSpentEl) {
-    minutesSpentEl.textContent =
-      minutes_spent != null ? minutes_spent : minutes_total - minutes_to_spend || 0;
-  }
+
+  const spent =
+    minutes_spent != null
+      ? minutes_spent
+      : minutes_total != null && minutes_to_spend != null
+      ? minutes_total - minutes_to_spend
+      : 0;
+
+  if (minutesSpentEl) minutesSpentEl.textContent = spent;
   if (minutesLeftEl) {
     minutesLeftEl.textContent =
       minutes_to_spend != null ? minutes_to_spend : "—";
@@ -373,7 +380,6 @@ function fillSubscriptionCard(sub) {
     }
   }
 }
-
 
 // ----------------------------------------------------
 // ASSISTANT VIEW (Assistant tab) - TWO-STEP FLOW
