@@ -217,40 +217,44 @@ async function initAccountProfileView() {
     saveProfile();
   });
 
+  // Load profile + check subscription
   loadProfile();
+  initProfileSubscriptionSection(auth); // 👈 use the same auth
 }
 
 //----------------------------------------------------
 // SUBSCRIPTION CHECKING PROFILE PART
 // ---------------------------------------------------
 
-async function initProfileSubscriptionSection() {
+async function initProfileSubscriptionSection(auth) {
   const pricingCard = document.getElementById("pricingCard");
   const subscriptionCard = document.getElementById("subscriptionCard");
 
-  if (!pricingCard || !subscriptionCard) return;
+  if (!pricingCard || !subscriptionCard) {
+    console.log("[Profile] pricing/subscription cards not found in DOM");
+    return;
+  }
 
-  // Hide both while loading
+  // Default: show pricing, hide subscription
   pricingCard.style.display = "block";
   subscriptionCard.style.display = "none";
 
-  let auth;
   try {
-    auth = await getAuthInfo();
+    if (!auth) {
+      auth = await getAuthInfo();
+    }
   } catch (err) {
     console.error("[Profile] getAuthInfo failed:", err);
-    pricingCard.style.display = "block";
     return;
   }
 
   const userId = auth?.user?.id;
   if (!userId) {
     console.warn("[Profile] No user id – showing pricing.");
-    pricingCard.style.display = "block";
     return;
   }
 
-// Requesting a Supabase Subscription table
+  // Requesting Supabase subscriptions table
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/subscriptions`;
   const params = new URLSearchParams({
     select: "*",
@@ -269,21 +273,21 @@ async function initProfileSubscriptionSection() {
     }
 
     const rows = await res.json();
-    console.log("[Profile] subscription rows:", rows); // 👈 see what Supabase sends
+    console.log("[Profile] subscription rows:", rows);
 
     if (!Array.isArray(rows) || rows.length === 0) {
-      // No subscription for this user → keep pricing
+      // No subscription for this user → keep pricing visible
       return;
     }
 
     const sub = rows[0];
 
-    // We have a subscription → fill card & show it
+    // We have a subscription → fill card & switch visibility
     fillSubscriptionCard(sub);
     subscriptionCard.style.display = "block";
+    pricingCard.style.display = "none";
   } catch (err) {
     console.error("[Profile] error loading subscription:", err);
-    pricingCard.style.display = "block";
   }
 }
 
