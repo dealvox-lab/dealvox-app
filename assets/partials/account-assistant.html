@@ -207,79 +207,37 @@
 </section>
 </div>
 <!-- Buy number card -->
-<div class="card" id="asstBuyCard" style="margin-top:32px">
+<div class="card" id="asstBuyCard" style="margin-top:32px" hidden>
   <h3>Buy a phone number</h3>
-  <p class="muted" style="font-size:0.85rem;margin-bottom:8px;">
+  <p class="muted" style="font-size:0.85rem;margin-bottom:14px;">
     Get a dedicated U.S. phone number for outbound calls.
-  </p>
-
-  <p id="asstBuyNoAsstHint"
-     class="muted"
-     style="font-size:0.8rem;margin-bottom:10px;"
-     hidden>
-    Deploy an assistant first to buy a phone number.
   </p>
 
   <div class="grid-2">
     <div>
       <div class="field">
-        <label for="asstNewPhoneArea">Preferred phone number area (US only)</label>
-        <select id="asstNewPhoneArea" class="input">
-          <option value="">Select an area code…</option>
-          <!-- Codes: text = col A, value = col B -->
-          <option value="205">Alabama (205)</option>
-          <option value="251">Alabama (251)</option>
-          <option value="256">Alabama (256)</option>
-          <option value="334">Alabama (334)</option>
-          <option value="907">Alaska (907)</option>
-          <option value="480">Arizona (480)</option>
-          <option value="520">Arizona (520)</option>
-          <option value="602">Arizona (602)</option>
-          <option value="623">Arizona (623)</option>
-          <option value="928">Arizona (928)</option>
-          <option value="479">Arkansas (479)</option>
-          <option value="501">Arkansas (501)</option>
-          <option value="870">Arkansas (870)</option>
-          <option value="209">California (209)</option>
-          <option value="213">California (213)</option>
-          <option value="310">California (310)</option>
-          <option value="323">California (323)</option>
-          <option value="408">California (408)</option>
-          <option value="415">California (415)</option>
-          <option value="424">California (424)</option>
-          <option value="510">California (510)</option>
-          <option value="530">California (530)</option>
-          <option value="559">California (559)</option>
-          <option value="562">California (562)</option>
-          <option value="619">California (619)</option>
-          <option value="626">California (626)</option>
-          <option value="650">California (650)</option>
-          <option value="661">California (661)</option>
-          <option value="707">California (707)</option>
-          <option value="714">California (714)</option>
-          <!-- continue in the same pattern for the rest of your CSV rows -->
-        </select>
+        <label for="asstPhoneAreaSelect">Preferred phone number area (US only)</label>
+        <select id="asstPhoneAreaSelect" class="input"></select>
       </div>
     </div>
-
     <div>
       <p class="muted" style="font-size:0.8rem;">
-        Choose a preferred U.S. area code. We'll try to match a number in that region.
+        Choose an area / region. We'll try to match this area code when provisioning your number.
       </p>
     </div>
+  </div>
 
-    <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <button type="button" class="btn-secondary" id="asstBuyNumberBtn">
-        Buy number
-      </button>
+  <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <button type="button" class="btn-secondary" id="asstBuyNumberBtn">
+      Buy number
+    </button>
 
-      <span id="asstBuyLoader"
-            style="display:none;align-items:center;gap:8px;">
-        <span class="spinner"></span>
-        <span class="muted" style="font-size:0.85rem;">Processing…</span>
-      </span>
+    <!-- Processing loader -->
+    <span id="asstBuySpinner" style="display:none;align-items:center;gap:8px;">
+      <span class="spinner"></span>
+      <span id="asstBuySpinnerText" class="muted">Processing…</span>
+    </span>
 
-      <span id="asstBuyStatus" class="muted"></span>
-    </div>
+    <span id="asstBuyStatus" class="muted"></span>
   </div>
 </div>
