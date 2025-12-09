@@ -231,23 +231,27 @@ async function initAccountProfileView() {
   wireBillingButtons();
   }
 }
-
 //----------------------------------------------------
-// SUBSCRIPTION CHECKING PROFILE PART
+// SUBSCRIPTION CHECKING (shared)
 // ---------------------------------------------------
 
-async function initProfileSubscriptionSection(auth) {
+async function initProfileSubscriptionSection(auth, options) {
+  const { togglePricing = true } = options || {};
+
   const pricingCard = document.getElementById("pricingCard");
   const subscriptionCard = document.getElementById("subscriptionCard");
 
-  if (!pricingCard || !subscriptionCard) {
-    console.log("[Profile] pricing/subscription cards not found in DOM");
+  // We at least need the subscription card on the current view
+  if (!subscriptionCard) {
+    console.log("[Profile] subscriptionCard not found in DOM");
     return false;
   }
 
-  // Default: show pricing, hide subscription
-  pricingCard.style.display = "block";
-  subscriptionCard.style.display = "none";
+  // On pages where we DO control pricing
+  if (togglePricing && pricingCard) {
+    pricingCard.style.display = "block";
+    subscriptionCard.style.display = "none";
+  }
 
   try {
     if (!auth) {
@@ -260,11 +264,10 @@ async function initProfileSubscriptionSection(auth) {
 
   const userId = auth?.user?.id;
   if (!userId) {
-    console.warn("[Profile] No user id – showing pricing.");
+    console.warn("[Profile] No user id.");
     return false;
   }
 
-  // Supabase subscriptions table
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/subscriptions`;
   const params = new URLSearchParams({
     select: "*",
@@ -279,23 +282,34 @@ async function initProfileSubscriptionSection(auth) {
 
     if (!res.ok) {
       console.error("[Profile] subscription HTTP error:", res.status);
-      return false; // keep pricing
+      return false;
     }
 
     const rows = await res.json();
     console.log("[Profile] subscription rows:", rows);
 
     if (!Array.isArray(rows) || rows.length === 0) {
-      // No subscription for this user → keep pricing visible
+      // No subscription for this user
+      if (togglePricing && pricingCard) {
+        pricingCard.style.display = "block";
+        subscriptionCard.style.display = "none";
+      } else {
+        // On other tabs just hide the card entirely
+        subscriptionCard.style.display = "none";
+      }
       return false;
     }
 
     const sub = rows[0];
-
-    // We have a subscription → fill card & switch visibility
     fillSubscriptionCard(sub);
+
+    // Show card in all cases
     subscriptionCard.style.display = "block";
-    pricingCard.style.display = "none";
+
+    // Only hide pricing where we manage it (Account tab)
+    if (togglePricing && pricingCard) {
+      pricingCard.style.display = "none";
+    }
 
     return true;
   } catch (err) {
