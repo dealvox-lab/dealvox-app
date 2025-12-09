@@ -1305,7 +1305,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.warn("[Billing] initAccountBillingView not found");
     }
   },
-    calls_history:  initCallsHistoryView,
+    calls_history:  initCallHistory,
   };
 
   function setActiveLink(view) {
