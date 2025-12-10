@@ -302,16 +302,16 @@ async function initProfileSubscriptionSection(auth) {
     return false;
   }
 }
-
 function fillSubscriptionCard(sub) {
-  const planNameEl = document.getElementById("subPlanName");
-  const planTypeEl = document.getElementById("subPlanType");
-  const priceEl = document.getElementById("subPrice");
-  const minutesTotalEl = document.getElementById("subMinutesTotal");
-  const minutesSpentEl = document.getElementById("subMinutesSpent");
-  const minutesLeftEl = document.getElementById("subMinutesLeft");
-  const startDateEl = document.getElementById("subStartDate");
-  const statusEl = document.getElementById("subStatus");
+  const planNameEl       = document.getElementById("subPlanName");
+  const planTypeEl       = document.getElementById("subPlanType");
+  const priceEl          = document.getElementById("subPrice");
+  const minutesTotalEl   = document.getElementById("subMinutesTotal");
+  const minutesSpentEl   = document.getElementById("subMinutesSpent");
+  const minutesLeftEl    = document.getElementById("subMinutesLeft");
+  const startDateEl      = document.getElementById("subStartDate");
+  const statusEl         = document.getElementById("subStatus");
+  const addPaymentBtn    = document.getElementById("billingAddPaymentBtn");
 
   const {
     sub_name,
@@ -325,22 +325,31 @@ function fillSubscriptionCard(sub) {
   } = sub;
 
   const currency = "$";
+  const type = (sub_type || "").toLowerCase();
 
+  // ----- Plan name / type -----
   if (planNameEl) planNameEl.textContent = sub_name || "Custom plan";
   if (planTypeEl) planTypeEl.textContent = sub_type || "";
 
+  // ----- Price display -----
   if (priceEl) {
-    const amount = typeof sub_amount === "number" ? sub_amount : Number(sub_amount);
-    priceEl.textContent = Number.isFinite(amount)
-      ? `${currency}${amount.toFixed(0)}/mo`
-      : "—";
+    const rawAmount =
+      typeof sub_amount === "number" ? sub_amount : Number(sub_amount);
+
+    if (!Number.isFinite(rawAmount)) {
+      priceEl.textContent = "—";
+    } else if (type === "week") {
+      // PAYG weekly plan → price per minute
+      priceEl.textContent = `${currency}${rawAmount.toFixed(2)}/min`;
+    } else {
+      // month / year (or anything else) → subscription price
+      const periodLabel =
+        type === "year" || type === "yearly" ? "yr" : "mo";
+      priceEl.textContent = `${currency}${rawAmount.toFixed(0)}/${periodLabel}`;
+    }
   }
 
-  if (minutesTotalEl) {
-    minutesTotalEl.textContent =
-      minutes_total != null ? `${minutes_total} min` : "—";
-  }
-
+  // ----- Minutes -----
   const spent =
     minutes_spent != null
       ? minutes_spent
@@ -348,12 +357,25 @@ function fillSubscriptionCard(sub) {
       ? minutes_total - minutes_to_spend
       : 0;
 
-  if (minutesSpentEl) minutesSpentEl.textContent = spent;
-  if (minutesLeftEl) {
-    minutesLeftEl.textContent =
-      minutes_to_spend != null ? minutes_to_spend : "—";
+  if (type === "week") {
+    // PAYG: only show "Used: X"
+    if (minutesTotalEl) minutesTotalEl.textContent = `Used ${spent} min`;
+    if (minutesSpentEl) minutesSpentEl.textContent = "";  // clear detail line
+    if (minutesLeftEl) minutesLeftEl.textContent = "";
+  } else {
+    // Normal plans: total + used + left
+    if (minutesTotalEl) {
+      minutesTotalEl.textContent =
+        minutes_total != null ? `${minutes_total} min` : "—";
+    }
+    if (minutesSpentEl) minutesSpentEl.textContent = spent;
+    if (minutesLeftEl) {
+      minutesLeftEl.textContent =
+        minutes_to_spend != null ? minutes_to_spend : "—";
+    }
   }
 
+  // ----- Start date -----
   if (startDateEl) {
     if (start_date) {
       const d = new Date(start_date);
@@ -369,12 +391,18 @@ function fillSubscriptionCard(sub) {
     }
   }
 
+  // ----- Status + Add payment button -----
   if (statusEl) {
-    const active = sub_active !== false;
+    const active = sub_active !== false; // treat null/undefined as active
     statusEl.textContent = active ? "Active" : "Inactive";
-    if (!active) {
-      statusEl.style.background = "#fee2e2";
-      statusEl.style.color = "#991b1b";
+
+    // Basic colors (tweak with your CSS if needed)
+    statusEl.style.background = active ? "#dcfce7" : "#fee2e2";
+    statusEl.style.color      = active ? "#166534" : "#991b1b";
+
+    // Show/hide Add payment method button
+    if (addPaymentBtn) {
+      addPaymentBtn.style.display = active ? "none" : "inline-flex";
     }
   }
 }
