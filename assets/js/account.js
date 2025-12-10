@@ -350,30 +350,33 @@ function fillSubscriptionCard(sub) {
   }
 
   // ----- Minutes -----
-  const spent =
-    minutes_spent != null
-      ? minutes_spent
-      : minutes_total != null && minutes_to_spend != null
-      ? minutes_total - minutes_to_spend
-      : 0;
+const spent =
+  minutes_spent != null
+    ? Number(minutes_spent)
+    : minutes_total != null && minutes_to_spend != null
+    ? Number(minutes_total) - Number(minutes_to_spend)
+    : 0;
 
-  if (type === "week") {
-    // PAYG: only show "Used: X"
-    if (minutesTotalEl) minutesTotalEl.textContent = `Used ${spent} min`;
-    if (minutesSpentEl) minutesSpentEl.textContent = "";  // clear detail line
-    if (minutesLeftEl) minutesLeftEl.textContent = "";
-  } else {
-    // Normal plans: total + used + left
-    if (minutesTotalEl) {
-      minutesTotalEl.textContent =
-        minutes_total != null ? `${minutes_total} min` : "—";
-    }
-    if (minutesSpentEl) minutesSpentEl.textContent = spent;
-    if (minutesLeftEl) {
-      minutesLeftEl.textContent =
-        minutes_to_spend != null ? minutes_to_spend : "—";
-    }
+if (type === "week") {
+  // PAYG WEEKLY PLAN → Only show "Used XX.XX min" (large row)
+  if (minutesTotalEl) minutesTotalEl.textContent = `Used ${spent.toFixed(2)} min`;
+
+  // Remove small rows
+  if (minutesSpentEl) minutesSpentEl.textContent = "";
+  if (minutesLeftEl) minutesLeftEl.textContent = "";
+} else {
+  // NORMAL PLANS
+  if (minutesTotalEl) {
+    minutesTotalEl.textContent =
+      minutes_total != null ? `${minutes_total} min` : "—";
   }
+
+  if (minutesSpentEl) minutesSpentEl.textContent = spent.toFixed(2);
+
+  if (minutesLeftEl)
+    minutesLeftEl.textContent =
+      minutes_to_spend != null ? minutes_to_spend : "—";
+}
 
   // ----- Start date -----
   if (startDateEl) {
