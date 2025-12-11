@@ -1,41 +1,3 @@
-<div class="card card-profile">
-  <h2>Profile details</h2>
-  <p>Manage your personal and company details.</p>
-
-  <form id="profileForm" class="profile-grid">
-    <div class="field field-full">
-      <label for="profileEmail">Email</label>
-      <input id="profileEmail" class="input" type="email" readonly>
-    </div>
-
-    <div class="field">
-      <label for="profileFirstName">First name</label>
-      <input id="profileFirstName" class="input" autocomplete="given-name">
-    </div>
-
-    <div class="field">
-      <label for="profileLastName">Last name</label>
-      <input id="profileLastName" class="input" autocomplete="family-name">
-    </div>
-
-    <div class="field">
-      <label for="profileJobTitle">Job title</label>
-      <input id="profileJobTitle" class="input" placeholder="Head of Sales">
-    </div>
-
-    <div class="field">
-      <label for="profileCompanyName">Company name</label>
-      <input id="profileCompanyName" class="input" placeholder="Acme Inc.">
-    </div>
-
-    <div class="profile-actions field-full">
-      <button type="submit" class="btn-primary" id="profileSaveBtn">
-        Save changes
-      </button>
-      <span id="profileStatus" class="muted"></span>
-    </div>
-  </form>
-</div>
 <!-- SUBSCRIPTION CARD (shown only if user has active sub) -->
 <div
   id="subscriptionCard"
@@ -202,8 +164,7 @@
         </div>
       </div>
     </div>
-
-    <!-- PAYG full-width card -->
+ <!-- PAYG full-width card -->
  <div class="payg-card">
   <div class="payg-left">
     <h3>Pay-as-you-go</h3>
@@ -214,7 +175,6 @@
       <li>Tech support included</li>
     </ul>
   </div>
-
   <div class="payg-right">
     <div class="unlimited-label">Unlimited minutes a month</div>
     <p class="payg-price">
@@ -223,5 +183,42 @@
     <button class="pricing-btn accent payg-btn">Rent Now</button>
   </div>
  </div>
+</div>
+<div class="card card-profile">
+  <h2>Profile details</h2>
+  <p>Manage your personal and company details.</p>
 
+  <form id="profileForm" class="profile-grid">
+    <div class="field field-full">
+      <label for="profileEmail">Email</label>
+      <input id="profileEmail" class="input" type="email" readonly>
+    </div>
+
+    <div class="field">
+      <label for="profileFirstName">First name</label>
+      <input id="profileFirstName" class="input" autocomplete="given-name">
+    </div>
+
+    <div class="field">
+      <label for="profileLastName">Last name</label>
+      <input id="profileLastName" class="input" autocomplete="family-name">
+    </div>
+
+    <div class="field">
+      <label for="profileJobTitle">Job title</label>
+      <input id="profileJobTitle" class="input" placeholder="Head of Sales">
+    </div>
+
+    <div class="field">
+      <label for="profileCompanyName">Company name</label>
+      <input id="profileCompanyName" class="input" placeholder="Acme Inc.">
+    </div>
+
+    <div class="profile-actions field-full">
+      <button type="submit" class="btn-primary" id="profileSaveBtn">
+        Save changes
+      </button>
+      <span id="profileStatus" class="muted"></span>
+    </div>
+  </form>
 </div>
