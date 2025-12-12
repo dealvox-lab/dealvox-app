@@ -183,11 +183,14 @@
       <!-- RIGHT COLUMN -->
 <div>
 
-  <!-- Intro stays (optional) -->
+  <!-- Intro -->
   <div class="field">
     <label for="asstIntroPrompt">Intro</label>
-    <textarea id="asstIntroPrompt" class="input" rows="6"></textarea>
+    <textarea id="asstIntroPrompt" class="input" rows="8"></textarea>
   </div>
+
+  <div> class="field">
+    <p>You could use following variables: {{firstName}}, {{lastName}}, {{email}}, {{company}}, {{industry}} in your Intro</p>
 
   <!-- Desired outcome -->
   <div class="field" style="margin-top:16px;">
@@ -204,9 +207,9 @@
     <div class="field">
       <label for="asstCalApiKey">
         Cal.com API key
-        <span class="muted" style="display:block;font-size:0.8rem;margin-top:2px;">
+        <span class="muted" style="display:inline;font-size:0.8rem;margin-top:2px;">
           <a href="https://cal.com/docs/api-reference/v2/introduction#authentication" target="_blank">
-            How to get your API key
+            (?)
           </a>
         </span>
       </label>
@@ -216,9 +219,9 @@
     <div class="field">
       <label for="asstCalEventTypeId">
         Cal.com Event Type ID
-        <span class="muted" style="display:block;font-size:0.8rem;margin-top:2px;">
+        <span class="muted" style="display:inline;font-size:0.8rem;margin-top:2px;">
           <a href="https://cal.com/help/event-types/eventtype-id" target="_blank">
-            Where to find Event Type ID
+            (?)
           </a>
         </span>
       </label>
