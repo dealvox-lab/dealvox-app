@@ -413,6 +413,67 @@ if (type === "week") {
 // ----------------------------------------------------
 // ASSISTANT VIEW (Assistant tab) - TWO-STEP FLOW
 // ----------------------------------------------------
+function initDesiredOutcomeUI() {
+  const outcome = document.getElementById("asstDesiredOutcome");
+
+  const book = document.getElementById("outcomeBookMeeting");
+  const transfer = document.getElementById("outcomeTransferCall");
+  const send = document.getElementById("outcomeSendInfo");
+
+  const cold = document.getElementById("asstTransferCold");
+  const warm = document.getElementById("asstTransferWarm");
+  const warmDetails = document.getElementById("outcomeWarmDetails");
+
+  const sms = document.getElementById("asstSendSms");
+  const smsEmail = document.getElementById("asstSendSmsEmail");
+  const sendDetails = document.getElementById("outcomeSendInfoDetails");
+  const ccWrap = document.getElementById("asstCcWrap");
+
+  const calYes = document.getElementById("asstCalCheckAvailabilityYes");
+  const calNo = document.getElementById("asstCalCheckAvailabilityNo");
+
+  const show = (el, v) => el && (el.hidden = !v);
+
+  function syncOutcome() {
+    const v = outcome.value;
+    show(book, v === "book_meeting");
+    show(transfer, v === "transfer_call");
+    show(send, v === "send_information");
+  }
+
+  function syncExclusive(a, b) {
+    if (a.checked) b.checked = false;
+  }
+
+  cold?.addEventListener("change", () => {
+    syncExclusive(cold, warm);
+    show(warmDetails, warm.checked);
+  });
+
+  warm?.addEventListener("change", () => {
+    syncExclusive(warm, cold);
+    show(warmDetails, warm.checked);
+  });
+
+  sms?.addEventListener("change", () => {
+    syncExclusive(sms, smsEmail);
+    show(sendDetails, sms.checked || smsEmail.checked);
+    show(ccWrap, smsEmail.checked);
+  });
+
+  smsEmail?.addEventListener("change", () => {
+    syncExclusive(smsEmail, sms);
+    show(sendDetails, sms.checked || smsEmail.checked);
+    show(ccWrap, smsEmail.checked);
+  });
+
+  calYes?.addEventListener("change", () => syncExclusive(calYes, calNo));
+  calNo?.addEventListener("change", () => syncExclusive(calNo, calYes));
+
+  outcome.addEventListener("change", syncOutcome);
+
+  syncOutcome();
+}
 
 async function initAccountAssistantView() {
   const deploySection = document.getElementById("assistantInitial");
@@ -1052,68 +1113,6 @@ async function saveAssistant() {
     }
   }
 
-  function initDesiredOutcomeUI() {
-  const outcome = document.getElementById("asstDesiredOutcome");
-
-  const book = document.getElementById("outcomeBookMeeting");
-  const transfer = document.getElementById("outcomeTransferCall");
-  const send = document.getElementById("outcomeSendInfo");
-
-  const cold = document.getElementById("asstTransferCold");
-  const warm = document.getElementById("asstTransferWarm");
-  const warmDetails = document.getElementById("outcomeWarmDetails");
-
-  const sms = document.getElementById("asstSendSms");
-  const smsEmail = document.getElementById("asstSendSmsEmail");
-  const sendDetails = document.getElementById("outcomeSendInfoDetails");
-  const ccWrap = document.getElementById("asstCcWrap");
-
-  const calYes = document.getElementById("asstCalCheckAvailabilityYes");
-  const calNo = document.getElementById("asstCalCheckAvailabilityNo");
-
-  const show = (el, v) => el && (el.hidden = !v);
-
-  function syncOutcome() {
-    const v = outcome.value;
-    show(book, v === "book_meeting");
-    show(transfer, v === "transfer_call");
-    show(send, v === "send_information");
-  }
-
-  function syncExclusive(a, b) {
-    if (a.checked) b.checked = false;
-  }
-
-  cold?.addEventListener("change", () => {
-    syncExclusive(cold, warm);
-    show(warmDetails, warm.checked);
-  });
-
-  warm?.addEventListener("change", () => {
-    syncExclusive(warm, cold);
-    show(warmDetails, warm.checked);
-  });
-
-  sms?.addEventListener("change", () => {
-    syncExclusive(sms, smsEmail);
-    show(sendDetails, sms.checked || smsEmail.checked);
-    show(ccWrap, smsEmail.checked);
-  });
-
-  smsEmail?.addEventListener("change", () => {
-    syncExclusive(smsEmail, sms);
-    show(sendDetails, sms.checked || smsEmail.checked);
-    show(ccWrap, smsEmail.checked);
-  });
-
-  calYes?.addEventListener("change", () => syncExclusive(calYes, calNo));
-  calNo?.addEventListener("change", () => syncExclusive(calNo, calYes));
-
-  outcome.addEventListener("change", syncOutcome);
-
-  syncOutcome();
-}
-
   // Bind listeners
   if (deployForm && !deployForm.dataset.bound) {
     deployForm.dataset.bound = "1";
@@ -1146,6 +1145,8 @@ async function saveAssistant() {
       handleBuyNumber();
     });
   }
+
+  initDesiredOutcomeUI();
 
   // Initial load
   loadAssistant();
