@@ -244,70 +244,68 @@
   </div>
 
   <!-- TRANSFER CALL -->
-  <div id="outcomeTransferCall" style="margin-top:14px;" hidden>
-    <div class="field">
-      <label>Transfer type</label>
-      <div style="display:flex;gap:16px;margin-top:6px;">
-        <label style="display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" id="asstTransferCold"> Cold transfer
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" id="asstTransferWarm"> Warm transfer
-        </label>
-      </div>
-    </div>
+<div id="outcomeTransferCall" style="margin-top:14px;" hidden>
+  <!-- Phone ALWAYS visible when Transfer call is chosen -->
+  <div class="field">
+    <label for="asstTransferPhone">Receiving agent phone number</label>
+    <input id="asstTransferPhone" class="input" placeholder="+1 555 123 4567">
+  </div>
 
-    <div id="outcomeWarmDetails" hidden>
-      <div class="field">
-        <label for="asstTransferPhone">Receiving agent phone number</label>
-        <input id="asstTransferPhone" class="input" placeholder="+1 555 123 4567">
-      </div>
-
-      <div class="field">
-        <label for="asstTransferWhisper">Whisper message</label>
-        <textarea id="asstTransferWhisper" class="input" rows="4"></textarea>
-      </div>
-
-      <div class="field">
-        <label style="display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" id="asstTransferDebrief">
-          Debrief receiving agent before connecting
-        </label>
-      </div>
+  <div class="field">
+    <label>Transfer type</label>
+    <div style="display:flex;gap:16px;margin-top:6px;">
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="asstTransferCold"> Cold transfer
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="asstTransferWarm"> Warm transfer
+      </label>
     </div>
   </div>
 
-  <!-- SEND INFORMATION -->
-  <div id="outcomeSendInfo" style="margin-top:14px;" hidden>
+  <!-- Whisper ONLY if Warm transfer -->
+  <div id="outcomeWarmDetails" hidden>
     <div class="field">
-      <label>Send via</label>
-      <div style="display:flex;gap:16px;margin-top:6px;">
-        <label style="display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" id="asstSendSms"> SMS
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" id="asstSendSmsEmail"> SMS + email
-        </label>
-      </div>
-    </div>
-
-    <div id="outcomeSendInfoDetails" hidden>
-      <div class="field">
-        <label for="asstSendMessage">Message</label>
-        <textarea id="asstSendMessage" class="input" rows="4"></textarea>
-      </div>
-
-      <div class="field">
-        <label for="asstSendDoc">Document upload</label>
-        <input id="asstSendDoc" type="file" class="input">
-      </div>
-
-      <div class="field" id="asstCcWrap" hidden>
-        <label for="asstCcEmail">CC email address</label>
-        <input id="asstCcEmail" class="input">
-      </div>
+      <label for="asstTransferWhisper">Whisper message</label>
+      <textarea id="asstTransferWhisper" class="input" rows="4"
+        placeholder="Short briefing for the receiving agent."></textarea>
     </div>
   </div>
+</div>
+    
+    <!-- SEND INFORMATION -->
+<div id="outcomeSendInfo" style="margin-top:14px;" hidden>
+  <div class="field">
+    <label>Send via</label>
+    <div style="display:flex;gap:16px;margin-top:6px;">
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="asstSendSms"> SMS
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="asstSendSmsEmail"> SMS + email
+      </label>
+    </div>
+  </div>
+
+  <!-- Message ALWAYS visible when Send information is chosen -->
+  <div class="field">
+    <label for="asstSendMessage">Message</label>
+    <textarea id="asstSendMessage" class="input" rows="4"></textarea>
+  </div>
+
+  <!-- Upload + CC ONLY for SMS + email -->
+  <div id="outcomeSendSmsEmailDetails" hidden>
+    <div class="field">
+      <label for="asstSendDoc">Document upload</label>
+      <input id="asstSendDoc" type="file" class="input">
+    </div>
+
+    <div class="field" id="asstCcWrap">
+      <label for="asstCcEmail">CC email address</label>
+      <input id="asstCcEmail" class="input">
+    </div>
+  </div>
+</div>
 
 </div>
       </div>
