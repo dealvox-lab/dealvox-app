@@ -413,65 +413,87 @@ if (type === "week") {
 // ----------------------------------------------------
 // ASSISTANT VIEW (Assistant tab) - TWO-STEP FLOW
 // ----------------------------------------------------
+
 function initDesiredOutcomeUI() {
   const outcome = document.getElementById("asstDesiredOutcome");
-
-  const book = document.getElementById("outcomeBookMeeting");
-  const transfer = document.getElementById("outcomeTransferCall");
-  const send = document.getElementById("outcomeSendInfo");
-
-  const cold = document.getElementById("asstTransferCold");
-  const warm = document.getElementById("asstTransferWarm");
-  const warmDetails = document.getElementById("outcomeWarmDetails");
-
-  const sms = document.getElementById("asstSendSms");
-  const smsEmail = document.getElementById("asstSendSmsEmail");
-  const sendDetails = document.getElementById("outcomeSendInfoDetails");
-  const ccWrap = document.getElementById("asstCcWrap");
-
-  const calYes = document.getElementById("asstCalCheckAvailabilityYes");
-  const calNo = document.getElementById("asstCalCheckAvailabilityNo");
-
-  const show = (el, v) => el && (el.hidden = !v);
-
-  function syncOutcome() {
-    const v = outcome.value;
-    show(book, v === "book_meeting");
-    show(transfer, v === "transfer_call");
-    show(send, v === "send_information");
+  if (!outcome) {
+    console.warn("[Assistant] asstDesiredOutcome not found. Check HTML IDs / partial load.");
+    return;
   }
 
+  // Prevent double-binding (SPA)
+  if (outcome.dataset.bound === "1") return;
+  outcome.dataset.bound = "1";
+
+  const book     = document.getElementById("outcomeBookMeeting");
+  const transfer = document.getElementById("outcomeTransferCall");
+  const send     = document.getElementById("outcomeSendInfo");
+
+  const cold        = document.getElementById("asstTransferCold");
+  const warm        = document.getElementById("asstTransferWarm");
+  const warmDetails = document.getElementById("outcomeWarmDetails");
+
+  const sms      = document.getElementById("asstSendSms");
+  const smsEmail = document.getElementById("asstSendSmsEmail");
+
+  // NEW: only for SMS+email extras
+  const smsEmailDetails = document.getElementById("outcomeSendSmsEmailDetails");
+
+  const calYes = document.getElementById("asstCalCheckAvailabilityYes");
+  const calNo  = document.getElementById("asstCalCheckAvailabilityNo");
+
+  const show = (el, visible) => { if (el) el.hidden = !visible; };
+
   function syncExclusive(a, b) {
+    if (!a || !b) return;
     if (a.checked) b.checked = false;
   }
 
+  function syncNested() {
+    // Transfer: whisper only for warm; phone is always visible via HTML (no toggling)
+    show(warmDetails, !!(warm && warm.checked));
+
+    // Send info: upload+CC only if SMS+email checked
+    show(smsEmailDetails, !!(smsEmail && smsEmail.checked));
+  }
+
+  function syncOutcome() {
+    const v = outcome.value;
+
+    show(book, v === "book_meeting");
+    show(transfer, v === "transfer_call");
+    show(send, v === "send_information");
+
+    // When switching outcomes, refresh nested UI
+    syncNested();
+  }
+
+  outcome.addEventListener("change", syncOutcome);
+
   cold?.addEventListener("change", () => {
     syncExclusive(cold, warm);
-    show(warmDetails, warm.checked);
+    syncNested();
   });
 
   warm?.addEventListener("change", () => {
     syncExclusive(warm, cold);
-    show(warmDetails, warm.checked);
+    syncNested();
   });
 
   sms?.addEventListener("change", () => {
     syncExclusive(sms, smsEmail);
-    show(sendDetails, sms.checked || smsEmail.checked);
-    show(ccWrap, smsEmail.checked);
+    syncNested();
   });
 
   smsEmail?.addEventListener("change", () => {
     syncExclusive(smsEmail, sms);
-    show(sendDetails, sms.checked || smsEmail.checked);
-    show(ccWrap, smsEmail.checked);
+    syncNested();
   });
 
   calYes?.addEventListener("change", () => syncExclusive(calYes, calNo));
   calNo?.addEventListener("change", () => syncExclusive(calNo, calYes));
 
-  outcome.addEventListener("change", syncOutcome);
-
+  // Initial state
   syncOutcome();
 }
 
@@ -941,7 +963,6 @@ async function saveAssistant() {
   const transferWarm = document.getElementById("asstTransferWarm")?.checked || false;
   const transferPhone = document.getElementById("asstTransferPhone")?.value.trim() || "";
   const transferWhisper = document.getElementById("asstTransferWhisper")?.value.trim() || "";
-  const transferDebrief = document.getElementById("asstTransferDebrief")?.checked || false;
   const sendSms = document.getElementById("asstSendSms")?.checked || false;
   const sendSmsEmail = document.getElementById("asstSendSmsEmail")?.checked || false;
   const sendMessage = document.getElementById("asstSendMessage")?.value.trim() || "";
@@ -992,7 +1013,6 @@ async function saveAssistant() {
     formData.append("transferWarm", String(transferWarm));
     formData.append("transferPhone", transferPhone);
     formData.append("transferWhisper", transferWhisper);
-    formData.append("transferDebrief", String(transferDebrief));
     formData.append("sendSms", String(sendSms));  
     formData.append("sendSmsEmail", String(sendSmsEmail));
     formData.append("sendMessage", sendMessage);
