@@ -191,6 +191,112 @@
           <label for="asstIntroPrompt">Intro</label>
           <textarea id="asstIntroPrompt" class="input" rows="8"></textarea>
         </div>
+
+        <!-- Desired outcome -->
+<div class="field">
+  <label for="asstDesiredOutcome">Desired outcome</label>
+  <select id="asstDesiredOutcome" class="input">
+    <option value="book_meeting">Book a meeting</option>
+    <option value="transfer_call">Transfer call</option>
+    <option value="send_information">Send information</option>
+  </select>
+</div>
+
+<!-- Outcome: Book a meeting -->
+<div id="outcomeBookMeeting" style="margin-top:12px;">
+  <div class="field">
+    <label for="asstMeetingLink">Meeting link</label>
+    <input id="asstMeetingLink" class="input" placeholder="https://calendly.com/your-team/demo">
+  </div>
+
+  <div class="field">
+    <label for="asstMeetingNotes">Booking instructions</label>
+    <textarea id="asstMeetingNotes" class="input" rows="4"
+      placeholder="What should the assistant say before sharing the booking link?"></textarea>
+  </div>
+</div>
+
+<!-- Outcome: Transfer call -->
+<div id="outcomeTransferCall" style="margin-top:12px;" hidden>
+  <div class="field">
+    <label>Transfer type</label>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;">
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="asstTransferCold">
+        Cold transfer
+      </label>
+
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="asstTransferWarm">
+        Warm transfer
+      </label>
+    </div>
+    <p class="muted" style="font-size:0.8rem;margin-top:6px;">
+      Warm transfer = the assistant briefs the receiving agent first.
+    </p>
+  </div>
+
+  <!-- Warm transfer details -->
+  <div id="outcomeWarmDetails" hidden>
+    <div class="field">
+      <label for="asstTransferPhone">Receiving agent phone number</label>
+      <input id="asstTransferPhone" class="input" placeholder="+1 555 123 4567">
+    </div>
+
+    <div class="field">
+      <label for="asstTransferWhisper">Whisper message</label>
+      <textarea id="asstTransferWhisper" class="input" rows="4"
+        placeholder="Short briefing for the receiving agent (context, lead intent, key details)."></textarea>
+    </div>
+
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="asstTransferDebrief">
+        Debrief receiving agent before connecting
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- Outcome: Send information -->
+<div id="outcomeSendInfo" style="margin-top:12px;" hidden>
+  <div class="field">
+    <label>Send via</label>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;">
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="asstSendSms">
+        SMS
+      </label>
+
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="asstSendSmsEmail">
+        SMS + email
+      </label>
+    </div>
+  </div>
+
+  <div id="outcomeSendInfoDetails" hidden>
+    <div class="field">
+      <label for="asstSendMessage">Message</label>
+      <textarea id="asstSendMessage" class="input" rows="5"
+        placeholder="The assistant will send this message to the caller (and email if enabled)."></textarea>
+    </div>
+
+    <div class="field">
+      <label for="asstSendDoc">Document upload</label>
+      <input id="asstSendDoc" type="file" class="input">
+      <p class="muted" style="font-size:0.8rem;margin-top:6px;">
+        Optional. If provided, it will be sent/linked by your webhook logic.
+      </p>
+    </div>
+
+    <div class="field" id="asstCcWrap" hidden>
+      <label for="asstCcEmail">CC email address</label>
+      <input id="asstCcEmail" class="input" placeholder="ops@company.com">
+    </div>
+  </div>
+</div>
+
       </div>
     </div>
 
