@@ -849,7 +849,6 @@ async function saveAssistant() {
   const agentVoiceEl  = document.getElementById("asstAgentVoice");
 
   const publishedEl   = document.getElementById("asstPublished");
-  const promptEl      = document.getElementById("asstPrompt");
   const introPromptEl = document.getElementById("asstIntroPrompt");
   const webhookUrlEl  = document.getElementById("asstWebhookUrl");
   const kbFileEl      = document.getElementById("asstKnowledgeFile");
@@ -860,7 +859,6 @@ async function saveAssistant() {
 
   const rawPub    = publishedEl ? publishedEl.value            : "false";
   const isPub     = rawPub === "true";
-  const generalPrompt = promptEl      ? promptEl.value.trim()      : "";
   const intro         = introPromptEl ? introPromptEl.value.trim() : "";
   const webhookUrl    = webhookUrlEl  ? webhookUrlEl.value.trim()  : "";
 
@@ -870,6 +868,29 @@ async function saveAssistant() {
 
   const webhookEndpoint =
     "https://dealvox-840984531750.us-east4.run.app/webhook/316d5604-22ab-4285-b0ad-6c2a886d822f";
+
+  const desiredOutcome = document.getElementById("asstDesiredOutcome")?.value;
+  const calApiKey = document.getElementById("asstCalApiKey")?.value.trim() || "";
+  const calEventTypeId = document.getElementById("asstCalEventTypeId")?.value.trim() || "";
+  const calCheckAvailability =
+  document.getElementById("asstCalCheckAvailabilityYes")?.checked
+    ? true
+    : false;
+  const transferCold = document.getElementById("asstTransferCold")?.checked || false;
+  const transferWarm = document.getElementById("asstTransferWarm")?.checked || false;
+  const transferPhone = document.getElementById("asstTransferPhone")?.value.trim() || "";
+  const transferWhisper = document.getElementById("asstTransferWhisper")?.value.trim() || "";
+  const transferDebrief = document.getElementById("asstTransferDebrief")?.checked || false;
+  const sendSms = document.getElementById("asstSendSms")?.checked || false;
+  const sendSmsEmail = document.getElementById("asstSendSmsEmail")?.checked || false;
+  const sendMessage = document.getElementById("asstSendMessage")?.value.trim() || "";
+  const ccEmail = document.getElementById("asstCcEmail")?.value.trim() || "";
+
+  const sendDocEl = document.getElementById("asstSendDoc");
+  const sendDoc =
+    sendDocEl && sendDocEl.files && sendDocEl.files[0]
+      ? sendDocEl.files[0]
+      : null;
 
   let previousUpdatedAt = null;
 
@@ -898,12 +919,26 @@ async function saveAssistant() {
     formData.append("agentName", agentName);
     formData.append("agentVoice", agentVoice);
     formData.append("isPublished", String(isPub));
-    formData.append("generalPrompt", generalPrompt);
     formData.append("intro", intro);
     formData.append("webhookURL", webhookUrl);
     formData.append("userId", userId);
     formData.append("agentId", agentId);
-
+    formData.append("desiredOutcome", desiredOutcome);
+    formData.append("calApiKey", calApiKey);
+    formData.append("calEventTypeId", calEventTypeId);
+    formData.append("calCheckAvailability", String(calCheckAvailability));
+    formData.append("transferCold", String(transferCold));
+    formData.append("transferWarm", String(transferWarm));
+    formData.append("transferPhone", transferPhone);
+    formData.append("transferWhisper", transferWhisper);
+    formData.append("transferDebrief", String(transferDebrief));
+    formData.append("sendSms", String(sendSms));  
+    formData.append("sendSmsEmail", String(sendSmsEmail));
+    formData.append("sendMessage", sendMessage);
+    formData.append("ccEmail", ccEmail);
+    if (sendDoc) {
+      formData.append("sendDocument", sendDoc, sendDoc.name);
+    }
     if (kbFile) {
       formData.append("knowledgeBase", kbFile, kbFile.name);
     }
@@ -1016,6 +1051,68 @@ async function saveAssistant() {
       deleteBtn.disabled = false;
     }
   }
+
+  function initDesiredOutcomeUI() {
+  const outcome = document.getElementById("asstDesiredOutcome");
+
+  const book = document.getElementById("outcomeBookMeeting");
+  const transfer = document.getElementById("outcomeTransferCall");
+  const send = document.getElementById("outcomeSendInfo");
+
+  const cold = document.getElementById("asstTransferCold");
+  const warm = document.getElementById("asstTransferWarm");
+  const warmDetails = document.getElementById("outcomeWarmDetails");
+
+  const sms = document.getElementById("asstSendSms");
+  const smsEmail = document.getElementById("asstSendSmsEmail");
+  const sendDetails = document.getElementById("outcomeSendInfoDetails");
+  const ccWrap = document.getElementById("asstCcWrap");
+
+  const calYes = document.getElementById("asstCalCheckAvailabilityYes");
+  const calNo = document.getElementById("asstCalCheckAvailabilityNo");
+
+  const show = (el, v) => el && (el.hidden = !v);
+
+  function syncOutcome() {
+    const v = outcome.value;
+    show(book, v === "book_meeting");
+    show(transfer, v === "transfer_call");
+    show(send, v === "send_information");
+  }
+
+  function syncExclusive(a, b) {
+    if (a.checked) b.checked = false;
+  }
+
+  cold?.addEventListener("change", () => {
+    syncExclusive(cold, warm);
+    show(warmDetails, warm.checked);
+  });
+
+  warm?.addEventListener("change", () => {
+    syncExclusive(warm, cold);
+    show(warmDetails, warm.checked);
+  });
+
+  sms?.addEventListener("change", () => {
+    syncExclusive(sms, smsEmail);
+    show(sendDetails, sms.checked || smsEmail.checked);
+    show(ccWrap, smsEmail.checked);
+  });
+
+  smsEmail?.addEventListener("change", () => {
+    syncExclusive(smsEmail, sms);
+    show(sendDetails, sms.checked || smsEmail.checked);
+    show(ccWrap, smsEmail.checked);
+  });
+
+  calYes?.addEventListener("change", () => syncExclusive(calYes, calNo));
+  calNo?.addEventListener("change", () => syncExclusive(calNo, calYes));
+
+  outcome.addEventListener("change", syncOutcome);
+
+  syncOutcome();
+}
 
   // Bind listeners
   if (deployForm && !deployForm.dataset.bound) {
