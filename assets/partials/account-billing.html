@@ -3,7 +3,11 @@
   <p>Manage your subscription, payment methods, and billing history.</p>
 
   <!-- CURRENT PLAN -->
-  <section class="billing-block">
+  <div id="billingNoActive" class="billing-empty" hidden>
+  <h3 class="billing-title">Current plan</h3>
+  <p class="text-muted">No active subscription.</p>
+  </div>
+  <section id="billingCurrentPlanSection" class="billing-block">
     <h3 class="billing-title">Current plan</h3>
     <div class="billing-current">
       <div>
@@ -24,7 +28,7 @@
   </section>
 
   <!-- PAYMENT METHOD -->
-  <section class="billing-block">
+  <section id="billingPaymentMethodSection" class="billing-block">
     <h3 class="billing-title">Payment method</h3>
 
     <div id="billingPaymentMethod" class="billing-payment">
