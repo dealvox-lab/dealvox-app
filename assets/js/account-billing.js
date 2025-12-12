@@ -77,15 +77,29 @@ async function initAccountBillingView() {
   console.log("[Billing] initAccountBillingView called");
 
   try {
-    const email = await getCurrentUserEmail();
-    if (!email) throw new Error("No email available for billing");
+    // ✅ Get auth first (we need user_id)
+    let auth;
+    try {
+      auth = await getAuthInfo();
+    } catch (e) {
+      console.error("[Billing] getAuthInfo failed:", e);
+      throw new Error("No auth available for billing");
+    }
+
+    if (!auth?.user?.id) throw new Error("No user id available for billing");
+    const userId = auth.user.id;
+
+    // ✅ Email (optional for summary if worker can fallback), but needed for portal
+    const email = auth.user.email || (await getCurrentUserEmail());
 
     const res = await fetch(BILLING_SUMMARY_ENDPOINT, {
       method: "GET",
       credentials: "include",
+      cache: "no-store",
       headers: {
-        "x-user-email": email
-      }
+        "x-user-id": userId,
+        ...(email ? { "x-user-email": email } : {}),
+      },
     });
 
     if (!res.ok) {
@@ -93,8 +107,18 @@ async function initAccountBillingView() {
     }
 
     const data = await res.json();
+
+    // ✅ Toggle UI blocks based on subscription presence
+    toggleBillingUI(!!data.current_plan);
+
     renderCurrentPlan(data.current_plan);
-    renderPaymentMethods(data.payment_methods);
+
+    // Payment method only meaningful if subscription exists
+    if (data.current_plan) {
+      renderPaymentMethods(data.payment_methods);
+    }
+
+    // Billing history always
     renderInvoices(data.invoices);
 
   } catch (err) {
@@ -125,12 +149,29 @@ function wireBillingButtons() {
   if (addPaymentBtn) addPaymentBtn.addEventListener("click", openStripeCustomerPortal);
 }
 
+
 /* ----------------------------------------------------
-   RENDER HELPERS (unchanged)
+   UI TOGGLE (NEW)
+---------------------------------------------------- */
+
+function toggleBillingUI(hasSubscription) {
+  const actions = document.querySelector(".billing-actions");
+  const paymentSection = document.getElementById("billingPaymentMethodSection");
+  const addPaymentBtn = document.getElementById("billingAddPaymentBtn");
+
+  // Buttons + payment method only when subscription exists
+  if (actions) actions.style.display = hasSubscription ? "" : "none";
+  if (paymentSection) paymentSection.style.display = hasSubscription ? "" : "none";
+  if (addPaymentBtn) addPaymentBtn.style.display = hasSubscription ? "" : "none";
+}
+
+
+/* ----------------------------------------------------
+   RENDER HELPERS
 ---------------------------------------------------- */
 
 function renderCurrentPlan(plan) {
-  const nameEl = document.getElementById("billingPlanName");
+  const nameEl  = document.getElementById("billingPlanName");
   const priceEl = document.getElementById("billingPlanPrice");
   const renewEl = document.getElementById("billingPlanRenewal");
 
@@ -139,22 +180,38 @@ function renderCurrentPlan(plan) {
   if (!plan) {
     nameEl.textContent = "No active subscription";
     priceEl.textContent = "";
-    renewEl.textContent = "Choose a plan to start using Dealvox AI.";
+    renewEl.textContent = "";
     return;
   }
 
-  nameEl.textContent = plan.name;
+  nameEl.textContent = plan.name || "Dealvox AI plan";
 
-  const amount = (plan.amount / 100).toFixed(2);
-  const currency = plan.currency.toUpperCase();
-  priceEl.innerHTML = `${amount} ${currency} <span>/${plan.interval}</span>`;
+  // ✅ Supabase amount is dollars (NOT cents)
+  const amount = Number(plan.amount ?? 0).toFixed(2);
+  const currency = (plan.currency || "usd").toUpperCase();
 
-  if (plan.renews_at) {
-    const d = new Date(plan.renews_at);
-    renewEl.textContent = `Renews on ${d.toLocaleDateString()}`;
+  if (plan.interval === "month") {
+    priceEl.innerHTML = `$${amount} ${currency} <span>/month</span>`;
+  } else if (plan.interval === "year") {
+    priceEl.innerHTML = `$${amount} ${currency} <span>/year</span>`;
   } else {
-    renewEl.textContent = "";
+    // PAYG / other
+    priceEl.innerHTML = `$${amount} ${currency}`;
   }
+
+  // Show Start date + minutes info
+  let meta = "";
+
+  if (plan.start_date) {
+    const d = new Date(plan.start_date);
+    meta = `Started on ${d.toLocaleDateString()}`;
+  }
+
+  if (plan.minutes) {
+    meta = meta ? `${meta} • Minutes: ${plan.minutes}` : `Minutes: ${plan.minutes}`;
+  }
+
+  renewEl.textContent = meta;
 }
 
 function renderPaymentMethods(methods) {
@@ -222,6 +279,7 @@ function renderInvoices(invoices) {
 
 async function openStripeCustomerPortal() {
   try {
+    // Portal needs email
     const email = await getCurrentUserEmail();
     if (!email) throw new Error("No email for portal");
 
