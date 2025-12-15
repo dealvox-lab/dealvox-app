@@ -279,7 +279,7 @@
             }
 
             // ✅ reload after success
-            setTimeout(() => window.location.reload(), 300);
+            setTimeout(() => window.location.reload(), 3000);
           } catch (err) {
             console.error("[AccountPricing] PAYG webhook failed:", err);
             paygBtn.textContent = "Error — retry";
