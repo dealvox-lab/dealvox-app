@@ -508,6 +508,29 @@ input:checked + .slider:before {
   background: #15597f;
 }
 
+.payg-button {
+  background: #2075ae;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  padding: 16px 26px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.payg-button:hover {
+  background: #111827;
+}
+
+.payg-button.accent:hover,
+.payg-button.primary:hover {
+  background: #15597f;
+}
+
 /* ----- PAYG redesigned (unified with other pricing cards) ----- */
 .payg-card {
   margin-top: 20px;
