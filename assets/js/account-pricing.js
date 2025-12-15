@@ -271,6 +271,59 @@ async function getAuthUserForHooks() {
 
     updateMinutesMarks(card, minutes);
   }
+// payg button to create a subscription to n8n
+  const paygBtn = document.querySelector(".payg-btn");
+
+if (paygBtn) {
+  paygBtn.addEventListener(
+    "click",
+    async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      const webhookUrl =
+        "https://dealvox-840984531750.us-east4.run.app/webhook/75b0dedf-35e7-4e19-94ba-92181dcb2e26";
+
+      paygBtn.disabled = true;
+      const originalText = paygBtn.textContent;
+      paygBtn.textContent = "Processing…";
+
+      try {
+        const { email, user_id } = await getAuthUserForHooks();
+
+        if (!email || !user_id) {
+          throw new Error("Missing auth email or user_id");
+        }
+
+        const res = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email, user_id })
+        });
+
+        if (!res.ok) {
+          const txt = await res.text().catch(() => "");
+          throw new Error(`Webhook HTTP ${res.status} ${txt}`);
+        }
+
+        // ✅ reload after success
+        setTimeout(() => {
+          window.location.reload();
+        }, 300);
+      } catch (err) {
+        console.error("[AccountPricing] PAYG webhook failed:", err);
+        paygBtn.textContent = "Error — retry";
+        setTimeout(() => {
+          paygBtn.textContent = originalText;
+        }, 2000);
+      } finally {
+        paygBtn.disabled = false;
+      }
+    },
+    true // capture mode
+  );
+}
 
   // ----- public init for Account page -----
 
@@ -309,49 +362,7 @@ async function getAuthUserForHooks() {
     }
 
     // Pay-as-you-go button hook to n8n/Stripe
-    const paygBtn = document.querySelector(".payg-btn");
-if (paygBtn) {
-  paygBtn.addEventListener("click", async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-
-    const webhookUrl =
-      "https://dealvox-840984531750.us-east4.run.app/webhook/75b0dedf-35e7-4e19-94ba-92181dcb2e26";
-
-    paygBtn.disabled = true;
-    const originalText = paygBtn.textContent;
-    paygBtn.textContent = "Processing…";
-
-    try {
-      const { email, user_id } = await getAuthUserForHooks();
-      if (!email || !user_id) throw new Error("Missing auth email/user_id");
-
-      const res = await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, user_id })
-      });
-
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        throw new Error(`Webhook HTTP ${res.status} ${txt}`);
-      }
-
-      // ✅ Reload after success
-      setTimeout(() => {
-        window.location.reload();
-      }, 300); // small delay so UI updates are visible
-    } catch (err) {
-      console.error("[AccountPricing] PAYG webhook failed:", err);
-      paygBtn.textContent = "Error — retry";
-      setTimeout(() => (paygBtn.textContent = originalText), 2000);
-    } finally {
-      paygBtn.disabled = false;
-    }
-  }, true);
-}
-
+    
 
     console.log("[AccountPricing] initialized.");
   }
