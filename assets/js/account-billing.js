@@ -199,7 +199,7 @@ function renderCurrentPlan(plan) {
     priceEl.innerHTML = `$${amount} ${currency}`;
   }
 
-  // Show Start date + minutes info
+  // Show Start date +  info
   let meta = "";
 
   if (plan.start_date) {
@@ -207,7 +207,7 @@ function renderCurrentPlan(plan) {
     meta = `Started on ${d.toLocaleDateString()}`;
   }
 
-  if (plan.minutes) {
+  if (plan.) {
     meta = meta ? `${meta} • Minutes: ${plan.minutes}` : `Minutes: ${plan.minutes} /month`;
   }
 
