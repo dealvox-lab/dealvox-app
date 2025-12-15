@@ -245,7 +245,7 @@
     }
 
     // ✅ PAYG button hook (bind AFTER partial is loaded)
-    const paygBtn = document.querySelector(".payg-btn");
+    const paygBtn = document.querySelector(".payg-button");
     if (paygBtn && paygBtn.dataset.bound !== "1") {
       paygBtn.dataset.bound = "1";
 
