@@ -309,24 +309,23 @@ async function getAuthUserForHooks() {
     }
 
     // Pay-as-you-go button hook to n8n/Stripe
-    const paygButton = document.querySelector(".payg-button"); // or your PAYG "Rent agent" button selector
-if (paygButton) {
-  paygButton.onclick = async (e) => {
+    const paygBtn = document.querySelector(".payg-btn");
+if (paygBtn) {
+  paygBtn.addEventListener("click", async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
 
     const webhookUrl =
       "https://dealvox-840984531750.us-east4.run.app/webhook/75b0dedf-35e7-4e19-94ba-92181dcb2e26";
 
-    paygButton.disabled = true;
-    const originalText = paygButton.textContent;
-    paygButton.textContent = "Processing…";
+    paygBtn.disabled = true;
+    const originalText = paygBtn.textContent;
+    paygBtn.textContent = "Processing…";
 
     try {
       const { email, user_id } = await getAuthUserForHooks();
-
-      if (!email || !user_id) {
-        throw new Error("Missing auth email or user_id (user not logged in?)");
-      }
+      if (!email || !user_id) throw new Error("Missing auth email/user_id");
 
       const res = await fetch(webhookUrl, {
         method: "POST",
@@ -339,18 +338,20 @@ if (paygButton) {
         throw new Error(`Webhook HTTP ${res.status} ${txt}`);
       }
 
-      // optional: show success UI
-      // alert("PAYG request sent.");
+      // ✅ Reload after success
+      setTimeout(() => {
+        window.location.reload();
+      }, 300); // small delay so UI updates are visible
     } catch (err) {
       console.error("[AccountPricing] PAYG webhook failed:", err);
-      // optional: show error UI
-      // alert("Something went wrong. Please try again.");
+      paygBtn.textContent = "Error — retry";
+      setTimeout(() => (paygBtn.textContent = originalText), 2000);
     } finally {
-      paygButton.disabled = false;
-      paygButton.textContent = originalText;
+      paygBtn.disabled = false;
     }
-  };
+  }, true);
 }
+
 
     console.log("[AccountPricing] initialized.");
   }
