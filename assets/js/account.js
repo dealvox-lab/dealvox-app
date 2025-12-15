@@ -14,8 +14,8 @@ async function getAuthInfo() {
   };
 }
 
-async function refreshToken() {
-  try {
+  async function refreshToken() {
+    try {
     const res = await fetch("/refresh", {
       method: "POST",
       credentials: "include",
@@ -368,7 +368,7 @@ if (type === "week") {
   // NORMAL PLANS
   if (minutesTotalEl) {
     minutesTotalEl.textContent =
-      minutes_total != null ? `${minutes_total} min` : "—";
+      minutes_total != null ? `${minutes_total.toFixed(2)} min` : "—";
   }
 
   if (minutesSpentEl) minutesSpentEl.textContent = spent.toFixed(2);
