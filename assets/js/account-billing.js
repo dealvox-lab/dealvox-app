@@ -208,7 +208,7 @@ function renderCurrentPlan(plan) {
   }
 
   if (plan.minutes) {
-    meta = meta ? `${meta} • Minutes: ${plan.minutes}` : `Minutes: ${plan.minutes}`;
+    meta = meta ? `${meta} • Minutes: ${plan.minutes}` : `Minutes: ${plan.minutes} /month`;
   }
 
   renewEl.textContent = meta;
