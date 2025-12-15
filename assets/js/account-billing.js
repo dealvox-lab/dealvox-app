@@ -207,9 +207,16 @@ function renderCurrentPlan(plan) {
     meta = `Started on ${d.toLocaleDateString()}`;
   }
 
-  if (plan.) {
-    meta = meta ? `${meta} • Minutes: ${plan.minutes}` : `Minutes: ${plan.minutes}`;
-  }
+  const minutes =
+  plan.minutes ??
+  plan.minutes_total ??
+  plan.minutes_spent ??
+  plan.minutes_to_spend;
+
+if (minutes !== undefined && minutes !== null && minutes !== "") {
+  const minutesText = `Minutes: ${Number(minutes).toFixed(2)} / month`;
+  meta = meta ? `${meta} • ${minutesText}` : minutesText;
+}
 
   renewEl.textContent = meta;
 }
