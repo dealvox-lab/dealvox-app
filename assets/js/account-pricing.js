@@ -119,6 +119,26 @@
     return "";
   }
 
+  
+async function getAuthUserForHooks() {
+  // Preferred: Supabase auth helper
+  if (typeof getAuthInfo === "function") {
+    try {
+      const auth = await getAuthInfo();
+      const email = auth?.user?.email || "";
+      const user_id = auth?.user?.id || "";
+      return { email, user_id };
+    } catch (e) {
+      console.warn("[AccountPricing] getAuthInfo failed:", e);
+    }
+  }
+
+  // Fallbacks (email only)
+  const el = document.getElementById("profileEmail");
+  const email = el?.value || "";
+  return { email, user_id: "" };
+}
+
   function appendPrefilledEmail(baseLink, email) {
     if (!email) return baseLink;
     const encoded = encodeURIComponent(email);
@@ -288,16 +308,49 @@
       });
     }
 
-    // OPTIONAL: Pay-as-you-go button link (also with prefilled_email if needed)
-    const paygBtn = document.querySelector(".payg-btn");
-    if (paygBtn) {
-      paygBtn.onclick = async () => {
-        const baseLink = "https://your-payg-stripe-link-here";
-        const email = await getUserEmailForPricing();
-        const finalLink = appendPrefilledEmail(baseLink, email);
-        window.open(finalLink, "_blank");
-      };
+    // Pay-as-you-go button hook to n8n/Stripe
+    const paygButton = document.querySelector(".payg-button"); // or your PAYG "Rent agent" button selector
+if (paygButton) {
+  paygButton.onclick = async (e) => {
+    e.preventDefault();
+
+    const webhookUrl =
+      "https://dealvox-840984531750.us-east4.run.app/webhook/75b0dedf-35e7-4e19-94ba-92181dcb2e26";
+
+    paygButton.disabled = true;
+    const originalText = paygButton.textContent;
+    paygButton.textContent = "Processing…";
+
+    try {
+      const { email, user_id } = await getAuthUserForHooks();
+
+      if (!email || !user_id) {
+        throw new Error("Missing auth email or user_id (user not logged in?)");
+      }
+
+      const res = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, user_id })
+      });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Webhook HTTP ${res.status} ${txt}`);
+      }
+
+      // optional: show success UI
+      // alert("PAYG request sent.");
+    } catch (err) {
+      console.error("[AccountPricing] PAYG webhook failed:", err);
+      // optional: show error UI
+      // alert("Something went wrong. Please try again.");
+    } finally {
+      paygButton.disabled = false;
+      paygButton.textContent = originalText;
     }
+  };
+}
 
     console.log("[AccountPricing] initialized.");
   }
