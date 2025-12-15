@@ -209,6 +209,7 @@
     const minutesDisplayEl = card.querySelector(".minutes-display");
     const priceTagEl = card.querySelector(".price-tag");
     const buttonEl = card.querySelector(".pricing-btn");
+    const rateEl = card.querySelector(".effective-rate");
 
     if (!slider || !priceTagEl || !buttonEl) return;
 
@@ -235,6 +236,13 @@
       maximumFractionDigits: 0
     });
     priceTagEl.innerHTML = `$${formattedPrice}<span>/${periodLabel}</span>`;
+
+     // ✅ Effective rate (yearly normalized to /mo)
+  if (rateEl && minutes > 0) {
+    const periodPrice = mode === "yearly" ? (tier.price / 12) : tier.price;
+    const perMin = periodPrice / minutes;
+    rateEl.textContent = `≈ $${perMin.toFixed(2)} / min`;
+  }
 
     // Update button click → Stripe link with prefilled_email
     buttonEl.onclick = function () {
