@@ -1093,10 +1093,7 @@ if (desiredOutcome === "send_information" && sendSmsEmail && sendDoc) {
   } catch (e) {
     console.warn("Could not read previous updated_at:", e);
   }
-    
-  catch (e) {
-    console.error("Assistant save error:", e);
-    if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
+  
   } finally {
     if (saveBtn) saveBtn.disabled = false;
   }
