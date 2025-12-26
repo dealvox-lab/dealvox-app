@@ -633,8 +633,6 @@ async function initAccountAssistantView() {
       setIfExists("asstWebhookUrl", data.webhook_url);
       // ----- NEW FIELDS -----
       setIfExists("asstDesiredOutcome", data.desired_outcome || "book_a_meeting");
-      initDesiredOutcomeUI(); // re-sync show/hide based on saved desired_outcome
-      
       setIfExists("asstCalApiKey", data.cal_api_key || "");
       setIfExists("asstCalEventTypeId", data.cal_event_type_id || "");
 
@@ -678,6 +676,8 @@ async function initAccountAssistantView() {
 
       setIfExists("asstSendMessage", data.send_message || "");
       setIfExists("asstCcEmail", data.cc_email || "");
+
+      initDesiredOutcomeUI(); // re-sync show/hide based on saved desired_outcome
 
       const phoneInput = document.getElementById("asstPhoneNumber");
       if (phoneInput && !phoneInput.value) {
