@@ -460,7 +460,7 @@ function initDesiredOutcomeUI() {
   function syncOutcome() {
     const v = outcome.value;
 
-    show(book, v === "book_meeting");
+    show(book, v === "book_a_meeting");
     show(transfer, v === "transfer_call");
     show(send, v === "send_information");
 
@@ -1217,6 +1217,7 @@ if (desiredOutcome === "send_information" && sendSmsEmail && sendDoc) {
 
   // Initial load
   loadAssistant();
+  initDesiredOutcomeUI();
 }
 
 // ----------------------------------------------------
