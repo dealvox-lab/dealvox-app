@@ -664,6 +664,7 @@ async function initAccountAssistantView() {
       setIfExists("asstTransferWhisper", data.transfer_whisper || "");
 
       // Show saved KB file name if present (Supabase column: file_name)
+      // Show saved KB file name if present (Supabase column: file_name)
       const kbNameEl = document.getElementById("asstKbSavedName");
       const savedKbName = (data.file_name || "").trim();
 
@@ -671,6 +672,7 @@ async function initAccountAssistantView() {
         if (savedKbName) {
           kbNameEl.textContent = `Saved file: ${savedKbName}`;
           kbNameEl.style.display = "block";
+          kbNameEl.hidden = false; // <-- IMPORTANT
         } else {
           kbNameEl.textContent = "";
           kbNameEl.style.display = "none";
