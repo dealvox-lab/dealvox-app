@@ -966,61 +966,49 @@ async function saveAssistant() {
   const publishedEl   = document.getElementById("asstPublished");
   const introPromptEl = document.getElementById("asstIntroPrompt");
   const webhookUrlEl  = document.getElementById("asstWebhookUrl");
-  const kbFileEl      = document.getElementById("asstKnowledgeFile");
-
   const agentId   = agentIdEl   ? agentIdEl.value.trim()       : "";
   const agentName = agentNameEl ? agentNameEl.value.trim()     : "";
   const agentVoice = agentVoiceEl ? agentVoiceEl.value         : "";
-
   const rawPub    = publishedEl ? publishedEl.value            : "false";
   const isPub     = rawPub === "true";
   const intro         = introPromptEl ? introPromptEl.value.trim() : "";
   const webhookUrl    = webhookUrlEl  ? webhookUrlEl.value.trim()  : "";
-
-  const kbFile = kbFileEl && kbFileEl.files && kbFileEl.files[0]
-    ? kbFileEl.files[0]
-    : null;
-
   const webhookEndpoint =
     "https://dealvox-840984531750.us-east4.run.app/webhook/316d5604-22ab-4285-b0ad-6c2a886d822f";
+  
+  const TF = (v) => (v ? "TRUE" : "FALSE");          // checkbox flags
+  const Tf = (v) => (v ? "True" : "False");          // title-case flags (matches your examples)
+  const E  = () => "";
+  
+  // values
+  const desiredOutcome = document.getElementById("asstDesiredOutcome")?.value || "";
+  const calApiKey       = document.getElementById("asstCalApiKey")?.value.trim() || "";
+  const calEventTypeId  = document.getElementById("asstCalEventTypeId")?.value.trim() || "";
+  const calCheckAvailability =
+    document.getElementById("asstCalCheckAvailabilityYes")?.checked ? true : false;
 
-  // -------------------------
-// SAVE ASSISTANT – payload normalization
-// -------------------------
-const TF = (v) => (v ? "TRUE" : "FALSE");          // checkbox flags
-const Tf = (v) => (v ? "True" : "False");          // title-case flags (matches your examples)
-const E  = () => "";
+  const transferCold    = document.getElementById("asstTransferCold")?.checked || false;
+  const transferWarm    = document.getElementById("asstTransferWarm")?.checked || false;
+  const transferPhone   = document.getElementById("asstTransferPhone")?.value.trim() || "";
+  const transferWhisper = document.getElementById("asstTransferWhisper")?.value.trim() || "";
 
-// values
-const desiredOutcome = document.getElementById("asstDesiredOutcome")?.value || "";
+  const sendSms         = document.getElementById("asstSendSms")?.checked || false;
+  const sendSmsEmail    = document.getElementById("asstSendSmsEmail")?.checked || false;
+  const sendMessage     = document.getElementById("asstSendMessage")?.value.trim() || "";
+  const ccEmail         = document.getElementById("asstCcEmail")?.value.trim() || "";
 
-const calApiKey       = document.getElementById("asstCalApiKey")?.value.trim() || "";
-const calEventTypeId  = document.getElementById("asstCalEventTypeId")?.value.trim() || "";
-const calCheckAvailability =
-  document.getElementById("asstCalCheckAvailabilityYes")?.checked ? true : false;
+  // files
+  const sendDocEl = document.getElementById("asstSendDoc");
+  const sendDoc =
+    sendDocEl && sendDocEl.files && sendDocEl.files[0]
+      ? sendDocEl.files[0]
+      : null;
 
-const transferCold    = document.getElementById("asstTransferCold")?.checked || false;
-const transferWarm    = document.getElementById("asstTransferWarm")?.checked || false;
-const transferPhone   = document.getElementById("asstTransferPhone")?.value.trim() || "";
-const transferWhisper = document.getElementById("asstTransferWhisper")?.value.trim() || "";
-
-const sendSms         = document.getElementById("asstSendSms")?.checked || false;
-const sendSmsEmail    = document.getElementById("asstSendSmsEmail")?.checked || false;
-const sendMessage     = document.getElementById("asstSendMessage")?.value.trim() || "";
-const ccEmail         = document.getElementById("asstCcEmail")?.value.trim() || "";
-
-// files
-const sendDocEl = document.getElementById("asstSendDoc");
-const sendDoc =
-  sendDocEl && sendDocEl.files && sendDocEl.files[0]
-    ? sendDocEl.files[0]
-    : null;
-
-const kbFileEl = document.getElementById("asstKnowledgeFile");
-const kbFile =
-  kbFileEl && kbFileEl.files && kbFileEl.files[0]
-    ? kbFileEl.files[0]
-    : null;
+  const kbFileEl = document.getElementById("asstKnowledgeFile");
+  const kbFile =
+    kbFileEl && kbFileEl.files && kbFileEl.files[0]
+      ? kbFileEl.files[0]
+      : null;
 
 // normalized payload (matches your Postman examples)
 const norm = {
