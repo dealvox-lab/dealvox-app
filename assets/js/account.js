@@ -1094,9 +1094,7 @@ if (desiredOutcome === "send_information" && sendSmsEmail && sendDoc) {
     console.warn("Could not read previous updated_at:", e);
   }
   
-  } finally {
-    if (saveBtn) saveBtn.disabled = false;
-  }
+  } 
 }
 
   // ---- DELETE ASSISTANT (STEP 2) – webhook only ----
