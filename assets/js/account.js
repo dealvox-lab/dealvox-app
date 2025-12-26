@@ -631,6 +631,38 @@ async function initAccountAssistantView() {
       setIfExists("asstPrompt", data.prompt);
       setIfExists("asstIntroPrompt", data.intro_prompt);
       setIfExists("asstWebhookUrl", data.webhook_url);
+      // ----- NEW FIELDS -----
+      setIfExists("asstDesiredOutcome", data.desired_outcome || "book_a_meeting");
+      
+      setIfExists("asstCalApiKey", data.cal_api_key || "");
+      setIfExists("asstCalEventTypeId", data.cal_event_type_id || "");
+
+      // Check availability (two-checkbox UI)
+      const yes = document.getElementById("asstCalCheckAvailabilityYes");
+      const no  = document.getElementById("asstCalCheckAvailabilityNo");
+      if (yes && no) {
+        const v = !!data.cal_check_availability;
+        yes.checked = v;
+      no.checked  = !v;
+      }
+      
+      // Transfer
+      const tc = document.getElementById("asstTransferCold");
+      const tw = document.getElementById("asstTransferWarm");
+      if (tc) tc.checked = !!data.transfer_cold;
+      if (tw) tw.checked = !!data.transfer_warm;
+
+      setIfExists("asstTransferPhone", data.transfer_phone || "");
+      setIfExists("asstTransferWhisper", data.transfer_whisper || "");
+
+      // Send information
+      const ss = document.getElementById("asstSendSms");
+      const se = document.getElementById("asstSendSmsEmail");
+      if (ss) ss.checked = !!data.send_sms;
+      if (se) se.checked = !!data.send_sms_email;
+
+      setIfExists("asstSendMessage", data.send_message || "");
+      setIfExists("asstCcEmail", data.cc_email || "");
 
       const phoneInput = document.getElementById("asstPhoneNumber");
       if (phoneInput && !phoneInput.value) {
@@ -952,27 +984,105 @@ async function saveAssistant() {
   const webhookEndpoint =
     "https://dealvox-840984531750.us-east4.run.app/webhook/316d5604-22ab-4285-b0ad-6c2a886d822f";
 
-  const desiredOutcome = document.getElementById("asstDesiredOutcome")?.value;
-  const calApiKey = document.getElementById("asstCalApiKey")?.value.trim() || "";
-  const calEventTypeId = document.getElementById("asstCalEventTypeId")?.value.trim() || "";
-  const calCheckAvailability =
-  document.getElementById("asstCalCheckAvailabilityYes")?.checked
-    ? true
-    : false;
-  const transferCold = document.getElementById("asstTransferCold")?.checked || false;
-  const transferWarm = document.getElementById("asstTransferWarm")?.checked || false;
-  const transferPhone = document.getElementById("asstTransferPhone")?.value.trim() || "";
-  const transferWhisper = document.getElementById("asstTransferWhisper")?.value.trim() || "";
-  const sendSms = document.getElementById("asstSendSms")?.checked || false;
-  const sendSmsEmail = document.getElementById("asstSendSmsEmail")?.checked || false;
-  const sendMessage = document.getElementById("asstSendMessage")?.value.trim() || "";
-  const ccEmail = document.getElementById("asstCcEmail")?.value.trim() || "";
+  // -------------------------
+// SAVE ASSISTANT – payload normalization
+// -------------------------
+const TF = (v) => (v ? "TRUE" : "FALSE");          // checkbox flags
+const Tf = (v) => (v ? "True" : "False");          // title-case flags (matches your examples)
+const E  = () => "";
 
-  const sendDocEl = document.getElementById("asstSendDoc");
-  const sendDoc =
-    sendDocEl && sendDocEl.files && sendDocEl.files[0]
-      ? sendDocEl.files[0]
-      : null;
+// values
+const desiredOutcome = document.getElementById("asstDesiredOutcome")?.value || "";
+
+const calApiKey       = document.getElementById("asstCalApiKey")?.value.trim() || "";
+const calEventTypeId  = document.getElementById("asstCalEventTypeId")?.value.trim() || "";
+const calCheckAvailability =
+  document.getElementById("asstCalCheckAvailabilityYes")?.checked ? true : false;
+
+const transferCold    = document.getElementById("asstTransferCold")?.checked || false;
+const transferWarm    = document.getElementById("asstTransferWarm")?.checked || false;
+const transferPhone   = document.getElementById("asstTransferPhone")?.value.trim() || "";
+const transferWhisper = document.getElementById("asstTransferWhisper")?.value.trim() || "";
+
+const sendSms         = document.getElementById("asstSendSms")?.checked || false;
+const sendSmsEmail    = document.getElementById("asstSendSmsEmail")?.checked || false;
+const sendMessage     = document.getElementById("asstSendMessage")?.value.trim() || "";
+const ccEmail         = document.getElementById("asstCcEmail")?.value.trim() || "";
+
+// files
+const sendDocEl = document.getElementById("asstSendDoc");
+const sendDoc =
+  sendDocEl && sendDocEl.files && sendDocEl.files[0]
+    ? sendDocEl.files[0]
+    : null;
+
+const kbFileEl = document.getElementById("asstKnowledgeFile");
+const kbFile =
+  kbFileEl && kbFileEl.files && kbFileEl.files[0]
+    ? kbFileEl.files[0]
+    : null;
+
+// normalized payload (matches your Postman examples)
+const norm = {
+  agentName,
+  agentVoice,
+  isPublished: Tf(isPub),
+  intro,
+  webhookURL: webhookUrl,
+  userId,
+  agentId,
+  desiredOutcome,
+
+  calApiKey: E(),
+  calEventTypeId: E(),
+  calCheckAvailability: E(),
+
+  transferCold: E(),
+  transferWarm: E(),
+  transferPhone: E(),
+  transferWhisper: E(),
+
+  sendSms: E(),
+  sendSmsEmail: E(),
+  sendMessage: E(),
+  ccEmail: E(),
+};
+
+if (desiredOutcome === "book_a_meeting") {
+  norm.calApiKey = calApiKey;
+  norm.calEventTypeId = calEventTypeId;
+  norm.calCheckAvailability = Tf(calCheckAvailability);
+}
+
+if (desiredOutcome === "transfer_call") {
+  norm.transferCold = TF(transferCold);
+  norm.transferWarm = TF(transferWarm);
+  norm.transferPhone = transferPhone;
+  // whisper only for warm transfer
+  norm.transferWhisper = transferWarm ? transferWhisper : E();
+}
+
+if (desiredOutcome === "send_information") {
+  norm.sendSms = TF(sendSms);
+  norm.sendSmsEmail = TF(sendSmsEmail);
+  norm.sendMessage = sendMessage;
+  norm.ccEmail = sendSmsEmail ? ccEmail : E();
+}
+
+// build FormData
+const formData = new FormData();
+Object.entries(norm).forEach(([k, v]) => formData.append(k, v));
+
+// Knowledge Base upload: send using Postman-compatible key as well
+if (kbFile) {
+  formData.append("data", kbFile, kbFile.name);           // matches your Postman screenshot
+  formData.append("knowledgeBase", kbFile, kbFile.name);  // backward compatible if backend expects this
+}
+
+// Send doc only in send_information + SMS+email
+if (desiredOutcome === "send_information" && sendSmsEmail && sendDoc) {
+  formData.append("sendDocument", sendDoc, sendDoc.name);
+}
 
   let previousUpdatedAt = null;
 
@@ -995,70 +1105,7 @@ async function saveAssistant() {
   } catch (e) {
     console.warn("Could not read previous updated_at:", e);
   }
-
-  try {
-    const formData = new FormData();
-    formData.append("agentName", agentName);
-    formData.append("agentVoice", agentVoice);
-    formData.append("isPublished", String(isPub));
-    formData.append("intro", intro);
-    formData.append("webhookURL", webhookUrl);
-    formData.append("userId", userId);
-    formData.append("agentId", agentId);
-    formData.append("desiredOutcome", desiredOutcome);
-    formData.append("calApiKey", calApiKey);
-    formData.append("calEventTypeId", calEventTypeId);
-    formData.append("calCheckAvailability", String(calCheckAvailability));
-    formData.append("transferCold", String(transferCold));
-    formData.append("transferWarm", String(transferWarm));
-    formData.append("transferPhone", transferPhone);
-    formData.append("transferWhisper", transferWhisper);
-    formData.append("sendSms", String(sendSms));  
-    formData.append("sendSmsEmail", String(sendSmsEmail));
-    formData.append("sendMessage", sendMessage);
-    formData.append("ccEmail", ccEmail);
-    if (sendDoc) {
-      formData.append("sendDocument", sendDoc, sendDoc.name);
-    }
-    if (kbFile) {
-      formData.append("knowledgeBase", kbFile, kbFile.name);
-    }
-
-    const res = await fetch(webhookEndpoint, {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      console.error("Assistant save webhook error:", res.status, await res.text());
-      if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
-    } else {
-
-       // 2) Webhook OK – wait for Supabase to confirm via updated_at
-   const updated = await waitForAssistantUpdate(agentId, previousUpdatedAt, {
-    timeoutMs: 100000, // 🟢 Set timeout to 100 seconds (10,000 ms)
-    intervalMs: 3000  // 🟢 Check every 3 second
-   });
-
-   if (updated) {
-    // 1. Show Success Message
-    if (saveStatusEl) saveStatusEl.textContent = "Saved. Reloading...";
     
-    // 2. Wait 2 seconds, then Reload
-    setTimeout(() => {
-     window.location.reload();
-    }, 2000);
-
-   } else {
-    // 🔴 Failure case (Timeout reached)
-    console.error("Database update timed out after 10 seconds");
-    if (saveStatusEl) {
-      // Set your specific error message here
-      saveStatusEl.textContent = "Save failed. Contact support if this persists.";
-       }
-     }
-    }
-  }
   catch (e) {
     console.error("Assistant save error:", e);
     if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
@@ -1692,3 +1739,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial view
   loadView(viewFromHash());
 });
+
+const yes = document.getElementById("asstCalCheckAvailabilityYes");
+const no  = document.getElementById("asstCalCheckAvailabilityNo");
+if (yes && no) {
+  yes.addEventListener("change", () => { if (yes.checked) no.checked = false; });
+  no.addEventListener("change",  () => { if (no.checked)  yes.checked = false; });
+}
