@@ -1092,8 +1092,6 @@ if (desiredOutcome === "send_information" && sendSmsEmail && sendDoc) {
     }
   } catch (e) {
     console.warn("Could not read previous updated_at:", e);
-  }
-  
   } 
 }
 
