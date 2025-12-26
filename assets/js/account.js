@@ -633,6 +633,7 @@ async function initAccountAssistantView() {
       setIfExists("asstWebhookUrl", data.webhook_url);
       // ----- NEW FIELDS -----
       setIfExists("asstDesiredOutcome", data.desired_outcome || "book_a_meeting");
+      initDesiredOutcomeUI(); // re-sync show/hide based on saved desired_outcome
       
       setIfExists("asstCalApiKey", data.cal_api_key || "");
       setIfExists("asstCalEventTypeId", data.cal_event_type_id || "");
@@ -654,6 +655,20 @@ async function initAccountAssistantView() {
 
       setIfExists("asstTransferPhone", data.transfer_phone || "");
       setIfExists("asstTransferWhisper", data.transfer_whisper || "");
+
+      // Show saved KB file name if present (Supabase column: file_name)
+      const kbNameEl = document.getElementById("asstKbSavedName");
+      const savedKbName = (data.file_name || "").trim();
+
+      if (kbNameEl) {
+        if (savedKbName) {
+          kbNameEl.textContent = `Saved file: ${savedKbName}`;
+          kbNameEl.style.display = "block";
+        } else {
+          kbNameEl.textContent = "";
+          kbNameEl.style.display = "none";
+        }
+      }
 
       // Send information
       const ss = document.getElementById("asstSendSms");
