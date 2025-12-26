@@ -421,10 +421,6 @@ function initDesiredOutcomeUI() {
     return;
   }
 
-  // Prevent double-binding (SPA)
-  if (outcome.dataset.bound === "1") return;
-  outcome.dataset.bound = "1";
-
   const book     = document.getElementById("outcomeBookMeeting");
   const transfer = document.getElementById("outcomeTransferCall");
   const send     = document.getElementById("outcomeSendInfo");
@@ -436,7 +432,6 @@ function initDesiredOutcomeUI() {
   const sms      = document.getElementById("asstSendSms");
   const smsEmail = document.getElementById("asstSendSmsEmail");
 
-  // NEW: only for SMS+email extras
   const smsEmailDetails = document.getElementById("outcomeSendSmsEmailDetails");
 
   const calYes = document.getElementById("asstCalCheckAvailabilityYes");
@@ -449,45 +444,59 @@ function initDesiredOutcomeUI() {
     if (a.checked) b.checked = false;
   }
 
-  function syncNested() {
-    // Transfer: whisper only for warm; phone is always visible via HTML (no toggling)
-    show(warmDetails, !!(warm && warm.checked));
+  function syncNested(v) {
+    const isTransfer = (v === "transfer_call");
+    const isSend     = (v === "send_information");
+
+    // Transfer: whisper only for warm
+    show(warmDetails, isTransfer && !!(warm && warm.checked));
 
     // Send info: upload+CC only if SMS+email checked
-    show(smsEmailDetails, !!(smsEmail && smsEmail.checked));
+    show(smsEmailDetails, isSend && !!(smsEmail && smsEmail.checked));
   }
 
   function syncOutcome() {
-    const v = outcome.value;
+    let v = (outcome.value || "").trim();
 
-    show(book, v === "book_a_meeting");
-    show(transfer, v === "transfer_call");
-    show(send, v === "send_information");
+    // support legacy value if any row still has it
+    const isBook = (v === "book_a_meeting" || v === "book_meeting");
+    const isTransfer = (v === "transfer_call");
+    const isSend = (v === "send_information");
 
-    // When switching outcomes, refresh nested UI
-    syncNested();
+    show(book, isBook);
+    show(transfer, isTransfer);
+    show(send, isSend);
+
+    syncNested(v);
   }
+
+  // ✅ If already bound, DO NOT add listeners again — but DO re-sync UI
+  if (outcome.dataset.bound === "1") {
+    syncOutcome();
+    return;
+  }
+  outcome.dataset.bound = "1";
 
   outcome.addEventListener("change", syncOutcome);
 
   cold?.addEventListener("change", () => {
     syncExclusive(cold, warm);
-    syncNested();
+    syncOutcome();
   });
 
   warm?.addEventListener("change", () => {
     syncExclusive(warm, cold);
-    syncNested();
+    syncOutcome();
   });
 
   sms?.addEventListener("change", () => {
     syncExclusive(sms, smsEmail);
-    syncNested();
+    syncOutcome();
   });
 
   smsEmail?.addEventListener("change", () => {
     syncExclusive(smsEmail, sms);
-    syncNested();
+    syncOutcome();
   });
 
   calYes?.addEventListener("change", () => syncExclusive(calYes, calNo));
