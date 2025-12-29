@@ -179,6 +179,20 @@
   font-weight:500;
   cursor:pointer;
 }
+
+.btn-primary-2{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 18px;
+  border-radius:999px;
+  border:none;
+  background-color:darkcyan;
+  color:#fff;
+  font-weight:500;
+  cursor:pointer;
+}
+
 .btn-primary:disabled{
   opacity:.6;
   cursor:default;
