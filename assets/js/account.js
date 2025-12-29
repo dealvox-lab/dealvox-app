@@ -584,8 +584,8 @@ async function initAccountAssistantView() {
 
   populatePhoneAreaSelect();
 
-  // Prevent double-binding on reloads
-  if (form && form.dataset.bound === "1") return;
+  // Prevent double-binding (but DO NOT abort init)
+  const alreadyBound = (form && form.dataset.bound === "1");
   if (form) form.dataset.bound = "1";
 
   let auth;
@@ -1275,7 +1275,7 @@ async function initAccountAssistantView() {
     });
   }
 
-  if (form) {
+  if (form && !alreadyBound) {
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       saveAssistant();
