@@ -526,20 +526,44 @@ async function initAccountAssistantView() {
   const saveBtn        = document.getElementById("asstSaveBtn");
   const deleteBtn      = document.getElementById("asstDeleteBtn");
 
-  const PHONE_AREA_CODES = [ { label: "Alabama (251)", value: "251" }, { label: "Alabama (256)", value: "256" }, { label: "Alabama (334)", value: "334" }, { label: "Alaska (907)", value: "907" }, { label: "Arizona (480)", value: "480" }, { label: "Arizona (520)", value: "520" }, { label: "Arizona (602)", value: "602" }, { label: "Arizona (623)", value: "623" }, { label: "Arizona (928)", value: "928" }, { label: "Arkansas (479)", value: "479" }, { label: "Arkansas (501)", value: "501" }, { label: "Arkansas (870)", value: "870" }, { label: "California (209)", value: "209" }, { label: "California (213)", value: "213" }, { label: "California (310)", value: "310" }, { label: "California (323)", value: "323" }, { label: "California (408)", value: "408" }, { label: "California (415)", value: "415" }, { label: "California (424)", value: "424" }, { label: "California (442)", value: "442" }, { label: "California (530)", value: "530" }, { label: "California (559)", value: "559" }, { label: "California (562)", value: "562" }, { label: "California (619)", value: "619" }, { label: "California (626)", value: "626" }, { label: "California (650)", value: "650" }, { label: "California (657)", value: "657" }, { label: "California (661)", value: "661" }, { label: "California (669)", value: "669" }, { label: "California (707)", value: "707" }, { label: "California (714)", value: "714" }, { label: "California (747)", value: "747" }, { label: "California (760)", value: "760" }, { label: "California (805)", value: "805" }, { label: "California (818)", value: "818" }, { label: "California (820)", value: "820" }, { label: "California (831)", value: "831" }, { label: "California (840)", value: "840" }, { label: "California (858)", value: "858" }, { label: "California (909)", value: "909" }, { label: "California (916)", value: "916" }, { label: "California (925)", value: "925" }, { label: "California (949)", value: "949" }, { label: "California (951)", value: "951" }, { label: "Colorado (303)", value: "303" }, { label: "Colorado (719)", value: "719" }, { label: "Colorado (720)", value: "720" }, { label: "Colorado (970)", value: "970" }, { label: "Connecticut (203)", value: "203" }, { label: "Connecticut (475)", value: "475" }, { label: "Connecticut (860)", value: "860" }, { label: "Connecticut (959)", value: "959" }, { label: "Delaware (302)", value: "302" }, { label: "District of Columbia (202)", value: "202" }, { label: "Florida (239)", value: "239" }, { label: "Florida (305)", value: "305" }, { label: "Florida (321)", value: "321" }, { label: "Florida (352)", value: "352" }, { label: "Florida (386)", value: "386" }, { label: "Florida (407)", value: "407" }, { label: "Florida (448)", value: "448" }, { label: "Florida (561)", value: "561" }, { label: "Florida (689)", value: "689" }, { label: "Florida (727)", value: "727" }, { label: "Florida (754)", value: "754" }, { label: "Florida (772)", value: "772" }, { label: "Florida (786)", value: "786" }, { label: "Florida (813)", value: "813" }, { label: "Florida (850)", value: "850" }, { label: "Florida (863)", value: "863" }, { label: "Florida (904)", value: "904" }, { label: "Florida (927)", value: "927" }, { label: "Florida (941)", value: "941" }, { label: "Florida (954)", value: "954" }, { label: "Georgia (229)", value: "229" }, { label: "Georgia (404)", value: "404" }, { label: "Georgia (470)", value: "470" }, { label: "Georgia (478)", value: "478" }, { label: "Georgia (678)", value: "678" }, { label: "Georgia (706)", value: "706" }, { label: "Georgia (762)", value: "762" }, { label: "Georgia (770)", value: "770" }, { label: "Georgia (912)", value: "912" }, { label: "Hawaii (808)", value: "808" }, { label: "Idaho (208)", value: "208" }, { label: "Idaho (986)", value: "986" }, { label: "Illinois (217)", value: "217" }, { label: "Illinois (224)", value: "224" }, { label: "Illinois (309)", value: "309" }, { label: "Illinois (312)", value: "312" }, { label: "Illinois (331)", value: "331" }, { label: "Illinois (464)", value: "464" }, { label: "Illinois (618)", value: "618" }, { label: "Illinois (630)", value: "630" }, { label: "Illinois (708)", value: "708" }, { label: "Illinois (730)", value: "730" }, { label: "Illinois (773)", value: "773" }, { label: "Illinois (779)", value: "779" }, { label: "Illinois (815)", value: "815" }, { label: "Illinois (847)", value: "847" }, { label: "Indiana (219)", value: "219" }, { label: "Indiana (260)", value: "260" }, { label: "Indiana (317)", value: "317" }, { label: "Indiana (463)", value: "463" }, { label: "Indiana (574)", value: "574" }, { label: "Indiana (765)", value: "765" }, { label: "Indiana (812)", value: "812" }, { label: "Indiana (930)", value: "930" }, { label: "Iowa (319)", value: "319" }, { label: "Iowa (515)", value: "515" }, { label: "Iowa (563)", value: "563" }, { label: "Iowa (641)", value: "641" }, { label: "Iowa (712)", value: "712" }, { label: "Kansas (316)", value: "316" }, { label: "Kansas (620)", value: "620" }, { label: "Kansas (785)", value: "785" }, { label: "Kansas (913)", value: "913" }, { label: "Kentucky (270)", value: "270" }, { label: "Kentucky (364)", value: "364" }, { label: "Kentucky (502)", value: "502" }, { label: "Kentucky (606)", value: "606" }, { label: "Kentucky (859)", value: "859" }, { label: "Louisiana (225)", value: "225" }, { label: "Louisiana (318)", value: "318" }, { label: "Louisiana (337)", value: "337" }, { label: "Louisiana (504)", value: "504" }, { label: "Louisiana (985)", value: "985" }, { label: "Maine (207)", value: "207" }, { label: "Maryland (240)", value: "240" }, { label: "Maryland (301)", value: "301" }, { label: "Maryland (410)", value: "410" }, { label: "Maryland (443)", value: "443" }, { label: "Maryland (667)", value: "667" }, { label: "Massachusetts (339)", value: "339" }, { label: "Massachusetts (351)", value: "351" }, { label: "Massachusetts (413)", value: "413" }, { label: "Massachusetts (508)", value: "508" }, { label: "Massachusetts (617)", value: "617" }, { label: "Massachusetts (774)", value: "774" }, { label: "Massachusetts (781)", value: "781" }, { label: "Massachusetts (857)", value: "857" }, { label: "Michigan (231)", value: "231" }, { label: "Michigan (248)", value: "248" }, { label: "Michigan (269)", value: "269" }, { label: "Michigan (313)", value: "313" }, { label: "Michigan (517)", value: "517" }, { label: "Michigan (586)", value: "586" }, { label: "Michigan (616)", value: "616" }, { label: "Michigan (734)", value: "734" }, { label: "Michigan (810)", value: "810" }, { label: "Michigan (906)", value: "906" }, { label: "Michigan (947)", value: "947" }, { label: "Michigan (989)", value: "989" }, { label: "Minnesota (218)", value: "218" }, { label: "Minnesota (320)", value: "320" }, { label: "Minnesota (507)", value: "507" }, { label: "Minnesota (612)", value: "612" }, { label: "Minnesota (651)", value: "651" }, { label: "Minnesota (763)", value: "763" }, { label: "Minnesota (952)", value: "952" }, { label: "Mississippi (228)", value: "228" }, { label: "Mississippi (601)", value: "601" }, { label: "Mississippi (662)", value: "662" }, { label: "Missouri (314)", value: "314" }, { label: "Missouri (417)", value: "417" }, { label: "Missouri (557)", value: "557" }, { label: "Missouri (573)", value: "573" }, { label: "Missouri (636)", value: "636" }, { label: "Missouri (660)", value: "660" }, { label: "Missouri (816)", value: "816" }, { label: "Montana (406)", value: "406" }, { label: "Nebraska (308)", value: "308" }, { label: "Nebraska (402)", value: "402" }, { label: "Nebraska (531)", value: "531" }, { label: "Nevada (702)", value: "702" }, { label: "Nevada (725)", value: "725" }, { label: "Nevada (775)", value: "775" }, { label: "New Hampshire (603)", value: "603" }, { label: "New Jersey (201)", value: "201" }, { label: "New Jersey (551)", value: "551" }, { label: "New Jersey (609)", value: "609" }, { label: "New Jersey (640)", value: "640" }, { label: "New Jersey (732)", value: "732" }, { label: "New Jersey (848)", value: "848" }, { label: "New Jersey (856)", value: "856" }, { label: "New Jersey (862)", value: "862" }, { label: "New Jersey (973)", value: "973" }, { label: "New Mexico (505)", value: "505" }, { label: "New Mexico (575)", value: "575" }, { label: "New York (212)", value: "212" }, { label: "New York (315)", value: "315" }, { label: "New York (332)", value: "332" }, { label: "New York (347)", value: "347" }, { label: "New York (516)", value: "516" }, { label: "New York (518)", value: "518" }, { label: "New York (585)", value: "585" }, { label: "New York (607)", value: "607" }, { label: "New York (631)", value: "631" }, { label: "New York (646)", value: "646" }, { label: "New York (680)", value: "680" }, { label: "New York (716)", value: "716" }, { label: "New York (718)", value: "718" }, { label: "New York (838)", value: "838" }, { label: "New York (845)", value: "845" }, { label: "New York (914)", value: "914" }, { label: "New York (917)", value: "917" }, { label: "New York (929)", value: "929" }, { label: "New York (934)", value: "934" }, { label: "North Carolina (252)", value: "252" }, { label: "North Carolina (336)", value: "336" }, { label: "North Carolina (704)", value: "704" }, { label: "North Carolina (743)", value: "743" }, { label: "North Carolina (828)", value: "828" }, { label: "North Carolina (910)", value: "910" }, { label: "North Carolina (919)", value: "919" }, { label: "North Carolina (980)", value: "980" }, { label: "North Dakota (701)", value: "701" }, { label: "Ohio (216)", value: "216" }, { label: "Ohio (220)", value: "220" }, { label: "Ohio (234)", value: "234" }, { label: "Ohio (283)", value: "283" }, { label: "Ohio (330)", value: "330" }, { label: "Ohio (380)", value: "380" }, { label: "Ohio (419)", value: "419" }, { label: "Ohio (440)", value: "440" }, { label: "Ohio (513)", value: "513" }, { label: "Ohio (567)", value: "567" }, { label: "Ohio (614)", value: "614" }, { label: "Ohio (740)", value: "740" }, { label: "Ohio (937)", value: "937" }, { label: "Oklahoma (405)", value: "405" }, { label: "Oklahoma (539)", value: "539" }, { label: "Oklahoma (572)", value: "572" }, { label: "Oklahoma (580)", value: "580" }, { label: "Oklahoma (918)", value: "918" }, { label: "Oregon (458)", value: "458" }, { label: "Oregon (503)", value: "503" }, { label: "Oregon (541)", value: "541" }, { label: "Oregon (971)", value: "971" }, { label: "Pennsylvania (215)", value: "215" }, { label: "Pennsylvania (223)", value: "223" }, { label: "Pennsylvania (267)", value: "267" }, { label: "Pennsylvania (272)", value: "272" }, { label: "Pennsylvania (412)", value: "412" }, { label: "Pennsylvania (445)", value: "445" }, { label: "Pennsylvania (484)", value: "484" }, { label: "Pennsylvania (570)", value: "570" }, { label: "Pennsylvania (582)", value: "582" }, { label: "Pennsylvania (610)", value: "610" }, { label: "Pennsylvania (717)", value: "717" }, { label: "Pennsylvania (724)", value: "724" }, { label: "Pennsylvania (814)", value: "814" }, { label: "Rhode Island (401)", value: "401" }, { label: "South Carolina (803)", value: "803" }, { label: "South Carolina (839)", value: "839" }, { label: "South Carolina (843)", value: "843" }, { label: "South Carolina (854)", value: "854" }, { label: "South Carolina (864)", value: "864" }, { label: "South Dakota (605)", value: "605" }, { label: "Tennessee (423)", value: "423" }, { label: "Tennessee (615)", value: "615" }, { label: "Tennessee (629)", value: "629" }, { label: "Tennessee (731)", value: "731" }, { label: "Tennessee (865)", value: "865" }, { label: "Tennessee (901)", value: "901" }, { label: "Tennessee (931)", value: "931" }, { label: "Texas (210)", value: "210" }, { label: "Texas (214)", value: "214" }, { label: "Texas (254)", value: "254" }, { label: "Texas (281)", value: "281" }, { label: "Texas (325)", value: "325" }, { label: "Texas (346)", value: "346" }, { label: "Texas (361)", value: "361" }, { label: "Texas (409)", value: "409" }, { label: "Texas (430)", value: "430" }, { label: "Texas (432)", value: "432" }, { label: "Texas (469)", value: "469" }, { label: "Texas (512)", value: "512" }, { label: "Texas (682)", value: "682" }, { label: "Texas (713)", value: "713" }, { label: "Texas (726)", value: "726" }, { label: "Texas (737)", value: "737" }, { label: "Texas (806)", value: "806" }, { label: "Texas (817)", value: "817" }, { label: "Texas (830)", value: "830" }, { label: "Texas (832)", value: "832" }, { label: "Texas (903)", value: "903" }, { label: "Texas (915)", value: "915" }, { label: "Texas (936)", value: "936" }, { label: "Texas (940)", value: "940" }, { label: "Texas (956)", value: "956" }, { label: "Texas (972)", value: "972" }, { label: "Texas (979)", value: "979" }, { label: "Utah (385)", value: "385" }, { label: "Utah (435)", value: "435" }, { label: "Utah (801)", value: "801" }, { label: "Vermont (802)", value: "802" }, { label: "Virginia (276)", value: "276" }, { label: "Virginia (434)", value: "434" }, { label: "Virginia (540)", value: "540" }, { label: "Virginia (571)", value: "571" }, { label: "Virginia (703)", value: "703" }, { label: "Virginia (757)", value: "757" }, { label: "Virginia (804)", value: "804" }, { label: "Washington (206)", value: "206" }, { label: "Washington (253)", value: "253" }, { label: "Washington (360)", value: "360" }, { label: "Washington (425)", value: "425" }, { label: "Washington (509)", value: "509" }, { label: "West Virginia (681)", value: "681" }, { label: "West Virginia (304)", value: "304" }, { label: "Wisconsin (262)", value: "262" }, { label: "Wisconsin (414)", value: "414" }, { label: "Wisconsin (608)", value: "608" }, { label: "Wisconsin (715)", value: "715" }, { label: "Wisconsin (920)", value: "920" }, { label: "Wyoming (307)", value: "307" } ];
+  // ✅ Test Call UI
+  const testBtn       = document.getElementById("asstTestCallBtn");
+  const testModal     = document.getElementById("asstTestCallModal");
+  const testCloseBtn  = document.getElementById("asstTestCallClose");
+  const callMeBtn     = document.getElementById("asstCallMeBtn");
+  const testStatusEl  = document.getElementById("asstTestCallStatus");
+  const fromNumberEl  = document.getElementById("asstTestFromNumber");
+
+  // from_number for test call (from assistants.phone_number)
+  let assistantFromNumber = "";
+
+  const PHONE_AREA_CODES = window.PHONE_AREA_CODES || []; // keep as you have it (huge list)
 
   if (!deploySection || !manageSection) {
     console.warn("Assistant sections not found; skipping assistant init");
     return;
   }
 
-    // Populate Buy-phone area select
+  const show = (el, visible) => { if (el) el.hidden = !visible; };
+
+  function openTestCallModal() {
+    if (!testModal) return;
+    if (testStatusEl) testStatusEl.textContent = "";
+    if (fromNumberEl) fromNumberEl.textContent = assistantFromNumber || "—";
+    show(testModal, true);
+  }
+
+  function closeTestCallModal() {
+    if (!testModal) return;
+    show(testModal, false);
+  }
+
+  // Populate Buy-phone area select
   function populatePhoneAreaSelect() {
     if (!areaSelect) return;
 
     areaSelect.innerHTML = "";
 
-    // Optional placeholder
     const placeholder = document.createElement("option");
     placeholder.value = "";
     placeholder.textContent = "Select area / code…";
@@ -547,7 +571,7 @@ async function initAccountAssistantView() {
     placeholder.selected = true;
     areaSelect.appendChild(placeholder);
 
-    PHONE_AREA_CODES.forEach((item) => {
+    (PHONE_AREA_CODES || []).forEach((item) => {
       const opt = document.createElement("option");
       opt.value = item.value;
       opt.textContent = item.label;
@@ -556,7 +580,7 @@ async function initAccountAssistantView() {
   }
 
   populatePhoneAreaSelect();
-  
+
   // Prevent double-binding on reloads
   if (form && form.dataset.bound === "1") return;
   if (form) form.dataset.bound = "1";
@@ -588,8 +612,66 @@ async function initAccountAssistantView() {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  // ---- LOAD ASSISTANT (detect existing vs new) ----
-  // Returns true if an assistant row exists for this user, false otherwise.
+  // -------------------------
+  // Supabase helper / polling
+  // -------------------------
+  function getSupabaseClient() {
+    const candidate = window.supabaseClient || window.supabase || null;
+    if (!candidate || typeof candidate.from !== "function") {
+      console.warn("Supabase client not available or invalid, skipping DB check.");
+      return null;
+    }
+    return candidate;
+  }
+
+  async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
+    timeoutMs = 120000,
+    intervalMs = 5000
+  } = {}) {
+    const supabase = getSupabaseClient();
+    if (!supabase || !agentId) return true;
+
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      const { data, error } = await supabase
+        .from("assistants")
+        .select("agent_id, updated_at")
+        .eq("agent_id", agentId)
+        .maybeSingle();
+
+      if (!error && data) {
+        if (!previousUpdatedAt && data.updated_at) return true;
+        if (previousUpdatedAt && data.updated_at && data.updated_at !== previousUpdatedAt) return true;
+      }
+      await sleep(intervalMs);
+    }
+    return false;
+  }
+
+  async function waitForPhoneNumber(userId, {
+    timeoutMs = 180000,
+    intervalMs = 5000
+  } = {}) {
+    const supabase = getSupabaseClient();
+    if (!supabase || !userId) return null;
+
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      const { data, error } = await supabase
+        .from("assistants")
+        .select("user_id, phone_number")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (!error && data?.phone_number) return data.phone_number;
+      await sleep(intervalMs);
+    }
+    return null;
+  }
+
+  // -------------------------
+  // LOAD ASSISTANT
+  // -------------------------
   async function loadAssistant() {
     if (saveStatusEl) saveStatusEl.textContent = "Loading…";
 
@@ -630,6 +712,10 @@ async function initAccountAssistantView() {
       // Existing assistant → show manage section
       deploySection.hidden = true;
       manageSection.hidden = false;
+      manageSection.style.display = "block";
+
+      // ✅ Button label when deployed
+      if (saveBtn) saveBtn.textContent = "Update and Publish";
 
       setIfExists("asstAgentId", data.agent_id);
       setIfExists("asstAgentName", data.agent_name);
@@ -640,21 +726,23 @@ async function initAccountAssistantView() {
       setIfExists("asstPrompt", data.prompt);
       setIfExists("asstIntroPrompt", data.intro_prompt);
       setIfExists("asstWebhookUrl", data.webhook_url);
-      // ----- NEW FIELDS -----
+
+      // ✅ Desired outcome (set value first, then initDesiredOutcomeUI() LAST)
       setIfExists("asstDesiredOutcome", data.desired_outcome || "book_a_meeting");
+
+      // Book a meeting fields
       setIfExists("asstCalApiKey", data.cal_api_key || "");
       setIfExists("asstCalEventTypeId", data.cal_event_type_id || "");
 
-      // Check availability (two-checkbox UI)
       const yes = document.getElementById("asstCalCheckAvailabilityYes");
       const no  = document.getElementById("asstCalCheckAvailabilityNo");
       if (yes && no) {
         const v = !!data.cal_check_availability;
         yes.checked = v;
-      no.checked  = !v;
+        no.checked  = !v;
       }
-      
-      // Transfer
+
+      // Transfer fields
       const tc = document.getElementById("asstTransferCold");
       const tw = document.getElementById("asstTransferWarm");
       if (tc) tc.checked = !!data.transfer_cold;
@@ -663,23 +751,7 @@ async function initAccountAssistantView() {
       setIfExists("asstTransferPhone", data.transfer_phone || "");
       setIfExists("asstTransferWhisper", data.transfer_whisper || "");
 
-      // Show saved KB file name if present (Supabase column: file_name)
-      // Show saved KB file name if present (Supabase column: file_name)
-      const kbNameEl = document.getElementById("asstKbSavedName");
-      const savedKbName = (data.file_name || "").trim();
-
-      if (kbNameEl) {
-        if (savedKbName) {
-          kbNameEl.textContent = `Saved file: ${savedKbName}`;
-          kbNameEl.style.display = "block";
-          kbNameEl.hidden = false; // <-- IMPORTANT
-        } else {
-          kbNameEl.textContent = "";
-          kbNameEl.style.display = "none";
-        }
-      }
-
-      // Send information
+      // Send information fields
       const ss = document.getElementById("asstSendSms");
       const se = document.getElementById("asstSendSmsEmail");
       if (ss) ss.checked = !!data.send_sms;
@@ -688,35 +760,55 @@ async function initAccountAssistantView() {
       setIfExists("asstSendMessage", data.send_message || "");
       setIfExists("asstCcEmail", data.cc_email || "");
 
-      initDesiredOutcomeUI(); // re-sync show/hide based on saved desired_outcome
-
-      const phoneInput = document.getElementById("asstPhoneNumber");
-      if (phoneInput && !phoneInput.value) {
-        phoneInput.placeholder = "Buy a phone number below first";
-      }
-
-      if (buyCard) {
-        // If assistant exists but no phone yet → show Buy card
-        if (data.phone_number) {
-          buyCard.hidden = true;
+      // ✅ KB file name (Supabase column: file_name)
+      const kbNameEl = document.getElementById("asstKbSavedName");
+      const savedKbName = (data.file_name || "").trim();
+      if (kbNameEl) {
+        if (savedKbName) {
+          kbNameEl.textContent = `Saved file: ${savedKbName}`;
+          kbNameEl.style.display = "block";
+          kbNameEl.hidden = false; // critical: don't let `.hidden` override display
         } else {
-          buyCard.hidden = false;
+          kbNameEl.textContent = "";
+          kbNameEl.style.display = "none";
+          kbNameEl.hidden = true;
         }
       }
-      
+
+      // ✅ Test Call: from_number comes from assistants.phone_number
+      assistantFromNumber = (data.phone_number || "").trim();
+      if (testBtn) testBtn.hidden = !assistantFromNumber;
+
+      // Buy card logic
+      if (buyCard) {
+        buyCard.hidden = !!data.phone_number;
+      }
+
+      // ✅ Now re-sync outcome UI AFTER values are set
+      initDesiredOutcomeUI();
+
       if (saveStatusEl) saveStatusEl.textContent = "";
       return true;
     } else {
       // No assistant yet → initial deploy flow
       deploySection.hidden = false;
       manageSection.hidden = true;
-      if (buyCard) buyCard.hidden = true;  
+      if (buyCard) buyCard.hidden = true;
+
+      // Button label in non-deployed state
+      if (saveBtn) saveBtn.textContent = "Save and Publish";
+
+      assistantFromNumber = "";
+      if (testBtn) testBtn.hidden = true;
+
       if (saveStatusEl) saveStatusEl.textContent = "";
       return false;
     }
   }
 
-  // ---- DEPLOY ASSISTANT (STEP 1) ----
+  // -------------------------
+  // DEPLOY ASSISTANT (STEP 1)
+  // -------------------------
   async function deployAssistant() {
     if (!deployForm) return;
 
@@ -728,14 +820,9 @@ async function initAccountAssistantView() {
     const agentType  = newTypeEl ? newTypeEl.value : "conversation_flow_381392a33119";
     const agentVoice = newVoiceEl ? newVoiceEl.value : "11labs-Billy";
 
-    //debug
-    console.log("Sending to Webhook -> Name:", agentName, "Voice:", agentVoice);
-
-    // SHOW LOADER
     if (deployLoader) deployLoader.style.display = "inline-flex";
     if (deployNoteEl) deployNoteEl.textContent = "Customizing your model…";
 
-    // ROTATING NOTES
     const notes = [
       "Customizing your model…",
       "Choosing the best conversation flow…",
@@ -757,32 +844,19 @@ async function initAccountAssistantView() {
         {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            agentName,
-            agentType,
-            agentVoice,
-          }),
+          body: JSON.stringify({ userId, agentName, agentType, agentVoice }),
         }
       );
 
       if (!res.ok) {
         failed = true;
-        console.error(
-          "Assistant deploy webhook error:",
-          res.status,
-          await res.text()
-        );
-        if (deployNoteEl) {
-          deployNoteEl.textContent = "Failed to deploy. Try again.";
-        }
+        console.error("Assistant deploy webhook error:", res.status, await res.text());
+        if (deployNoteEl) deployNoteEl.textContent = "Failed to deploy. Try again.";
       }
     } catch (err) {
       failed = true;
       console.error("Assistant deploy error:", err);
-      if (deployNoteEl) {
-        deployNoteEl.textContent = "Failed to deploy. Try again.";
-      }
+      if (deployNoteEl) deployNoteEl.textContent = "Failed to deploy. Try again.";
     }
 
     if (failed) {
@@ -791,10 +865,7 @@ async function initAccountAssistantView() {
       return;
     }
 
-    // Success path: poll Supabase every 15s, up to ~2 minutes
-    if (deployNoteEl) {
-      deployNoteEl.textContent = "Initializing the custom deployment…";
-    }
+    if (deployNoteEl) deployNoteEl.textContent = "Initializing the custom deployment…";
 
     let found = false;
     const maxAttempts = 8;      // 8 * 15s = 2 minutes
@@ -804,10 +875,7 @@ async function initAccountAssistantView() {
       console.log(`[assistants] polling attempt ${attempt}/${maxAttempts}`);
       await sleep(delayMs);
       const exists = await loadAssistant();
-      if (exists) {
-        found = true;
-        break;
-      }
+      if (exists) { found = true; break; }
     }
 
     clearInterval(noteTimer);
@@ -817,93 +885,14 @@ async function initAccountAssistantView() {
       if (deployNoteEl) deployNoteEl.textContent = "Assistant ready.";
     } else {
       if (deployNoteEl) {
-        deployNoteEl.textContent =
-          "Assistant is still deploying in the background. Refresh this page in a moment.";
+        deployNoteEl.textContent = "Assistant is still deploying in the background. Refresh this page in a moment.";
       }
     }
   }
 
-// ---- SAVE ASSISTANT (STEP 2) – webhook + Supabase check ----
-// Small helper to safely get a Supabase client instance
-function getSupabaseClient() {
-  const candidate = window.supabaseClient || window.supabase || null;
-
-  if (!candidate || typeof candidate.from !== "function") {
-    console.warn("Supabase client not available or invalid, skipping DB check.");
-    return null;
-  }
-
-  return candidate;
-}
-
-// Helper: wait for Supabase row update
-async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
-  timeoutMs = 120000,    // 2 minutes
-  intervalMs = 5000      // 5 seconds
-} = {}) {
-  const supabase = getSupabaseClient();
-  if (!supabase || !agentId) {
-    // No usable client → don't block save, treat as "updated"
-    return true;
-  }
-
-  const AGENT_TABLE_NAME = "assistants"; // 🔧 change to your real table name
-  const start = Date.now();
-
-  while (Date.now() - start < timeoutMs) {
-    const { data, error } = await supabase
-      .from(AGENT_TABLE_NAME)
-      .select("agent_id, updated_at")
-      .eq("agent_id", agentId)
-      .maybeSingle();
-
-    if (!error && data) {
-      if (!previousUpdatedAt && data.updated_at) {
-        return true;
-      }
-      if (previousUpdatedAt && data.updated_at && data.updated_at !== previousUpdatedAt) {
-        return true;
-      }
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, intervalMs));
-  }
-
-  return false;
-}
-
-  // Helper: wait until phone_number is written for this user
-  async function waitForPhoneNumber(userId, {
-    timeoutMs = 180000,   // 3 minutes
-    intervalMs = 5000     // 5 seconds
-  } = {}) {
-    const supabase = getSupabaseClient();
-    if (!supabase || !userId) {
-      console.warn("Supabase client not available, cannot poll phone_number.");
-      return null;
-    }
-
-    const AGENT_TABLE_NAME = "assistants";
-    const start = Date.now();
-
-    while (Date.now() - start < timeoutMs) {
-      const { data, error } = await supabase
-        .from(AGENT_TABLE_NAME)
-        .select("user_id, phone_number")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (!error && data && data.phone_number) {
-        return data.phone_number;
-      }
-
-      await sleep(intervalMs);
-    }
-
-    return null;
-  }
-
-  // ---- BUY PHONE NUMBER ----
+  // -------------------------
+  // BUY PHONE NUMBER
+  // -------------------------
   async function handleBuyNumber() {
     if (!buyBtn || !areaSelect) return;
 
@@ -922,7 +911,6 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
       return;
     }
 
-    // UI: start processing
     buyBtn.disabled = true;
     if (buyStatusEl) buyStatusEl.textContent = "";
     if (buySpinner) buySpinner.style.display = "inline-flex";
@@ -935,8 +923,8 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
-            user_id: userId,           // [auth_id]
-            outbound_agent_id: agentId, // user's agent ID
+            user_id: userId,
+            outbound_agent_id: agentId,
             area_code: areaCode
           })
         }
@@ -948,7 +936,6 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
         return;
       }
 
-      // Webhook ok – start polling Supabase for phone_number
       if (buySpinnerText) buySpinnerText.textContent = "Provisioning your number…";
 
       const phoneNumber = await waitForPhoneNumber(userId, {
@@ -961,13 +948,13 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
           phoneInput.value = phoneNumber;
           phoneInput.placeholder = "";
         }
+        assistantFromNumber = phoneNumber;
+        if (testBtn) testBtn.hidden = false;
+
         if (buyStatusEl) buyStatusEl.textContent = "Number purchased.";
-        if (buyCard) buyCard.hidden = true;      // hide block when number is set
+        if (buyCard) buyCard.hidden = true;
       } else {
-        if (buyStatusEl) {
-          buyStatusEl.textContent =
-            "Still provisioning your number. Refresh this page in a moment.";
-        }
+        if (buyStatusEl) buyStatusEl.textContent = "Still provisioning your number. Refresh this page in a moment.";
       }
     } catch (err) {
       console.error("Buy number error:", err);
@@ -977,199 +964,190 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
       buyBtn.disabled = false;
     }
   }
-  
-  // ---- SAVE ASSISTANT (STEP 2) – webhook + Supabase check ----
+
+  // -------------------------
+  // SAVE ASSISTANT (STEP 2)
+  // -------------------------
   async function saveAssistant() {
-  // Form is required; saveBtn is optional (don’t silently abort)
-  if (!form) {
-    console.warn("[saveAssistant] form not found");
-    return;
-  }
-
-  if (saveBtn) saveBtn.disabled = true;
-  if (saveStatusEl) saveStatusEl.textContent = "Saving..";
-
-  // --- core fields ---
-  const agentIdEl      = document.getElementById("asstAgentId");
-  const agentNameEl    = document.getElementById("asstAgentName");
-  const agentVoiceEl   = document.getElementById("asstAgentVoice");
-  const publishedEl    = document.getElementById("asstPublished");
-  const introPromptEl  = document.getElementById("asstIntroPrompt");
-  const webhookUrlEl   = document.getElementById("asstWebhookUrl");
-
-  const agentId    = agentIdEl ? agentIdEl.value.trim() : "";
-  const agentName  = agentNameEl ? agentNameEl.value.trim() : "";
-  const agentVoice = agentVoiceEl ? agentVoiceEl.value : "";
-
-  const rawPub = publishedEl ? String(publishedEl.value || "").trim() : "false";
-  const isPub  = rawPub === "true";
-
-  const intro      = introPromptEl ? introPromptEl.value.trim() : "";
-  const webhookUrl = webhookUrlEl ? webhookUrlEl.value.trim() : "";
-
-  const webhookEndpoint =
-    "https://dealvox-840984531750.us-east4.run.app/webhook/316d5604-22ab-4285-b0ad-6c2a886d822f";
-
-  // Basic guard: we need agentId to update the correct assistant
-  if (!agentId) {
-    if (saveStatusEl) saveStatusEl.textContent = "No assistant ID found.";
-    if (saveBtn) saveBtn.disabled = false;
-    return;
-  }
-
-  // --- helpers for exact payload formatting ---
-  const TF = (v) => (v ? "TRUE" : "FALSE"); // checkbox flags
-  const Tf = (v) => (v ? "True" : "False"); // title-case flags (matches your examples)
-  const E  = () => "";
-
-  // --- outcome fields ---
-  const desiredOutcome = document.getElementById("asstDesiredOutcome")?.value || "";
-
-  const calApiKey      = document.getElementById("asstCalApiKey")?.value.trim() || "";
-  const calEventTypeId = document.getElementById("asstCalEventTypeId")?.value.trim() || "";
-  const calCheckAvailability =
-    document.getElementById("asstCalCheckAvailabilityYes")?.checked ? true : false;
-
-  const transferCold    = document.getElementById("asstTransferCold")?.checked || false;
-  const transferWarm    = document.getElementById("asstTransferWarm")?.checked || false;
-  const transferPhone   = document.getElementById("asstTransferPhone")?.value.trim() || "";
-  const transferWhisper = document.getElementById("asstTransferWhisper")?.value.trim() || "";
-
-  const sendSms      = document.getElementById("asstSendSms")?.checked || false;
-  const sendSmsEmail = document.getElementById("asstSendSmsEmail")?.checked || false;
-  const sendMessage  = document.getElementById("asstSendMessage")?.value.trim() || "";
-  const ccEmail      = document.getElementById("asstCcEmail")?.value.trim() || "";
-
-  // --- files ---
-  const sendDocEl = document.getElementById("asstSendDoc");
-  const sendDoc =
-    sendDocEl && sendDocEl.files && sendDocEl.files[0]
-      ? sendDocEl.files[0]
-      : null;
-
-  const kbEl = document.getElementById("asstKnowledgeFile");
-  const kbFile =
-    kbEl && kbEl.files && kbEl.files[0]
-      ? kbEl.files[0]
-      : null;
-
-  // --- normalized payload (matches your Postman examples) ---
-  const norm = {
-    agentName,
-    agentVoice,
-    isPublished: Tf(isPub),
-    intro,
-    webhookURL: webhookUrl,
-    userId,
-    agentId,
-    desiredOutcome,
-
-    calApiKey: E(),
-    calEventTypeId: E(),
-    calCheckAvailability: E(),
-
-    transferCold: E(),
-    transferWarm: E(),
-    transferPhone: E(),
-    transferWhisper: E(),
-
-    sendSms: E(),
-    sendSmsEmail: E(),
-    sendMessage: E(),
-    ccEmail: E(),
-  };
-
-  if (desiredOutcome === "book_a_meeting") {
-    norm.calApiKey = calApiKey;
-    norm.calEventTypeId = calEventTypeId;
-    norm.calCheckAvailability = Tf(calCheckAvailability);
-  } else if (desiredOutcome === "transfer_call") {
-    norm.transferCold = TF(transferCold);
-    norm.transferWarm = TF(transferWarm);
-    norm.transferPhone = transferPhone;
-    norm.transferWhisper = transferWarm ? transferWhisper : E();
-  } else if (desiredOutcome === "send_information") {
-    norm.sendSms = TF(sendSms);
-    norm.sendSmsEmail = TF(sendSmsEmail);
-    norm.sendMessage = sendMessage;
-    norm.ccEmail = sendSmsEmail ? ccEmail : E();
-  }
-
-  // --- build FormData once ---
-  const formData = new FormData();
-  Object.entries(norm).forEach(([k, v]) => formData.append(k, v));
-
-  // KB file: match Postman key + keep compatibility
-  if (kbFile) {
-    formData.append("data", kbFile, kbFile.name);
-    formData.append("knowledgeBase", kbFile, kbFile.name);
-  }
-
-  // Send doc only for send_information + SMS+email
-  if (desiredOutcome === "send_information" && sendSmsEmail && sendDoc) {
-    formData.append("sendDocument", sendDoc, sendDoc.name);
-  }
-
-  // --- read updated_at before webhook (optional) ---
-  let previousUpdatedAt = null;
-  try {
-    const supabase = getSupabaseClient();
-    if (supabase) {
-      const { data, error } = await supabase
-        .from("assistants")
-        .select("agent_id, updated_at")
-        .eq("agent_id", agentId)
-        .maybeSingle();
-
-      if (!error && data?.updated_at) previousUpdatedAt = data.updated_at;
-    }
-  } catch (e) {
-    console.warn("[saveAssistant] could not read previous updated_at:", e);
-  }
-
-  // --- send webhook + wait for DB ---
-  try {
-    console.log("[saveAssistant] sending webhook", {
-      webhookEndpoint,
-      agentId,
-      desiredOutcome,
-    });
-
-    const res = await fetch(webhookEndpoint, {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const txt = await res.text().catch(() => "");
-      console.error("[saveAssistant] webhook error:", res.status, txt);
-      if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
+    if (!form) {
+      console.warn("[saveAssistant] form not found");
       return;
     }
 
-    // Wait for updated_at change (if Supabase client exists)
-    const updated = await waitForAssistantUpdate(agentId, previousUpdatedAt, {
-      timeoutMs: 100000,
-      intervalMs: 3000,
-    });
+    if (saveBtn) saveBtn.disabled = true;
+    if (saveStatusEl) saveStatusEl.textContent = "Saving..";
 
-    if (updated) {
-      if (saveStatusEl) saveStatusEl.textContent = "Saved. Reloading...";
-      setTimeout(() => window.location.reload(), 1200);
-    } else {
-      console.error("[saveAssistant] DB update timed out");
-      if (saveStatusEl) saveStatusEl.textContent = "Save failed. Contact support if this persists.";
+    const agentIdEl      = document.getElementById("asstAgentId");
+    const agentNameEl    = document.getElementById("asstAgentName");
+    const agentVoiceEl   = document.getElementById("asstAgentVoice");
+    const publishedEl    = document.getElementById("asstPublished");
+    const introPromptEl  = document.getElementById("asstIntroPrompt");
+    const webhookUrlEl   = document.getElementById("asstWebhookUrl");
+
+    const agentId    = agentIdEl ? agentIdEl.value.trim() : "";
+    const agentName  = agentNameEl ? agentNameEl.value.trim() : "";
+    const agentVoice = agentVoiceEl ? agentVoiceEl.value : "";
+
+    const rawPub = publishedEl ? String(publishedEl.value || "").trim() : "false";
+    const isPub  = rawPub === "true";
+
+    const intro      = introPromptEl ? introPromptEl.value.trim() : "";
+    const webhookUrl = webhookUrlEl ? webhookUrlEl.value.trim() : "";
+
+    const webhookEndpoint =
+      "https://dealvox-840984531750.us-east4.run.app/webhook/316d5604-22ab-4285-b0ad-6c2a886d822f";
+
+    if (!agentId) {
+      if (saveStatusEl) saveStatusEl.textContent = "No assistant ID found.";
+      if (saveBtn) saveBtn.disabled = false;
+      return;
     }
-  } catch (e) {
-    console.error("[saveAssistant] error:", e);
-    if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
-  } finally {
-    if (saveBtn) saveBtn.disabled = false;
+
+    const TF = (v) => (v ? "TRUE" : "FALSE");
+    const Tf = (v) => (v ? "True" : "False");
+    const E  = () => "";
+
+    const desiredOutcome = document.getElementById("asstDesiredOutcome")?.value || "";
+
+    const calApiKey      = document.getElementById("asstCalApiKey")?.value.trim() || "";
+    const calEventTypeId = document.getElementById("asstCalEventTypeId")?.value.trim() || "";
+    const calCheckAvailability =
+      document.getElementById("asstCalCheckAvailabilityYes")?.checked ? true : false;
+
+    const transferCold    = document.getElementById("asstTransferCold")?.checked || false;
+    const transferWarm    = document.getElementById("asstTransferWarm")?.checked || false;
+    const transferPhone   = document.getElementById("asstTransferPhone")?.value.trim() || "";
+    const transferWhisper = document.getElementById("asstTransferWhisper")?.value.trim() || "";
+
+    const sendSms      = document.getElementById("asstSendSms")?.checked || false;
+    const sendSmsEmail = document.getElementById("asstSendSmsEmail")?.checked || false;
+    const sendMessage  = document.getElementById("asstSendMessage")?.value.trim() || "";
+    const ccEmail      = document.getElementById("asstCcEmail")?.value.trim() || "";
+
+    const sendDocEl = document.getElementById("asstSendDoc");
+    const sendDoc =
+      sendDocEl && sendDocEl.files && sendDocEl.files[0]
+        ? sendDocEl.files[0]
+        : null;
+
+    const kbEl = document.getElementById("asstKnowledgeFile");
+    const kbFile =
+      kbEl && kbEl.files && kbEl.files[0]
+        ? kbEl.files[0]
+        : null;
+
+    const norm = {
+      agentName,
+      agentVoice,
+      isPublished: Tf(isPub),
+      intro,
+      webhookURL: webhookUrl,
+      userId,
+      agentId,
+      desiredOutcome,
+
+      calApiKey: E(),
+      calEventTypeId: E(),
+      calCheckAvailability: E(),
+
+      transferCold: E(),
+      transferWarm: E(),
+      transferPhone: E(),
+      transferWhisper: E(),
+
+      sendSms: E(),
+      sendSmsEmail: E(),
+      sendMessage: E(),
+      ccEmail: E(),
+    };
+
+    if (desiredOutcome === "book_a_meeting" || desiredOutcome === "book_meeting") {
+      norm.desiredOutcome = "book_a_meeting"; // normalize outgoing value
+      norm.calApiKey = calApiKey;
+      norm.calEventTypeId = calEventTypeId;
+      norm.calCheckAvailability = Tf(calCheckAvailability);
+    } else if (desiredOutcome === "transfer_call") {
+      norm.transferCold = TF(transferCold);
+      norm.transferWarm = TF(transferWarm);
+      norm.transferPhone = transferPhone;
+      norm.transferWhisper = transferWarm ? transferWhisper : E();
+    } else if (desiredOutcome === "send_information") {
+      norm.sendSms = TF(sendSms);
+      norm.sendSmsEmail = TF(sendSmsEmail);
+      norm.sendMessage = sendMessage;
+      norm.ccEmail = sendSmsEmail ? ccEmail : E();
+    }
+
+    const formData = new FormData();
+    Object.entries(norm).forEach(([k, v]) => formData.append(k, v));
+
+    if (kbFile) {
+      formData.append("data", kbFile, kbFile.name);           // Postman-compatible
+      formData.append("knowledgeBase", kbFile, kbFile.name);  // backward compatible
+    }
+
+    if (norm.desiredOutcome === "send_information" && sendSmsEmail && sendDoc) {
+      formData.append("sendDocument", sendDoc, sendDoc.name);
+    }
+
+    let previousUpdatedAt = null;
+    try {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        const { data, error } = await supabase
+          .from("assistants")
+          .select("agent_id, updated_at")
+          .eq("agent_id", agentId)
+          .maybeSingle();
+
+        if (!error && data?.updated_at) previousUpdatedAt = data.updated_at;
+      }
+    } catch (e) {
+      console.warn("[saveAssistant] could not read previous updated_at:", e);
+    }
+
+    try {
+      console.log("[saveAssistant] sending webhook", {
+        webhookEndpoint,
+        agentId,
+        desiredOutcome: norm.desiredOutcome || desiredOutcome,
+      });
+
+      const res = await fetch(webhookEndpoint, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        console.error("[saveAssistant] webhook error:", res.status, txt);
+        if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
+        return;
+      }
+
+      const updated = await waitForAssistantUpdate(agentId, previousUpdatedAt, {
+        timeoutMs: 100000,
+        intervalMs: 3000,
+      });
+
+      if (updated) {
+        if (saveStatusEl) saveStatusEl.textContent = "Saved. Reloading...";
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        console.error("[saveAssistant] DB update timed out");
+        if (saveStatusEl) saveStatusEl.textContent = "Save failed. Contact support if this persists.";
+      }
+    } catch (e) {
+      console.error("[saveAssistant] error:", e);
+      if (saveStatusEl) saveStatusEl.textContent = "Save failed. Try again.";
+    } finally {
+      if (saveBtn) saveBtn.disabled = false;
+    }
   }
-}
 
-
-  // ---- DELETE ASSISTANT (STEP 2) – webhook only ----
+  // -------------------------
+  // DELETE ASSISTANT
+  // -------------------------
   async function deleteAssistant() {
     if (!deleteBtn) return;
 
@@ -1181,9 +1159,7 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
       return;
     }
 
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this assistant?"
-    );
+    const confirmed = window.confirm("Are you sure you want to delete this assistant?");
     if (!confirmed) return;
 
     deleteBtn.disabled = true;
@@ -1196,10 +1172,7 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
       const res = await fetch(deleteEndpoint, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          agentId,
-        }),
+        body: JSON.stringify({ userId, agentId }),
       });
 
       if (!res.ok) {
@@ -1211,21 +1184,19 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
 
       if (saveStatusEl) saveStatusEl.textContent = "Assistant deleted.";
 
-      // Locally reset UI to Step 1
       manageSection.hidden = true;
       deploySection.hidden = false;
 
       const clearIds = [
-        "asstAgentId",
-        "asstAgentName",
-        "asstAgentType",
-        "asstPhoneNumber",
-        "asstAgentVoice",
-        "asstPrompt",
-        "asstIntroPrompt",
-        "asstWebhookUrl",
+        "asstAgentId","asstAgentName","asstAgentType","asstPhoneNumber","asstAgentVoice",
+        "asstPrompt","asstIntroPrompt","asstWebhookUrl"
       ];
       clearIds.forEach(id => setIfExists(id, ""));
+
+      // Reset button label and test call
+      if (saveBtn) saveBtn.textContent = "Save and Publish";
+      assistantFromNumber = "";
+      if (testBtn) testBtn.hidden = true;
 
       deleteBtn.disabled = false;
     } catch (err) {
@@ -1235,7 +1206,64 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
     }
   }
 
+  // -------------------------
+  // TEST CALL
+  // -------------------------
+  async function triggerTestCall() {
+    if (!assistantFromNumber) {
+      if (testStatusEl) testStatusEl.textContent = "Buy a phone number first.";
+      return;
+    }
+
+    const toNumber = document.getElementById("asstTestToNumber")?.value.trim() || "";
+    if (!toNumber) {
+      if (testStatusEl) testStatusEl.textContent = "Please enter destination phone number.";
+      return;
+    }
+
+    const payload = {
+      from_number: assistantFromNumber,
+      to_number: toNumber,
+      retell_llm_dynamic_variables: {
+        firstName: document.getElementById("asstVarFirstName")?.value.trim() || "John",
+        lastName:  document.getElementById("asstVarLastName")?.value.trim() || "Doe",
+        company:   document.getElementById("asstVarCompany")?.value.trim() || "Acme Inc.",
+        industry:  document.getElementById("asstVarIndustry")?.value.trim() || "Finance",
+      }
+    };
+
+    const endpoint =
+      "https://dealvox-840984531750.us-east4.run.app/webhook-test/9479a9d6-267e-419d-b583-d12a0f44757f";
+
+    if (testStatusEl) testStatusEl.textContent = "Calling…";
+    if (callMeBtn) callMeBtn.disabled = true;
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        console.error("[testCall] webhook error:", res.status, txt);
+        if (testStatusEl) testStatusEl.textContent = "Call failed. Please try again.";
+        return;
+      }
+
+      if (testStatusEl) testStatusEl.textContent = "Call triggered ✅";
+    } catch (err) {
+      console.error("[testCall] error:", err);
+      if (testStatusEl) testStatusEl.textContent = "Call failed. Please try again.";
+    } finally {
+      if (callMeBtn) callMeBtn.disabled = false;
+    }
+  }
+
+  // -------------------------
   // Bind listeners
+  // -------------------------
   if (deployForm && !deployForm.dataset.bound) {
     deployForm.dataset.bound = "1";
     deployForm.addEventListener("submit", (e) => {
@@ -1259,7 +1287,6 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
     });
   }
 
-  // NEW: Buy number button
   if (buyBtn && !buyBtn.dataset.bound) {
     buyBtn.dataset.bound = "1";
     buyBtn.addEventListener("click", (e) => {
@@ -1268,12 +1295,44 @@ async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
     });
   }
 
-  initDesiredOutcomeUI();
+  // ✅ Test call bindings
+  if (testBtn && !testBtn.dataset.bound) {
+    testBtn.dataset.bound = "1";
+    testBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openTestCallModal();
+    });
+  }
 
-  // Initial load
-  loadAssistant();
+  if (testCloseBtn && !testCloseBtn.dataset.bound) {
+    testCloseBtn.dataset.bound = "1";
+    testCloseBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeTestCallModal();
+    });
+  }
+
+  // Click outside to close
+  if (testModal && !testModal.dataset.backdropBound) {
+    testModal.dataset.backdropBound = "1";
+    testModal.addEventListener("click", (e) => {
+      if (e.target === testModal) closeTestCallModal();
+    });
+  }
+
+  if (callMeBtn && !callMeBtn.dataset.bound) {
+    callMeBtn.dataset.bound = "1";
+    callMeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      triggerTestCall();
+    });
+  }
+
+  // Initial
   initDesiredOutcomeUI();
+  loadAssistant();
 }
+
 
 // ----------------------------------------------------
 // API KEY SECTION (API tab)
