@@ -879,9 +879,10 @@ async function initAccountAssistantView() {
       
       // ✅ Enforce Test Call button visibility from DB source of truth
       const pn = (data.phone_number || "").trim();
+      const isPublished = !!data.is_published;
       window.assistantFromNumber = pn;
 
-      if (saveBtn) saveBtn.textContent = pn ? "Update and Publish" : "Save and Publish";
+      if (saveBtn) saveBtn.textContent = data.is_published ? "Update and Publish" : "Save and Publish";
 
       const testBtnEl = document.getElementById("asstTestCallBtn");
       if (testBtnEl) testBtnEl.hidden = !pn;
