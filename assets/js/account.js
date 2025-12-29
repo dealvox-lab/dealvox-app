@@ -414,6 +414,8 @@ if (type === "week") {
 // ASSISTANT VIEW (Assistant tab) - TWO-STEP FLOW
 // ----------------------------------------------------
 
+
+
 // GLOBAL: Test Call modal + delegation (SPA-safe)
 
 window.assistantFromNumber = window.assistantFromNumber || "";
@@ -622,6 +624,7 @@ async function initAccountAssistantView() {
   const buySpinner     = document.getElementById("asstBuySpinner");
   const buySpinnerText = document.getElementById("asstBuySpinnerText");
   const areaSelect     = document.getElementById("asstPhoneAreaSelect");
+  const PHONE_AREA_CODES = window.PHONE_AREA_CODES || [];
 
   const deployForm     = document.getElementById("assistantDeployForm");
   const deployLoader   = document.getElementById("asstDeployLoader");
