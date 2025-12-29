@@ -537,6 +537,26 @@ async function initAccountAssistantView() {
   // ✅ Always start with modal hidden (prevents showing on reload/partial load)
   if (testModal) testModal.hidden = true;
 
+  // ✅ Delegate Test Call button click (works with partial HTML injection / reloads)
+if (!window.__dealvoxTestCallBound) {
+  window.__dealvoxTestCallBound = true;
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("#asstTestCallBtn");
+    if (!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    console.log("[TestCall] Clicked");
+    if (typeof window.openTestCallModal === "function") {
+      window.openTestCallModal();
+    } else {
+      console.warn("[TestCall] openTestCallModal() not found on window");
+    }
+  });
+}
+
   // from_number for test call (from assistants.phone_number)
   let assistantFromNumber = "";
 
@@ -550,11 +570,23 @@ async function initAccountAssistantView() {
   const show = (el, visible) => { if (el) el.hidden = !visible; };
 
   function openTestCallModal() {
-    if (!testModal) return;
-    if (testStatusEl) testStatusEl.textContent = "";
-    if (fromNumberEl) fromNumberEl.textContent = assistantFromNumber || "—";
-    show(testModal, true);
+  const modal = document.getElementById("asstTestCallModal");
+  if (!modal) {
+    console.warn("[TestCall] Modal not found");
+    return;
   }
+
+  const statusEl = document.getElementById("asstTestCallStatus");
+  const fromEl   = document.getElementById("asstTestCallFromNumber");
+
+  if (statusEl) statusEl.textContent = "";
+
+  if (fromEl) {
+    fromEl.textContent = window.assistantFromNumber || "—";
+  }
+
+  modal.hidden = false;
+}
 
   function closeTestCallModal() {
     if (!testModal) return;
