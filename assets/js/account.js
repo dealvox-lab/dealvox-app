@@ -641,6 +641,38 @@ async function initAccountAssistantView() {
     return;
   }
 
+  function syncPhoneUI(phoneNumber) {
+  const phoneInput = document.getElementById("asstPhoneNumber");
+  const phoneHint  = document.getElementById("asstPhoneHint");
+  const testBtnEl  = document.getElementById("asstTestCallBtn");
+
+  const pn = (phoneNumber || "").trim();
+
+  // keep global source of truth for modal
+  window.assistantFromNumber = pn;
+
+  // Phone input behavior
+  if (phoneInput) {
+    phoneInput.value = pn; // empty => clears field
+    phoneInput.placeholder = pn ? "" : "Buy a phone number below first";
+  }
+
+  // Hint under the phone input
+  if (phoneHint) {
+    phoneHint.hidden = !!pn; // show hint only when empty
+  }
+
+  // Test Call button
+  if (testBtnEl) {
+    testBtnEl.hidden = !pn; // show only when we have a number
+  }
+
+  // Buy card
+  if (buyCard) {
+    buyCard.hidden = !!pn; // show buy card when empty
+  }
+}
+
   const PHONE_AREA_CODES = window.PHONE_AREA_CODES || [];
 
   function populatePhoneAreaSelect() {
@@ -794,7 +826,6 @@ async function initAccountAssistantView() {
       setIfExists("asstAgentId", data.agent_id);
       setIfExists("asstAgentName", data.agent_name);
       setIfExists("asstAgentType", data.agent_type);
-      setIfExists("asstPhoneNumber", data.phone_number);
       setIfExists("asstAgentVoice", data.agent_voice);
       setIfExists("asstPublished", data.is_published ? "true" : "false");
       setIfExists("asstPrompt", data.prompt);
@@ -844,18 +875,12 @@ async function initAccountAssistantView() {
         }
       }
 
-      // ✅ Store from_number globally for test call
-      window.assistantFromNumber = (data.phone_number || "").trim();
+      // Phone UI (button/hint/buy card all in one place)
+      syncPhoneUI(data.phone_number);
 
-      // ✅ Show Test Call button only if number exists
-      const testBtn = document.getElementById("asstTestCallBtn");
-      if (testBtn) testBtn.hidden = !window.assistantFromNumber;
-
-      // Force modal closed
+     // Force modal closed
       const modal = document.getElementById("asstTestCallModal");
       if (modal) modal.hidden = true;
-
-      if (buyCard) buyCard.hidden = !!data.phone_number;
 
       initDesiredOutcomeUI();
       if (saveStatusEl) saveStatusEl.textContent = "";
@@ -1009,22 +1034,16 @@ async function initAccountAssistantView() {
       });
 
       if (phoneNumber) {
-        if (phoneInput) {
-          phoneInput.value = phoneNumber;
-          phoneInput.placeholder = "";
+        syncPhoneUI(phoneNumber);
+
+      if (buyStatusEl) buyStatusEl.textContent = "Number purchased.";
+      } else {
+            if (buyStatusEl) {
+            buyStatusEl.textContent =
+            "Still provisioning your number. Refresh this page in a moment.";
+            }
         }
 
-        window.assistantFromNumber = phoneNumber;
-
-        const testBtn = document.getElementById("asstTestCallBtn");
-        if (testBtn) testBtn.hidden = false;
-
-        if (buyStatusEl) buyStatusEl.textContent = "Number purchased.";
-        if (buyCard) buyCard.hidden = true;
-      } else {
-        if (buyStatusEl) buyStatusEl.textContent =
-          "Still provisioning your number. Refresh this page in a moment.";
-      }
     } catch (err) {
       console.error("Buy number error:", err);
       if (buyStatusEl) buyStatusEl.textContent = "Purchase failed. Try again.";
