@@ -676,8 +676,6 @@ async function initAccountAssistantView() {
   }
 }
 
-  const PHONE_AREA_CODES = window.PHONE_AREA_CODES || [];
-
   function populatePhoneAreaSelect() {
     if (!areaSelect) return;
 
