@@ -667,7 +667,7 @@ async function initAccountAssistantView() {
 
   // Test Call button
   if (testBtnEl) {
-    testBtnEl.hidden = !pn; // show only when we have a number
+    testBtnEl.style.display = pn ? "" : "none";
   }
 
   // Buy card
@@ -878,6 +878,12 @@ async function initAccountAssistantView() {
 
       // Phone UI (button/hint/buy card all in one place)
       syncPhoneUI(data.phone_number);
+      // ✅ Enforce Test Call button visibility from DB source of truth
+      const pn = (data.phone_number || "").trim();
+      window.assistantFromNumber = pn;
+
+const testBtnEl = document.getElementById("asstTestCallBtn");
+if (testBtnEl) testBtnEl.hidden = !pn;
 
      // Force modal closed
       const modal = document.getElementById("asstTestCallModal");
@@ -886,10 +892,8 @@ async function initAccountAssistantView() {
       initDesiredOutcomeUI();
       if (saveStatusEl) saveStatusEl.textContent = "";
       return true;
-    } else {
-       syncPhoneUI("");
-    }
-
+    } 
+    
     // No assistant yet
     deploySection.hidden = false;
     manageSection.hidden = true;
