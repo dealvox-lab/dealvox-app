@@ -414,7 +414,7 @@ if (type === "week") {
 // ASSISTANT VIEW (Assistant tab) - TWO-STEP FLOW
 // ----------------------------------------------------
 
-// GLOBAL: Test Call modal helpers (SPA-safe)
+// GLOBAL: Test Call modal + delegation (SPA-safe)
 
 window.assistantFromNumber = window.assistantFromNumber || "";
 
@@ -429,7 +429,7 @@ window.openTestCallModal = function () {
   const fromEl   = document.getElementById("asstTestFromNumber");
 
   if (statusEl) statusEl.textContent = "";
-  if (fromEl) fromEl.textContent = window.assistantFromNumber || "—";
+  if (fromEl) fromEl.textContent = (window.assistantFromNumber || "").trim() || "—";
 
   modal.hidden = false;
 };
@@ -439,47 +439,10 @@ window.closeTestCallModal = function () {
   if (!modal) return;
   modal.hidden = true;
 };
-// ✅ Delegate clicks so it works even if HTML is injected later
-if (!window.__dealvox_test_call_delegation_bound) {
-  window.__dealvox_test_call_delegation_bound = true;
-
-  document.addEventListener("click", (e) => {
-    // Open modal
-    const openBtn = e.target.closest("#asstTestCallBtn");
-    if (openBtn) {
-      e.preventDefault();
-      console.log("[TestCall] Button clicked");
-      window.openTestCallModal();
-      return;
-    }
-
-    // Close modal
-    const closeBtn = e.target.closest("#asstTestCallClose");
-    if (closeBtn) {
-      e.preventDefault();
-      window.closeTestCallModal();
-      return;
-    }
-
-    // Click on backdrop closes modal (optional)
-    const modal = document.getElementById("asstTestCallModal");
-    if (modal && !modal.hidden && e.target === modal) {
-      window.closeTestCallModal();
-      return;
-    }
-
-    // Trigger call
-    const callBtn = e.target.closest("#asstCallMeBtn");
-    if (callBtn) {
-      e.preventDefault();
-      console.log("[TestCall] Call me clicked");
-      window.triggerTestCall?.();
-    }
-  });
-}
 
 window.triggerTestCall = async function () {
   const statusEl = document.getElementById("asstTestCallStatus");
+  const callBtn  = document.getElementById("asstCallMeBtn");
 
   const from = (window.assistantFromNumber || "").trim();
   if (!from) {
@@ -508,8 +471,6 @@ window.triggerTestCall = async function () {
     "https://dealvox-840984531750.us-east4.run.app/webhook-test/9479a9d6-267e-419d-b583-d12a0f44757f";
 
   if (statusEl) statusEl.textContent = "Calling…";
-
-  const callBtn = document.getElementById("asstCallMeBtn");
   if (callBtn) callBtn.disabled = true;
 
   try {
@@ -535,6 +496,47 @@ window.triggerTestCall = async function () {
   }
 };
 
+// ✅ ONE delegated listener only (works even if HTML is injected later)
+if (!window.__dealvox_test_call_delegation_bound) {
+  window.__dealvox_test_call_delegation_bound = true;
+
+  document.addEventListener("click", (e) => {
+    // Open
+    const openBtn = e.target.closest("#asstTestCallBtn");
+    if (openBtn) {
+      e.preventDefault();
+      window.openTestCallModal();
+      return;
+    }
+
+    // Close
+    const closeBtn = e.target.closest("#asstTestCallClose");
+    if (closeBtn) {
+      e.preventDefault();
+      window.closeTestCallModal();
+      return;
+    }
+
+    // Call me
+    const callBtn = e.target.closest("#asstCallMeBtn");
+    if (callBtn) {
+      e.preventDefault();
+      window.triggerTestCall();
+      return;
+    }
+
+    // Backdrop click closes (optional)
+    const modal = document.getElementById("asstTestCallModal");
+    if (modal && !modal.hidden && e.target === modal) {
+      window.closeTestCallModal();
+    }
+  });
+}
+
+
+// ----------------------------------------------------
+// Desired Outcome UI (no changes needed beyond this)
+// ----------------------------------------------------
 function initDesiredOutcomeUI() {
   const outcome = document.getElementById("asstDesiredOutcome");
   if (!outcome) {
@@ -569,17 +571,12 @@ function initDesiredOutcomeUI() {
     const isTransfer = (v === "transfer_call");
     const isSend     = (v === "send_information");
 
-    // Transfer: whisper only for warm
     show(warmDetails, isTransfer && !!(warm && warm.checked));
-
-    // Send info: upload+CC only if SMS+email checked
     show(smsEmailDetails, isSend && !!(smsEmail && smsEmail.checked));
   }
 
   function syncOutcome() {
     let v = (outcome.value || "").trim();
-
-    // support legacy value if any row still has it
     const isBook = (v === "book_a_meeting" || v === "book_meeting");
     const isTransfer = (v === "transfer_call");
     const isSend = (v === "send_information");
@@ -588,10 +585,9 @@ function initDesiredOutcomeUI() {
     show(transfer, isTransfer);
     show(send, isSend);
 
-    syncNested(v);
+    syncNested(isBook ? "book_a_meeting" : v);
   }
 
-  // ✅ If already bound, DO NOT add listeners again — but DO re-sync UI
   if (outcome.dataset.bound === "1") {
     syncOutcome();
     return;
@@ -600,33 +596,22 @@ function initDesiredOutcomeUI() {
 
   outcome.addEventListener("change", syncOutcome);
 
-  cold?.addEventListener("change", () => {
-    syncExclusive(cold, warm);
-    syncOutcome();
-  });
+  cold?.addEventListener("change", () => { syncExclusive(cold, warm); syncOutcome(); });
+  warm?.addEventListener("change", () => { syncExclusive(warm, cold); syncOutcome(); });
 
-  warm?.addEventListener("change", () => {
-    syncExclusive(warm, cold);
-    syncOutcome();
-  });
-
-  sms?.addEventListener("change", () => {
-    syncExclusive(sms, smsEmail);
-    syncOutcome();
-  });
-
-  smsEmail?.addEventListener("change", () => {
-    syncExclusive(smsEmail, sms);
-    syncOutcome();
-  });
+  sms?.addEventListener("change", () => { syncExclusive(sms, smsEmail); syncOutcome(); });
+  smsEmail?.addEventListener("change", () => { syncExclusive(smsEmail, sms); syncOutcome(); });
 
   calYes?.addEventListener("change", () => syncExclusive(calYes, calNo));
   calNo?.addEventListener("change", () => syncExclusive(calNo, calYes));
 
-  // Initial state
   syncOutcome();
 }
 
+
+// ----------------------------------------------------
+// Main init
+// ----------------------------------------------------
 async function initAccountAssistantView() {
   const deploySection = document.getElementById("assistantInitial");
   const manageSection = document.getElementById("assistantManage");
@@ -647,85 +632,17 @@ async function initAccountAssistantView() {
   const saveBtn        = document.getElementById("asstSaveBtn");
   const deleteBtn      = document.getElementById("asstDeleteBtn");
 
-  // ✅ Test Call UI
-  const testBtn       = document.getElementById("asstTestCallBtn");
-  const testModal     = document.getElementById("asstTestCallModal");
-  const testCloseBtn  = document.getElementById("asstTestCallClose");
-  const callMeBtn     = document.getElementById("asstCallMeBtn");
-  const testStatusEl  = document.getElementById("asstTestCallStatus");
-  const fromNumberEl  = document.getElementById("asstTestFromNumber");
-
-  // ✅ Always start with modal hidden (prevents showing on reload/partial load)
+  // Always force modal closed on init (prevents showing on reload)
+  const testModal = document.getElementById("asstTestCallModal");
   if (testModal) testModal.hidden = true;
-
-  // ✅ Delegate Test Call button click (works with partial HTML injection / reloads)
-if (!window.__dealvoxTestCallBound) {
-  window.__dealvoxTestCallBound = true;
-
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest("#asstTestCallBtn");
-    if (!btn) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    console.log("[TestCall] Clicked");
-    if (typeof window.openTestCallModal === "function") {
-      window.openTestCallModal();
-    } else {
-      console.warn("[TestCall] openTestCallModal() not found on window");
-    }
-  });
-}
-
-  // from_number for test call (from assistants.phone_number)
-  let assistantFromNumber = "";
-
-  const PHONE_AREA_CODES = window.PHONE_AREA_CODES || []; // keep as you have it (huge list)
 
   if (!deploySection || !manageSection) {
     console.warn("Assistant sections not found; skipping assistant init");
     return;
   }
 
-  const show = (el, visible) => { if (el) el.hidden = !visible; };
+  const PHONE_AREA_CODES = window.PHONE_AREA_CODES || [];
 
-  function openTestCallModal() {
-  if (!testModal) return;
-
-  if (testStatusEl) testStatusEl.textContent = "";
-  if (fromNumberEl) fromNumberEl.textContent = assistantFromNumber || "—";
-
-  testModal.hidden = false;
-}
-
-function closeTestCallModal() {
-  if (!testModal) return;
-  testModal.hidden = true;
-}
-
-if (testBtn && !testBtn.dataset.bound) {
-  testBtn.dataset.bound = "1";
-  testBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    openTestCallModal();
-  });
-}
-
-if (testCloseBtn && !testCloseBtn.dataset.bound) {
-  testCloseBtn.dataset.bound = "1";
-  testCloseBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    closeTestCallModal();
-  });
-}
-
-  function closeTestCallModal() {
-    if (!testModal) return;
-    show(testModal, false);
-  }
-
-  // Populate Buy-phone area select
   function populatePhoneAreaSelect() {
     if (!areaSelect) return;
 
@@ -745,10 +662,9 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
       areaSelect.appendChild(opt);
     });
   }
-
   populatePhoneAreaSelect();
 
-  // Prevent double-binding (but DO NOT abort init)
+  // Prevent double-binding form submit
   const alreadyBound = (form && form.dataset.bound === "1");
   if (form) form.dataset.bound = "1";
 
@@ -769,7 +685,6 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
   const userId  = auth.user.id;
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/assistants`;
 
-  // helper setters
   function setIfExists(id, value) {
     const el = document.getElementById(id);
     if (el) el.value = value ?? "";
@@ -779,9 +694,6 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  // -------------------------
-  // Supabase helper / polling
-  // -------------------------
   function getSupabaseClient() {
     const candidate = window.supabaseClient || window.supabase || null;
     if (!candidate || typeof candidate.from !== "function") {
@@ -873,15 +785,10 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
     const rows = await res.json();
     const data = rows[0];
 
-    console.log("[assistants] loadAssistant rows:", rows);
-
     if (data) {
-      // Existing assistant → show manage section
       deploySection.hidden = true;
       manageSection.hidden = false;
-      manageSection.style.display = "block";
 
-      // ✅ Button label when deployed
       if (saveBtn) saveBtn.textContent = "Update and Publish";
 
       setIfExists("asstAgentId", data.agent_id);
@@ -894,10 +801,7 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
       setIfExists("asstIntroPrompt", data.intro_prompt);
       setIfExists("asstWebhookUrl", data.webhook_url);
 
-      // ✅ Desired outcome (set value first, then initDesiredOutcomeUI() LAST)
       setIfExists("asstDesiredOutcome", data.desired_outcome || "book_a_meeting");
-
-      // Book a meeting fields
       setIfExists("asstCalApiKey", data.cal_api_key || "");
       setIfExists("asstCalEventTypeId", data.cal_event_type_id || "");
 
@@ -909,7 +813,6 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
         no.checked  = !v;
       }
 
-      // Transfer fields
       const tc = document.getElementById("asstTransferCold");
       const tw = document.getElementById("asstTransferWarm");
       if (tc) tc.checked = !!data.transfer_cold;
@@ -918,7 +821,6 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
       setIfExists("asstTransferPhone", data.transfer_phone || "");
       setIfExists("asstTransferWhisper", data.transfer_whisper || "");
 
-      // Send information fields
       const ss = document.getElementById("asstSendSms");
       const se = document.getElementById("asstSendSmsEmail");
       if (ss) ss.checked = !!data.send_sms;
@@ -927,56 +829,52 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
       setIfExists("asstSendMessage", data.send_message || "");
       setIfExists("asstCcEmail", data.cc_email || "");
 
-      // ✅ KB file name (Supabase column: file_name)
+      // KB file name display
       const kbNameEl = document.getElementById("asstKbSavedName");
       const savedKbName = (data.file_name || "").trim();
       if (kbNameEl) {
         if (savedKbName) {
-          kbNameEl.textContent = `Saved file: ${savedKbName}`;
+          kbNameEl.textContent = savedKbName;
+          kbNameEl.hidden = false;
           kbNameEl.style.display = "block";
-          kbNameEl.hidden = false; // critical: don't let `.hidden` override display
         } else {
           kbNameEl.textContent = "";
-          kbNameEl.style.display = "none";
           kbNameEl.hidden = true;
+          kbNameEl.style.display = "none";
         }
       }
 
+      // ✅ Store from_number globally for test call
       window.assistantFromNumber = (data.phone_number || "").trim();
 
+      // ✅ Show Test Call button only if number exists
       const testBtn = document.getElementById("asstTestCallBtn");
-        if (testBtn) testBtn.hidden = !window.assistantFromNumber;
+      if (testBtn) testBtn.hidden = !window.assistantFromNumber;
 
-      // Always force modal closed after loading (prevents weird states)
+      // Force modal closed
       const modal = document.getElementById("asstTestCallModal");
-        if (modal) modal.hidden = true;
+      if (modal) modal.hidden = true;
 
+      if (buyCard) buyCard.hidden = !!data.phone_number;
 
-      // Buy card logic
-      if (buyCard) {
-        buyCard.hidden = !!data.phone_number;
-      }
-
-      // ✅ Now re-sync outcome UI AFTER values are set
       initDesiredOutcomeUI();
-
       if (saveStatusEl) saveStatusEl.textContent = "";
       return true;
-    } else {
-      // No assistant yet → initial deploy flow
-      deploySection.hidden = false;
-      manageSection.hidden = true;
-      if (buyCard) buyCard.hidden = true;
-
-      // Button label in non-deployed state
-      if (saveBtn) saveBtn.textContent = "Save and Publish";
-
-      assistantFromNumber = "";
-      if (testBtn) testBtn.hidden = true;
-
-      if (saveStatusEl) saveStatusEl.textContent = "";
-      return false;
     }
+
+    // No assistant yet
+    deploySection.hidden = false;
+    manageSection.hidden = true;
+    if (buyCard) buyCard.hidden = true;
+
+    if (saveBtn) saveBtn.textContent = "Save and Publish";
+    window.assistantFromNumber = "";
+
+    const testBtn = document.getElementById("asstTestCallBtn");
+    if (testBtn) testBtn.hidden = true;
+
+    if (saveStatusEl) saveStatusEl.textContent = "";
+    return false;
   }
 
   // -------------------------
@@ -1041,12 +939,8 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
     if (deployNoteEl) deployNoteEl.textContent = "Initializing the custom deployment…";
 
     let found = false;
-    const maxAttempts = 8;      // 8 * 15s = 2 minutes
-    const delayMs     = 15000;  // 15 seconds
-
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      console.log(`[assistants] polling attempt ${attempt}/${maxAttempts}`);
-      await sleep(delayMs);
+    for (let attempt = 1; attempt <= 8; attempt++) {
+      await sleep(15000);
       const exists = await loadAssistant();
       if (exists) { found = true; break; }
     }
@@ -1054,12 +948,11 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
     clearInterval(noteTimer);
     if (deployLoader) deployLoader.style.display = "none";
 
-    if (found) {
-      if (deployNoteEl) deployNoteEl.textContent = "Assistant ready.";
-    } else {
-      if (deployNoteEl) {
-        deployNoteEl.textContent = "Assistant is still deploying in the background. Refresh this page in a moment.";
-      }
+    if (!found && deployNoteEl) {
+      deployNoteEl.textContent =
+        "Assistant is still deploying in the background. Refresh this page in a moment.";
+    } else if (found && deployNoteEl) {
+      deployNoteEl.textContent = "Assistant ready.";
     }
   }
 
@@ -1069,10 +962,9 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
   async function handleBuyNumber() {
     if (!buyBtn || !areaSelect) return;
 
-    const agentIdEl = document.getElementById("asstAgentId");
+    const agentId = document.getElementById("asstAgentId")?.value.trim() || "";
     const phoneInput = document.getElementById("asstPhoneNumber");
 
-    const agentId = agentIdEl ? agentIdEl.value.trim() : "";
     if (!agentId) {
       if (buyStatusEl) buyStatusEl.textContent = "Deploy an assistant first.";
       return;
@@ -1121,13 +1013,17 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
           phoneInput.value = phoneNumber;
           phoneInput.placeholder = "";
         }
-        assistantFromNumber = phoneNumber;
+
+        window.assistantFromNumber = phoneNumber;
+
+        const testBtn = document.getElementById("asstTestCallBtn");
         if (testBtn) testBtn.hidden = false;
 
         if (buyStatusEl) buyStatusEl.textContent = "Number purchased.";
         if (buyCard) buyCard.hidden = true;
       } else {
-        if (buyStatusEl) buyStatusEl.textContent = "Still provisioning your number. Refresh this page in a moment.";
+        if (buyStatusEl) buyStatusEl.textContent =
+          "Still provisioning your number. Refresh this page in a moment.";
       }
     } catch (err) {
       console.error("Buy number error:", err);
@@ -1142,33 +1038,18 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
   // SAVE ASSISTANT (STEP 2)
   // -------------------------
   async function saveAssistant() {
-    if (!form) {
-      console.warn("[saveAssistant] form not found");
-      return;
-    }
+    if (!form) return;
 
     if (saveBtn) saveBtn.disabled = true;
     if (saveStatusEl) saveStatusEl.textContent = "Saving..";
 
-    const agentIdEl      = document.getElementById("asstAgentId");
-    const agentNameEl    = document.getElementById("asstAgentName");
-    const agentVoiceEl   = document.getElementById("asstAgentVoice");
-    const publishedEl    = document.getElementById("asstPublished");
-    const introPromptEl  = document.getElementById("asstIntroPrompt");
-    const webhookUrlEl   = document.getElementById("asstWebhookUrl");
-
-    const agentId    = agentIdEl ? agentIdEl.value.trim() : "";
-    const agentName  = agentNameEl ? agentNameEl.value.trim() : "";
-    const agentVoice = agentVoiceEl ? agentVoiceEl.value : "";
-
-    const rawPub = publishedEl ? String(publishedEl.value || "").trim() : "false";
-    const isPub  = rawPub === "true";
-
-    const intro      = introPromptEl ? introPromptEl.value.trim() : "";
-    const webhookUrl = webhookUrlEl ? webhookUrlEl.value.trim() : "";
-
-    const webhookEndpoint =
-      "https://dealvox-840984531750.us-east4.run.app/webhook/316d5604-22ab-4285-b0ad-6c2a886d822f";
+    const agentId    = document.getElementById("asstAgentId")?.value.trim() || "";
+    const agentName  = document.getElementById("asstAgentName")?.value.trim() || "";
+    const agentVoice = document.getElementById("asstAgentVoice")?.value || "";
+    const rawPub     = String(document.getElementById("asstPublished")?.value || "false").trim();
+    const isPub      = rawPub === "true";
+    const intro      = document.getElementById("asstIntroPrompt")?.value.trim() || "";
+    const webhookUrl = document.getElementById("asstWebhookUrl")?.value.trim() || "";
 
     if (!agentId) {
       if (saveStatusEl) saveStatusEl.textContent = "No assistant ID found.";
@@ -1180,34 +1061,26 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
     const Tf = (v) => (v ? "True" : "False");
     const E  = () => "";
 
-    const desiredOutcome = document.getElementById("asstDesiredOutcome")?.value || "";
+    const desiredOutcomeRaw = document.getElementById("asstDesiredOutcome")?.value || "";
+    const desiredOutcome =
+      (desiredOutcomeRaw === "book_meeting") ? "book_a_meeting" : desiredOutcomeRaw;
 
     const calApiKey      = document.getElementById("asstCalApiKey")?.value.trim() || "";
     const calEventTypeId = document.getElementById("asstCalEventTypeId")?.value.trim() || "";
-    const calCheckAvailability =
-      document.getElementById("asstCalCheckAvailabilityYes")?.checked ? true : false;
+    const calCheckAvailability = !!document.getElementById("asstCalCheckAvailabilityYes")?.checked;
 
-    const transferCold    = document.getElementById("asstTransferCold")?.checked || false;
-    const transferWarm    = document.getElementById("asstTransferWarm")?.checked || false;
+    const transferCold    = !!document.getElementById("asstTransferCold")?.checked;
+    const transferWarm    = !!document.getElementById("asstTransferWarm")?.checked;
     const transferPhone   = document.getElementById("asstTransferPhone")?.value.trim() || "";
     const transferWhisper = document.getElementById("asstTransferWhisper")?.value.trim() || "";
 
-    const sendSms      = document.getElementById("asstSendSms")?.checked || false;
-    const sendSmsEmail = document.getElementById("asstSendSmsEmail")?.checked || false;
+    const sendSms      = !!document.getElementById("asstSendSms")?.checked;
+    const sendSmsEmail = !!document.getElementById("asstSendSmsEmail")?.checked;
     const sendMessage  = document.getElementById("asstSendMessage")?.value.trim() || "";
     const ccEmail      = document.getElementById("asstCcEmail")?.value.trim() || "";
 
-    const sendDocEl = document.getElementById("asstSendDoc");
-    const sendDoc =
-      sendDocEl && sendDocEl.files && sendDocEl.files[0]
-        ? sendDocEl.files[0]
-        : null;
-
-    const kbEl = document.getElementById("asstKnowledgeFile");
-    const kbFile =
-      kbEl && kbEl.files && kbEl.files[0]
-        ? kbEl.files[0]
-        : null;
+    const sendDoc = document.getElementById("asstSendDoc")?.files?.[0] || null;
+    const kbFile  = document.getElementById("asstKnowledgeFile")?.files?.[0] || null;
 
     const norm = {
       agentName,
@@ -1234,8 +1107,7 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
       ccEmail: E(),
     };
 
-    if (desiredOutcome === "book_a_meeting" || desiredOutcome === "book_meeting") {
-      norm.desiredOutcome = "book_a_meeting"; // normalize outgoing value
+    if (desiredOutcome === "book_a_meeting") {
       norm.calApiKey = calApiKey;
       norm.calEventTypeId = calEventTypeId;
       norm.calCheckAvailability = Tf(calCheckAvailability);
@@ -1255,11 +1127,11 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
     Object.entries(norm).forEach(([k, v]) => formData.append(k, v));
 
     if (kbFile) {
-      formData.append("data", kbFile, kbFile.name);           // Postman-compatible
-      formData.append("knowledgeBase", kbFile, kbFile.name);  // backward compatible
+      formData.append("data", kbFile, kbFile.name);
+      formData.append("knowledgeBase", kbFile, kbFile.name);
     }
 
-    if (norm.desiredOutcome === "send_information" && sendSmsEmail && sendDoc) {
+    if (desiredOutcome === "send_information" && sendSmsEmail && sendDoc) {
       formData.append("sendDocument", sendDoc, sendDoc.name);
     }
 
@@ -1267,29 +1139,23 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
     try {
       const supabase = getSupabaseClient();
       if (supabase) {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from("assistants")
           .select("agent_id, updated_at")
           .eq("agent_id", agentId)
           .maybeSingle();
 
-        if (!error && data?.updated_at) previousUpdatedAt = data.updated_at;
+        if (data?.updated_at) previousUpdatedAt = data.updated_at;
       }
     } catch (e) {
       console.warn("[saveAssistant] could not read previous updated_at:", e);
     }
 
-    try {
-      console.log("[saveAssistant] sending webhook", {
-        webhookEndpoint,
-        agentId,
-        desiredOutcome: norm.desiredOutcome || desiredOutcome,
-      });
+    const webhookEndpoint =
+      "https://dealvox-840984531750.us-east4.run.app/webhook/316d5604-22ab-4285-b0ad-6c2a886d822f";
 
-      const res = await fetch(webhookEndpoint, {
-        method: "POST",
-        body: formData,
-      });
+    try {
+      const res = await fetch(webhookEndpoint, { method: "POST", body: formData });
 
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
@@ -1307,8 +1173,8 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
         if (saveStatusEl) saveStatusEl.textContent = "Saved. Reloading...";
         setTimeout(() => window.location.reload(), 1200);
       } else {
-        console.error("[saveAssistant] DB update timed out");
-        if (saveStatusEl) saveStatusEl.textContent = "Save failed. Contact support if this persists.";
+        if (saveStatusEl) saveStatusEl.textContent =
+          "Save failed. Contact support if this persists.";
       }
     } catch (e) {
       console.error("[saveAssistant] error:", e);
@@ -1324,9 +1190,7 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
   async function deleteAssistant() {
     if (!deleteBtn) return;
 
-    const agentIdEl = document.getElementById("asstAgentId");
-    const agentId   = agentIdEl ? agentIdEl.value.trim() : "";
-
+    const agentId = document.getElementById("asstAgentId")?.value.trim() || "";
     if (!agentId) {
       if (saveStatusEl) saveStatusEl.textContent = "No assistant ID found.";
       return;
@@ -1351,7 +1215,6 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
       if (!res.ok) {
         console.error("Assistant delete webhook error:", res.status, await res.text());
         if (saveStatusEl) saveStatusEl.textContent = "Delete failed. Try again.";
-        deleteBtn.disabled = false;
         return;
       }
 
@@ -1360,77 +1223,17 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
       manageSection.hidden = true;
       deploySection.hidden = false;
 
-      const clearIds = [
-        "asstAgentId","asstAgentName","asstAgentType","asstPhoneNumber","asstAgentVoice",
-        "asstPrompt","asstIntroPrompt","asstWebhookUrl"
-      ];
-      clearIds.forEach(id => setIfExists(id, ""));
-
-      // Reset button label and test call
       if (saveBtn) saveBtn.textContent = "Save and Publish";
-      assistantFromNumber = "";
+      window.assistantFromNumber = "";
+
+      const testBtn = document.getElementById("asstTestCallBtn");
       if (testBtn) testBtn.hidden = true;
 
-      deleteBtn.disabled = false;
     } catch (err) {
       console.error("Assistant delete error:", err);
       if (saveStatusEl) saveStatusEl.textContent = "Delete failed. Try again.";
-      deleteBtn.disabled = false;
-    }
-  }
-
-  // -------------------------
-  // TEST CALL
-  // -------------------------
-  async function triggerTestCall() {
-    if (!assistantFromNumber) {
-      if (testStatusEl) testStatusEl.textContent = "Buy a phone number first.";
-      return;
-    }
-
-    const toNumber = document.getElementById("asstTestToNumber")?.value.trim() || "";
-    if (!toNumber) {
-      if (testStatusEl) testStatusEl.textContent = "Please enter destination phone number.";
-      return;
-    }
-
-    const payload = {
-      from_number: assistantFromNumber,
-      to_number: toNumber,
-      retell_llm_dynamic_variables: {
-        firstName: document.getElementById("asstVarFirstName")?.value.trim() || "John",
-        lastName:  document.getElementById("asstVarLastName")?.value.trim() || "Doe",
-        company:   document.getElementById("asstVarCompany")?.value.trim() || "Acme Inc.",
-        industry:  document.getElementById("asstVarIndustry")?.value.trim() || "Finance",
-      }
-    };
-
-    const endpoint =
-      "https://dealvox-840984531750.us-east4.run.app/webhook-test/9479a9d6-267e-419d-b583-d12a0f44757f";
-
-    if (testStatusEl) testStatusEl.textContent = "Calling…";
-    if (callMeBtn) callMeBtn.disabled = true;
-
-    try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        console.error("[testCall] webhook error:", res.status, txt);
-        if (testStatusEl) testStatusEl.textContent = "Call failed. Please try again.";
-        return;
-      }
-
-      if (testStatusEl) testStatusEl.textContent = "Call triggered ✅";
-    } catch (err) {
-      console.error("[testCall] error:", err);
-      if (testStatusEl) testStatusEl.textContent = "Call failed. Please try again.";
     } finally {
-      if (callMeBtn) callMeBtn.disabled = false;
+      deleteBtn.disabled = false;
     }
   }
 
@@ -1468,44 +1271,10 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
     });
   }
 
-  // ✅ Test call bindings
-  if (testBtn && !testBtn.dataset.bound) {
-    testBtn.dataset.bound = "1";
-    testBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      openTestCallModal();
-    });
-  }
-
-  if (testCloseBtn && !testCloseBtn.dataset.bound) {
-    testCloseBtn.dataset.bound = "1";
-    testCloseBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      closeTestCallModal();
-    });
-  }
-
-  // Click outside to close
-  if (testModal && !testModal.dataset.backdropBound) {
-    testModal.dataset.backdropBound = "1";
-    testModal.addEventListener("click", (e) => {
-      if (e.target === testModal) closeTestCallModal();
-    });
-  }
-
-  if (callMeBtn && !callMeBtn.dataset.bound) {
-    callMeBtn.dataset.bound = "1";
-    callMeBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      triggerTestCall();
-    });
-  }
-
   // Initial
   initDesiredOutcomeUI();
   loadAssistant();
 }
-
 
 // ----------------------------------------------------
 // API KEY SECTION (API tab)
