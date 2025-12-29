@@ -645,7 +645,6 @@ async function initAccountAssistantView() {
   }
 
   function syncPhoneUI(phoneNumber) {
-  // phone number from DB (source of truth)
   const phoneInput = document.getElementById("asstPhoneNumber");
   const phoneHint  = document.getElementById("asstPhoneHint");
   const testBtnEl  = document.getElementById("asstTestCallBtn");
@@ -897,8 +896,7 @@ async function initAccountAssistantView() {
     if (saveBtn) saveBtn.textContent = "Save and Publish";
     window.assistantFromNumber = "";
 
-    const testBtn = document.getElementById("asstTestCallBtn");
-    if (testBtn) testBtn.hidden = true;
+    syncPhoneUI("");
 
     if (saveStatusEl) saveStatusEl.textContent = "";
     return false;
