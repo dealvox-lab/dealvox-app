@@ -329,6 +329,7 @@
       <span id="asstStatus" class="muted"></span>
     </div>
   </form>
+  
   <!-- TEST CALL MODAL -->
   <div id="asstTestCallModal" class="modal-overlay" hidden>
     <div class="modal-card">
@@ -340,7 +341,9 @@
     <p class="muted" style="margin-top:8px;">
       We’ll call your number using your assistant’s purchased phone number.
     </p>
-
+    <p class="muted" style="margin-top:10px;">
+      From number: <span id="asstTestFromNumber">—</span>
+    </p>
     <div class="field" style="margin-top:14px;">
       <label for="asstTestToNumber">Destination phone number</label>
       <input id="asstTestToNumber" class="input" placeholder="+12137774445">
@@ -369,10 +372,6 @@
       <button type="button" class="btn-primary" id="asstCallMeBtn">Call me</button>
       <span id="asstTestCallStatus" class="muted"></span>
     </div>
-
-    <p class="muted" style="margin-top:10px;font-size:0.85rem;">
-      From number: <span id="asstTestFromNumber">—</span>
-    </p>
     </div>
   </div>
 </section>
