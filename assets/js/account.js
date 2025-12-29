@@ -886,6 +886,8 @@ async function initAccountAssistantView() {
       initDesiredOutcomeUI();
       if (saveStatusEl) saveStatusEl.textContent = "";
       return true;
+    } else {
+       syncPhoneUI("");
     }
 
     // No assistant yet
@@ -895,8 +897,6 @@ async function initAccountAssistantView() {
 
     if (saveBtn) saveBtn.textContent = "Save and Publish";
     window.assistantFromNumber = "";
-
-    syncPhoneUI("");
 
     if (saveStatusEl) saveStatusEl.textContent = "";
     return false;
