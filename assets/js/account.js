@@ -570,22 +570,33 @@ if (!window.__dealvoxTestCallBound) {
   const show = (el, visible) => { if (el) el.hidden = !visible; };
 
   function openTestCallModal() {
-  const modal = document.getElementById("asstTestCallModal");
-  if (!modal) {
-    console.warn("[TestCall] Modal not found");
-    return;
-  }
+  if (!testModal) return;
 
-  const statusEl = document.getElementById("asstTestCallStatus");
-  const fromEl   = document.getElementById("asstTestCallFromNumber");
+  if (testStatusEl) testStatusEl.textContent = "";
+  if (fromNumberEl) fromNumberEl.textContent = assistantFromNumber || "—";
 
-  if (statusEl) statusEl.textContent = "";
+  testModal.hidden = false;
+}
 
-  if (fromEl) {
-    fromEl.textContent = window.assistantFromNumber || "—";
-  }
+function closeTestCallModal() {
+  if (!testModal) return;
+  testModal.hidden = true;
+}
 
-  modal.hidden = false;
+if (testBtn && !testBtn.dataset.bound) {
+  testBtn.dataset.bound = "1";
+  testBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    openTestCallModal();
+  });
+}
+
+if (testCloseBtn && !testCloseBtn.dataset.bound) {
+  testCloseBtn.dataset.bound = "1";
+  testCloseBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeTestCallModal();
+  });
 }
 
   function closeTestCallModal() {
