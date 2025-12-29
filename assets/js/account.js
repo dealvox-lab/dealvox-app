@@ -414,6 +414,127 @@ if (type === "week") {
 // ASSISTANT VIEW (Assistant tab) - TWO-STEP FLOW
 // ----------------------------------------------------
 
+// GLOBAL: Test Call modal helpers (SPA-safe)
+
+window.assistantFromNumber = window.assistantFromNumber || "";
+
+window.openTestCallModal = function () {
+  const modal = document.getElementById("asstTestCallModal");
+  if (!modal) {
+    console.warn("[TestCall] Modal not found");
+    return;
+  }
+
+  const statusEl = document.getElementById("asstTestCallStatus");
+  const fromEl   = document.getElementById("asstTestFromNumber");
+
+  if (statusEl) statusEl.textContent = "";
+  if (fromEl) fromEl.textContent = window.assistantFromNumber || "—";
+
+  modal.hidden = false;
+};
+
+window.closeTestCallModal = function () {
+  const modal = document.getElementById("asstTestCallModal");
+  if (!modal) return;
+  modal.hidden = true;
+};
+// ✅ Delegate clicks so it works even if HTML is injected later
+if (!window.__dealvox_test_call_delegation_bound) {
+  window.__dealvox_test_call_delegation_bound = true;
+
+  document.addEventListener("click", (e) => {
+    // Open modal
+    const openBtn = e.target.closest("#asstTestCallBtn");
+    if (openBtn) {
+      e.preventDefault();
+      console.log("[TestCall] Button clicked");
+      window.openTestCallModal();
+      return;
+    }
+
+    // Close modal
+    const closeBtn = e.target.closest("#asstTestCallClose");
+    if (closeBtn) {
+      e.preventDefault();
+      window.closeTestCallModal();
+      return;
+    }
+
+    // Click on backdrop closes modal (optional)
+    const modal = document.getElementById("asstTestCallModal");
+    if (modal && !modal.hidden && e.target === modal) {
+      window.closeTestCallModal();
+      return;
+    }
+
+    // Trigger call
+    const callBtn = e.target.closest("#asstCallMeBtn");
+    if (callBtn) {
+      e.preventDefault();
+      console.log("[TestCall] Call me clicked");
+      window.triggerTestCall?.();
+    }
+  });
+}
+
+window.triggerTestCall = async function () {
+  const statusEl = document.getElementById("asstTestCallStatus");
+
+  const from = (window.assistantFromNumber || "").trim();
+  if (!from) {
+    if (statusEl) statusEl.textContent = "Buy a phone number first.";
+    return;
+  }
+
+  const to = document.getElementById("asstTestToNumber")?.value.trim() || "";
+  if (!to) {
+    if (statusEl) statusEl.textContent = "Please enter destination phone number.";
+    return;
+  }
+
+  const payload = {
+    from_number: from,
+    to_number: to,
+    retell_llm_dynamic_variables: {
+      firstName: document.getElementById("asstVarFirstName")?.value.trim() || "John",
+      lastName:  document.getElementById("asstVarLastName")?.value.trim() || "Doe",
+      company:   document.getElementById("asstVarCompany")?.value.trim() || "Acme Inc.",
+      industry:  document.getElementById("asstVarIndustry")?.value.trim() || "Finance",
+    }
+  };
+
+  const endpoint =
+    "https://dealvox-840984531750.us-east4.run.app/webhook-test/9479a9d6-267e-419d-b583-d12a0f44757f";
+
+  if (statusEl) statusEl.textContent = "Calling…";
+
+  const callBtn = document.getElementById("asstCallMeBtn");
+  if (callBtn) callBtn.disabled = true;
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      console.error("[TestCall] webhook error:", res.status, txt);
+      if (statusEl) statusEl.textContent = "Call failed. Please try again.";
+      return;
+    }
+
+    if (statusEl) statusEl.textContent = "Call triggered ✅";
+  } catch (err) {
+    console.error("[TestCall] error:", err);
+    if (statusEl) statusEl.textContent = "Call failed. Please try again.";
+  } finally {
+    if (callBtn) callBtn.disabled = false;
+  }
+};
+
 function initDesiredOutcomeUI() {
   const outcome = document.getElementById("asstDesiredOutcome");
   if (!outcome) {
@@ -821,9 +942,15 @@ if (testCloseBtn && !testCloseBtn.dataset.bound) {
         }
       }
 
-      // ✅ Test Call: from_number comes from assistants.phone_number
-      assistantFromNumber = (data.phone_number || "").trim();
-      if (testBtn) testBtn.hidden = !assistantFromNumber;
+      window.assistantFromNumber = (data.phone_number || "").trim();
+
+      const testBtn = document.getElementById("asstTestCallBtn");
+        if (testBtn) testBtn.hidden = !window.assistantFromNumber;
+
+      // Always force modal closed after loading (prevents weird states)
+      const modal = document.getElementById("asstTestCallModal");
+        if (modal) modal.hidden = true;
+
 
       // Buy card logic
       if (buyCard) {
