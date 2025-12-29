@@ -822,8 +822,6 @@ async function initAccountAssistantView() {
       deploySection.hidden = true;
       manageSection.hidden = false;
 
-      if (saveBtn) saveBtn.textContent = "Update and Publish";
-
       setIfExists("asstAgentId", data.agent_id);
       setIfExists("asstAgentName", data.agent_name);
       setIfExists("asstAgentType", data.agent_type);
@@ -878,12 +876,15 @@ async function initAccountAssistantView() {
 
       // Phone UI (button/hint/buy card all in one place)
       syncPhoneUI(data.phone_number);
+      
       // ✅ Enforce Test Call button visibility from DB source of truth
       const pn = (data.phone_number || "").trim();
       window.assistantFromNumber = pn;
 
-const testBtnEl = document.getElementById("asstTestCallBtn");
-if (testBtnEl) testBtnEl.hidden = !pn;
+      if (saveBtn) saveBtn.textContent = pn ? "Update and Publish" : "Save and Publish";
+
+      const testBtnEl = document.getElementById("asstTestCallBtn");
+      if (testBtnEl) testBtnEl.hidden = !pn;
 
      // Force modal closed
       const modal = document.getElementById("asstTestCallModal");
