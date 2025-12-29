@@ -104,7 +104,7 @@
         </div>
 
         <div class="field">
-          <label for="asstAgentName">Assistant name</label>
+          <label for="asstAgentName">Assistant name (editable)</label>
           <input id="asstAgentName" class="input">
         </div>
 
@@ -122,7 +122,7 @@
         </div>
 
         <div class="field">
-          <label for="asstAgentVoice">Assistant voice</label>
+          <label for="asstAgentVoice">Assistant voice (editable)</label>
           <select id="asstAgentVoice" class="input">
             <option value='11labs-Billy'>Billy - male, young</option>
             <option value='11labs-Lily'>Lily - female, young</option>
@@ -160,7 +160,7 @@
           </select>
         </div>
                 <div class="field">
-          <label for="asstKnowledgeFile">Knowledge base</label>
+          <label for="asstKnowledgeFile">Knowledge base (editable)</label>
           <div
               id="asstKbSavedName"
               style="margin:6px 0 8px; color:#0B6B2E; font-weight:400; font-size: .85rem; display:none;"
@@ -170,7 +170,7 @@
 
         <div class="field">
           <label for="asstWebhookUrl">
-            Webhook URL  
+            Webhook URL (editable)
             <span class="muted" style="display:block;font-size:0.8rem;margin-top:2px;">
               To get phone call results to your systems.
             </span>
@@ -189,16 +189,18 @@
 
   <!-- Intro -->
   <div class="field">
-    <label for="asstIntroPrompt">Intro</label>
+    <label for="asstIntroPrompt">Intro (editable)</label>
     <textarea id="asstIntroPrompt" class="input" rows="8"></textarea>
   </div>
 
   <div class="field">
-    <p>You could use following variables: {{firstName}}, {{lastName}}, {{email}}, {{company}}, {{industry}} in your Intro</p>
+    <p>You could use following variables: {{firstName}}, {{lastName}}, {{company}}, {{industry}} in your Intro</p>
+    <p>Example: Hi {{firstName}} {{lastName}}, this is Jane from Acme Company. We design tailored solutions for the {{industry}} sector.</p>
+    <p>Additionally, since the {{industry}} variable is used in the AI presentation, it’s beneficial to include it in the hook.</p>
 
   <!-- Desired outcome -->
   <div class="field" style="margin-top:16px;">
-    <label for="asstDesiredOutcome">Desired outcome</label>
+    <label for="asstDesiredOutcome">Desired outcome (editable)</label>
     <select id="asstDesiredOutcome" class="input">
       <option value="book_a_meeting">Book a meeting</option>
       <option value="transfer_call">Transfer call</option>
