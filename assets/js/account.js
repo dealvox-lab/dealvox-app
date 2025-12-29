@@ -645,6 +645,8 @@ async function initAccountAssistantView() {
   }
 
   function syncPhoneUI(phoneNumber) {
+  // phone number from DB (source of truth)
+  const phone = (data.phone_number || "").trim();
   const phoneInput = document.getElementById("asstPhoneNumber");
   const phoneHint  = document.getElementById("asstPhoneHint");
   const testBtnEl  = document.getElementById("asstTestCallBtn");
@@ -652,7 +654,7 @@ async function initAccountAssistantView() {
   const pn = (phoneNumber || "").trim();
 
   // keep global source of truth for modal
-  window.assistantFromNumber = pn;
+  window.assistantFromNumber = phone;
 
   // Phone input behavior
   if (phoneInput) {
