@@ -764,6 +764,9 @@ input:checked + .slider:before {
   box-shadow: 0 18px 50px rgba(0,0,0,0.18);
 }
 
+#asstTestCallModal[hidden] { display: none !important; }
+#asstTestCallModal:not([hidden]) { display: flex; }
+
 
 /* -----------------------------------------------
    API KEY SECTION
