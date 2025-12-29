@@ -534,6 +534,9 @@ async function initAccountAssistantView() {
   const testStatusEl  = document.getElementById("asstTestCallStatus");
   const fromNumberEl  = document.getElementById("asstTestFromNumber");
 
+  // ✅ Always start with modal hidden (prevents showing on reload/partial load)
+  if (testModal) testModal.hidden = true;
+
   // from_number for test call (from assistants.phone_number)
   let assistantFromNumber = "";
 
