@@ -19,8 +19,29 @@
 ></script>
 
 <section class="account-layout">
+  <!-- Mobile topbar -->
+  <header class="mobile-topbar" aria-label="Account menu">
+    <a class="mobile-brand" href="https://dealvox-lab.github.io/" target="_blank" rel="noopener noreferrer">
+      <img src="/assets/logo.png" alt="Dealvox logo" />
+    </a>
+
+    <button
+      class="burger-btn"
+      type="button"
+      aria-label="Open menu"
+      aria-controls="accountSidebar"
+      aria-expanded="false"
+      id="burgerBtn"
+    >
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+  
   <!-- Sidebar -->
-  <aside class="account-sidebar" aria-label="Account navigation">
+  <aside class="account-sidebar" id="accountSidebar" aria-label="Account navigation">
     <div class="sidebar-brand">
       <div class="brand-logo-wrapper">
         <a href="https://dealvox-lab.github.io/" target="_blank" rel="noopener noreferrer">
@@ -72,9 +93,49 @@
     window.SUPABASE_ANON_KEY
   );
 </script>
+
 <script src="/assets/js/phone-area-codes.js"></script>
 <script src="/assets/js/account.js?v=15"></script>
 <script src="/assets/js/account-voices.js"></script>
 <script src="/assets/js/account-billing.js"></script>
 <script src="/assets/js/call-history.js"></script>
 <script src="/assets/js/account-pricing.js?v=999"></script>
+<script>
+  (function () {
+    const btn = document.getElementById("burgerBtn");
+    const overlay = document.getElementById("sidebarOverlay");
+    const sidebar = document.getElementById("accountSidebar");
+
+    if (!btn || !overlay || !sidebar) return;
+
+    function openMenu() {
+      document.body.classList.add("sidebar-open");
+      overlay.hidden = false;
+      btn.setAttribute("aria-expanded", "true");
+    }
+
+    function closeMenu() {
+      document.body.classList.remove("sidebar-open");
+      overlay.hidden = true;
+      btn.setAttribute("aria-expanded", "false");
+    }
+
+    btn.addEventListener("click", () => {
+      document.body.classList.contains("sidebar-open") ? closeMenu() : openMenu();
+    });
+
+    overlay.addEventListener("click", closeMenu);
+
+    // Close after clicking a menu item (mobile UX)
+    sidebar.querySelectorAll(".nav-link, .logout-btn").forEach((a) => {
+      a.addEventListener("click", () => {
+        if (window.matchMedia("(max-width: 820px)").matches) closeMenu();
+      });
+    });
+
+    // ESC closes
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeMenu();
+    });
+  })();
+</script>
