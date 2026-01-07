@@ -204,14 +204,6 @@
   margin-left:8px;
 }
 
-/* Responsive */
-@media (max-width: 920px){
-  .account-sidebar{position:fixed;z-index:50;height:auto;inset:64px auto auto 0;width:100%;padding:12px 16px;background:#fff;border-right:none;border-bottom:1px solid var(--border);box-shadow:var(--shadow);}
-  .sidebar-nav{flex-direction:row;flex-wrap:wrap;gap:10px;}
-  .sidebar-toggle{display:block;}
-  .account-content{padding:16px;margin-top:86px;}
-}
-
 /* Profile layout: two-column form inside a full-width card */
 .card-profile {
   width: 100%;
@@ -239,13 +231,6 @@
 /* Optional: reduce default field bottom margin when in grid */
 .profile-grid .field {
   margin-bottom: 0;
-}
-
-/* Mobile: stack fields into one column */
-@media (max-width: 640px) {
-  .profile-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ========== PRICING SECTION (MAGAZINE STYLE) ========== */
@@ -642,21 +627,6 @@ input:checked + .slider:before {
   text-align: center;
 }
 
-/* Responsive layout */
-@media (max-width: 900px) {
-  .payg-card {
-    flex-direction: column;
-    gap: 18px;
-  }
-  .payg-right {
-    align-items: stretch;
-    text-align: left;
-  }
-  .payg-price {
-    justify-content: space-between;
-  }
-}
-
 /* Animations for value changes */
 
 .price-tag,
@@ -673,22 +643,6 @@ input:checked + .slider:before {
 
 .bump {
   animation: bump 0.22s ease-out;
-}
-
-/* Responsive */
-
-@media (max-width: 900px) {
-  .pricing-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .pricing-card.featured {
-    transform: translateY(0);
-  }
-
-  .payg-card {
-    text-align: left;
-  }
 }
 
 .sub-layout {
@@ -742,18 +696,6 @@ input:checked + .slider:before {
   background: #dcfce7;
   color: #166534;
   margin-top: 4px;
-}
-
-@media (max-width: 900px) {
-  .sub-layout {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  .sub-layout {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Assistant's test call modal window */
@@ -1245,26 +1187,6 @@ input:checked + .slider:before {
  .usage-value {
    font-weight: 600;
  }
-
-    /* ---------- Responsive ---------- */
-    @media (max-width: 900px) {
-      .calls-history-inner {
-        padding: 16px 16px 18px;
-      }
-      .calls-filters {
-        max-width: 100%;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .calls-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .calls-pagination {
-        justify-content: center;
-      }
-    }
 
 /* =========================================================
    MOBILE: Burger menu + one-column compact layout
