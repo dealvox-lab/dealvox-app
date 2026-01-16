@@ -71,8 +71,8 @@ async function supabaseGet(env, path) {
   const res = await fetch(url, {
     method: "GET",
     headers: {
-      apikey: env.SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
+      apikey: env.SUPABASE_SERVICE_KEY,
+      Authorization: `Bearer ${env.SUPABASE_SERVICE_KEY}`,
       "Content-Type": "application/json",
     },
   });
