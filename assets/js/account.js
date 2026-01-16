@@ -470,7 +470,7 @@ window.triggerTestCall = async function () {
   };
 
   const endpoint =
-    "/n8n/webhook/9479a9d6-267e-419d-b583-d12a0f44757f";
+    "/n8n/webhook/4757abb5-c3d0-42d3-a57d-50e9e71e4f6a";
 
   if (statusEl) statusEl.textContent = "Calling…";
   if (callBtn) callBtn.disabled = true;
