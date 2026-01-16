@@ -470,7 +470,7 @@ window.triggerTestCall = async function () {
   };
 
   const endpoint =
-    "https://dealvox-840984531750.us-east4.run.app/webhook-test/9479a9d6-267e-419d-b583-d12a0f44757f";
+    "https://dealvox-840984531750.us-east4.run.app/webhook/9479a9d6-267e-419d-b583-d12a0f44757f";
 
   if (statusEl) statusEl.textContent = "Calling…";
   if (callBtn) callBtn.disabled = true;
