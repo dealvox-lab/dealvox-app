@@ -56,9 +56,9 @@ async function handleJwt401(res, label) {
 
 function supabaseHeaders(accessToken) {
   const url = window.SUPABASE_URL;
-  const anon = window.SUPABASE_ANON_KEY;
+  const anon = window.SUPABASE_SERVICE_KEY;
   if (!url || !anon) {
-    throw new Error("SUPABASE_URL or SUPABASE_ANON_KEY missing on window");
+    throw new Error("SUPABASE_URL or SUPABASE_SERVICE_KEY missing on window");
   }
   if (!accessToken) {
     throw new Error("accessToken required for Supabase REST");
