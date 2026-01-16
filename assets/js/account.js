@@ -4,27 +4,15 @@
 // AUTH + SUPABASE HELPERS
 // ----------------------------------------------------
 
-// async function getAuthInfo() {
-//  const res = await fetch("/debug-auth", { credentials: "include" });
-//  if (!res.ok) throw new Error(`debug-auth HTTP ${res.status}`);
-//  const data = await res.json();
-//  return {
-//    accessToken: data.accessToken || null,
-//    user: data.userSummary || null,
-//  };
-// }
-
-async function getAuthInfo() {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) throw error;
-
-  const session = data?.session || null;
-
+ async function getAuthInfo() {
+  const res = await fetch("/debug-auth", { credentials: "include" });
+  if (!res.ok) throw new Error(`debug-auth HTTP ${res.status}`);
+  const data = await res.json();
   return {
-    accessToken: session?.access_token || null,
-    user: session?.user || null,
+    accessToken: data.accessToken || null,
+    user: data.userSummary || null,
   };
-}
+ }
 
   async function refreshToken() {
     try {
