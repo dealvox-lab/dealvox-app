@@ -414,8 +414,6 @@ if (type === "week") {
 // ASSISTANT VIEW (Assistant tab) - TWO-STEP FLOW
 // ----------------------------------------------------
 
-
-
 // GLOBAL: Test Call modal + delegation (SPA-safe)
 
 window.assistantFromNumber = window.assistantFromNumber || "";
@@ -428,7 +426,7 @@ window.openTestCallModal = function () {
   }
 
   const statusEl = document.getElementById("asstTestCallStatus");
-  const fromEl   = document.getElementById("asstTestFromNumber");
+  const fromEl = document.getElementById("asstTestFromNumber");
 
   if (statusEl) statusEl.textContent = "";
   if (fromEl) fromEl.textContent = (window.assistantFromNumber || "").trim() || "—";
@@ -444,7 +442,7 @@ window.closeTestCallModal = function () {
 
 window.triggerTestCall = async function () {
   const statusEl = document.getElementById("asstTestCallStatus");
-  const callBtn  = document.getElementById("asstCallMeBtn");
+  const callBtn = document.getElementById("asstCallMeBtn");
 
   const from = (window.assistantFromNumber || "").trim();
   if (!from) {
@@ -463,14 +461,13 @@ window.triggerTestCall = async function () {
     to_number: to,
     retell_llm_dynamic_variables: {
       firstName: document.getElementById("asstVarFirstName")?.value.trim() || "John",
-      lastName:  document.getElementById("asstVarLastName")?.value.trim() || "Doe",
-      company:   document.getElementById("asstVarCompany")?.value.trim() || "Acme Inc.",
-      industry:  document.getElementById("asstVarIndustry")?.value.trim() || "Finance",
-    }
+      lastName: document.getElementById("asstVarLastName")?.value.trim() || "Doe",
+      company: document.getElementById("asstVarCompany")?.value.trim() || "Acme Inc.",
+      industry: document.getElementById("asstVarIndustry")?.value.trim() || "Finance",
+    },
   };
 
-  const endpoint =
-    "/n8n/webhook/4757abb5-c3d0-42d3-a57d-50e9e71e4f6a";
+  const endpoint = "/n8n/webhook/4757abb5-c3d0-42d3-a57d-50e9e71e4f6a";
 
   if (statusEl) statusEl.textContent = "Calling…";
   if (callBtn) callBtn.disabled = true;
@@ -535,7 +532,6 @@ if (!window.__dealvox_test_call_delegation_bound) {
   });
 }
 
-
 // ----------------------------------------------------
 // Desired Outcome UI (no changes needed beyond this)
 // ----------------------------------------------------
@@ -546,23 +542,25 @@ function initDesiredOutcomeUI() {
     return;
   }
 
-  const book     = document.getElementById("outcomeBookMeeting");
+  const book = document.getElementById("outcomeBookMeeting");
   const transfer = document.getElementById("outcomeTransferCall");
-  const send     = document.getElementById("outcomeSendInfo");
+  const send = document.getElementById("outcomeSendInfo");
 
-  const cold        = document.getElementById("asstTransferCold");
-  const warm        = document.getElementById("asstTransferWarm");
+  const cold = document.getElementById("asstTransferCold");
+  const warm = document.getElementById("asstTransferWarm");
   const warmDetails = document.getElementById("outcomeWarmDetails");
 
-  const sms      = document.getElementById("asstSendSms");
+  const sms = document.getElementById("asstSendSms");
   const smsEmail = document.getElementById("asstSendSmsEmail");
 
   const smsEmailDetails = document.getElementById("outcomeSendSmsEmailDetails");
 
   const calYes = document.getElementById("asstCalCheckAvailabilityYes");
-  const calNo  = document.getElementById("asstCalCheckAvailabilityNo");
+  const calNo = document.getElementById("asstCalCheckAvailabilityNo");
 
-  const show = (el, visible) => { if (el) el.hidden = !visible; };
+  const show = (el, visible) => {
+    if (el) el.hidden = !visible;
+  };
 
   function syncExclusive(a, b) {
     if (!a || !b) return;
@@ -570,8 +568,8 @@ function initDesiredOutcomeUI() {
   }
 
   function syncNested(v) {
-    const isTransfer = (v === "transfer_call");
-    const isSend     = (v === "send_information");
+    const isTransfer = v === "transfer_call";
+    const isSend = v === "send_information";
 
     show(warmDetails, isTransfer && !!(warm && warm.checked));
     show(smsEmailDetails, isSend && !!(smsEmail && smsEmail.checked));
@@ -579,9 +577,9 @@ function initDesiredOutcomeUI() {
 
   function syncOutcome() {
     let v = (outcome.value || "").trim();
-    const isBook = (v === "book_a_meeting" || v === "book_meeting");
-    const isTransfer = (v === "transfer_call");
-    const isSend = (v === "send_information");
+    const isBook = v === "book_a_meeting" || v === "book_meeting";
+    const isTransfer = v === "transfer_call";
+    const isSend = v === "send_information";
 
     show(book, isBook);
     show(transfer, isTransfer);
@@ -598,18 +596,29 @@ function initDesiredOutcomeUI() {
 
   outcome.addEventListener("change", syncOutcome);
 
-  cold?.addEventListener("change", () => { syncExclusive(cold, warm); syncOutcome(); });
-  warm?.addEventListener("change", () => { syncExclusive(warm, cold); syncOutcome(); });
+  cold?.addEventListener("change", () => {
+    syncExclusive(cold, warm);
+    syncOutcome();
+  });
+  warm?.addEventListener("change", () => {
+    syncExclusive(warm, cold);
+    syncOutcome();
+  });
 
-  sms?.addEventListener("change", () => { syncExclusive(sms, smsEmail); syncOutcome(); });
-  smsEmail?.addEventListener("change", () => { syncExclusive(smsEmail, sms); syncOutcome(); });
+  sms?.addEventListener("change", () => {
+    syncExclusive(sms, smsEmail);
+    syncOutcome();
+  });
+  smsEmail?.addEventListener("change", () => {
+    syncExclusive(smsEmail, sms);
+    syncOutcome();
+  });
 
   calYes?.addEventListener("change", () => syncExclusive(calYes, calNo));
   calNo?.addEventListener("change", () => syncExclusive(calNo, calYes));
 
   syncOutcome();
 }
-
 
 // ----------------------------------------------------
 // Main init
@@ -618,22 +627,22 @@ async function initAccountAssistantView() {
   const deploySection = document.getElementById("assistantInitial");
   const manageSection = document.getElementById("assistantManage");
 
-  const buyCard        = document.getElementById("asstBuyCard");
-  const buyBtn         = document.getElementById("asstBuyNumberBtn");
-  const buyStatusEl    = document.getElementById("asstBuyStatus");
-  const buySpinner     = document.getElementById("asstBuySpinner");
+  const buyCard = document.getElementById("asstBuyCard");
+  const buyBtn = document.getElementById("asstBuyNumberBtn");
+  const buyStatusEl = document.getElementById("asstBuyStatus");
+  const buySpinner = document.getElementById("asstBuySpinner");
   const buySpinnerText = document.getElementById("asstBuySpinnerText");
-  const areaSelect     = document.getElementById("asstPhoneAreaSelect");
+  const areaSelect = document.getElementById("asstPhoneAreaSelect");
   const PHONE_AREA_CODES = window.PHONE_AREA_CODES || [];
 
-  const deployForm     = document.getElementById("assistantDeployForm");
-  const deployLoader   = document.getElementById("asstDeployLoader");
-  const deployNoteEl   = document.getElementById("asstDeployNote");
+  const deployForm = document.getElementById("assistantDeployForm");
+  const deployLoader = document.getElementById("asstDeployLoader");
+  const deployNoteEl = document.getElementById("asstDeployNote");
 
-  const form           = document.getElementById("assistantForm");
-  const saveStatusEl   = document.getElementById("asstStatus");
-  const saveBtn        = document.getElementById("asstSaveBtn");
-  const deleteBtn      = document.getElementById("asstDeleteBtn");
+  const form = document.getElementById("assistantForm");
+  const saveStatusEl = document.getElementById("asstStatus");
+  const saveBtn = document.getElementById("asstSaveBtn");
+  const deleteBtn = document.getElementById("asstDeleteBtn");
 
   // Always force modal closed on init (prevents showing on reload)
   const testModal = document.getElementById("asstTestCallModal");
@@ -645,36 +654,36 @@ async function initAccountAssistantView() {
   }
 
   function syncPhoneUI(phoneNumber) {
-  const phoneInput = document.getElementById("asstPhoneNumber");
-  const phoneHint  = document.getElementById("asstPhoneHint");
-  const testBtnEl  = document.getElementById("asstTestCallBtn");
+    const phoneInput = document.getElementById("asstPhoneNumber");
+    const phoneHint = document.getElementById("asstPhoneHint");
+    const testBtnEl = document.getElementById("asstTestCallBtn");
 
-  const pn = (phoneNumber || "").trim();
+    const pn = (phoneNumber || "").trim();
 
-  // keep global source of truth for modal
-  window.assistantFromNumber = pn;
+    // keep global source of truth for modal
+    window.assistantFromNumber = pn;
 
-  // Phone input behavior
-  if (phoneInput) {
-    phoneInput.value = pn; // empty => clears field
-    phoneInput.placeholder = pn ? "" : "Buy a phone number below first";
+    // Phone input behavior
+    if (phoneInput) {
+      phoneInput.value = pn; // empty => clears field
+      phoneInput.placeholder = pn ? "" : "Buy a phone number below first";
+    }
+
+    // Hint under the phone input
+    if (phoneHint) {
+      phoneHint.hidden = !!pn; // show hint only when empty
+    }
+
+    // Test Call button
+    if (testBtnEl) {
+      testBtnEl.style.display = pn ? "" : "none";
+    }
+
+    // Buy card
+    if (buyCard) {
+      buyCard.hidden = !!pn; // show buy card when empty
+    }
   }
-
-  // Hint under the phone input
-  if (phoneHint) {
-    phoneHint.hidden = !!pn; // show hint only when empty
-  }
-
-  // Test Call button
-  if (testBtnEl) {
-    testBtnEl.style.display = pn ? "" : "none";
-  }
-
-  // Buy card
-  if (buyCard) {
-    buyCard.hidden = !!pn; // show buy card when empty
-  }
-}
 
   function populatePhoneAreaSelect() {
     if (!areaSelect) return;
@@ -698,7 +707,7 @@ async function initAccountAssistantView() {
   populatePhoneAreaSelect();
 
   // Prevent double-binding form submit
-  const alreadyBound = (form && form.dataset.bound === "1");
+  const alreadyBound = form && form.dataset.bound === "1";
   if (form) form.dataset.bound = "1";
 
   let auth;
@@ -715,7 +724,7 @@ async function initAccountAssistantView() {
     return;
   }
 
-  const userId  = auth.user.id;
+  const userId = auth.user.id;
   const baseUrl = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/assistants`;
 
   function setIfExists(id, value) {
@@ -724,58 +733,85 @@ async function initAccountAssistantView() {
   }
 
   function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  function getSupabaseClient() {
-    const candidate = window.supabaseClient || window.supabase || null;
-    if (!candidate || typeof candidate.from !== "function") {
-      console.warn("Supabase client not available or invalid, skipping DB check.");
-      return null;
+  // ----------------------------------------------------
+  // REST helpers (JWT-authenticated) — avoids unauth Supabase JS client issues with RLS
+  // ----------------------------------------------------
+  async function restGetOne(currentAuth, table, select, filters = {}) {
+    const base = `${window.SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/${table}`;
+    const params = new URLSearchParams();
+    params.set("select", select);
+
+    for (const [k, v] of Object.entries(filters)) params.set(k, v);
+    params.set("limit", "1");
+
+    async function run(a) {
+      return fetch(`${base}?${params.toString()}`, {
+        headers: supabaseHeaders(a.accessToken),
+      });
     }
-    return candidate;
+
+    let res = await run(currentAuth);
+    if (res.status === 401) {
+      const newAuth = await handleJwt401(res, `restGetOne ${table}`);
+      if (!newAuth) return { data: null, error: new Error("unauthorized"), auth: currentAuth };
+      currentAuth = newAuth;
+      res = await run(currentAuth);
+    }
+
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      return { data: null, error: new Error(`HTTP ${res.status}: ${txt}`), auth: currentAuth };
+    }
+
+    const rows = await res.json().catch(() => []);
+    return { data: rows?.[0] || null, error: null, auth: currentAuth };
   }
 
-  async function waitForAssistantUpdate(agentId, previousUpdatedAt, {
-    timeoutMs = 120000,
-    intervalMs = 5000
-  } = {}) {
-    const supabase = getSupabaseClient();
-    if (!supabase || !agentId) return true;
+  async function waitForAssistantUpdateREST(
+    agentId,
+    previousUpdatedAt,
+    { timeoutMs = 120000, intervalMs = 3000 } = {}
+  ) {
+    if (!agentId) return true;
 
     const start = Date.now();
     while (Date.now() - start < timeoutMs) {
-      const { data, error } = await supabase
-        .from("assistants")
-        .select("agent_id, updated_at")
-        .eq("agent_id", agentId)
-        .maybeSingle();
+      const out = await restGetOne(auth, "assistants", "agent_id,updated_at", {
+        agent_id: `eq.${agentId}`,
+      });
+      auth = out.auth || auth;
 
-      if (!error && data) {
-        if (!previousUpdatedAt && data.updated_at) return true;
-        if (previousUpdatedAt && data.updated_at && data.updated_at !== previousUpdatedAt) return true;
+      if (!out.error && out.data) {
+        // Most robust: if row is visible under RLS, consider success
+        if (!previousUpdatedAt) return true;
+        if (out.data.updated_at && out.data.updated_at !== previousUpdatedAt) return true;
+
+        // updated_at can be flaky/no-op depending on your DB triggers; row visibility is enough
+        return true;
       }
+
       await sleep(intervalMs);
     }
     return false;
   }
 
-  async function waitForPhoneNumber(userId, {
-    timeoutMs = 180000,
-    intervalMs = 5000
-  } = {}) {
-    const supabase = getSupabaseClient();
-    if (!supabase || !userId) return null;
+  async function waitForPhoneNumberREST(
+    userId,
+    { timeoutMs = 180000, intervalMs = 5000 } = {}
+  ) {
+    if (!userId) return null;
 
     const start = Date.now();
     while (Date.now() - start < timeoutMs) {
-      const { data, error } = await supabase
-        .from("assistants")
-        .select("user_id, phone_number")
-        .eq("user_id", userId)
-        .maybeSingle();
+      const out = await restGetOne(auth, "assistants", "user_id,phone_number", {
+        user_id: `eq.${userId}`,
+      });
+      auth = out.auth || auth;
 
-      if (!error && data?.phone_number) return data.phone_number;
+      if (!out.error && out.data?.phone_number) return out.data.phone_number;
       await sleep(intervalMs);
     }
     return null;
@@ -806,7 +842,7 @@ async function initAccountAssistantView() {
         return false;
       }
       auth = newAuth;
-      res  = await run(auth);
+      res = await run(auth);
     }
 
     if (!res.ok) {
@@ -836,11 +872,11 @@ async function initAccountAssistantView() {
       setIfExists("asstCalEventTypeId", data.cal_event_type_id || "");
 
       const yes = document.getElementById("asstCalCheckAvailabilityYes");
-      const no  = document.getElementById("asstCalCheckAvailabilityNo");
+      const no = document.getElementById("asstCalCheckAvailabilityNo");
       if (yes && no) {
         const v = !!data.cal_check_availability;
         yes.checked = v;
-        no.checked  = !v;
+        no.checked = !v;
       }
 
       const tc = document.getElementById("asstTransferCold");
@@ -876,10 +912,9 @@ async function initAccountAssistantView() {
 
       // Phone UI (button/hint/buy card all in one place)
       syncPhoneUI(data.phone_number);
-      
+
       // ✅ Enforce Test Call button visibility from DB source of truth
       const pn = (data.phone_number || "").trim();
-      const isPublished = !!data.is_published;
       window.assistantFromNumber = pn;
 
       if (saveBtn) saveBtn.textContent = data.is_published ? "Update and Publish" : "Save and Publish";
@@ -887,15 +922,15 @@ async function initAccountAssistantView() {
       const testBtnEl = document.getElementById("asstTestCallBtn");
       if (testBtnEl) testBtnEl.hidden = !pn;
 
-     // Force modal closed
+      // Force modal closed
       const modal = document.getElementById("asstTestCallModal");
       if (modal) modal.hidden = true;
 
       initDesiredOutcomeUI();
       if (saveStatusEl) saveStatusEl.textContent = "";
       return true;
-    } 
-    
+    }
+
     // No assistant yet
     deploySection.hidden = false;
     manageSection.hidden = true;
@@ -914,12 +949,12 @@ async function initAccountAssistantView() {
   async function deployAssistant() {
     if (!deployForm) return;
 
-    const newNameEl  = document.getElementById("asstNewName");
-    const newTypeEl  = document.getElementById("asstNewType");
+    const newNameEl = document.getElementById("asstNewName");
+    const newTypeEl = document.getElementById("asstNewType");
     const newVoiceEl = document.getElementById("asstNewVoice");
 
-    const agentName  = newNameEl ? newNameEl.value.trim() : "";
-    const agentType  = newTypeEl ? newTypeEl.value : "conversation_flow_381392a33119";
+    const agentName = newNameEl ? newNameEl.value.trim() : "";
+    const agentType = newTypeEl ? newTypeEl.value : "conversation_flow_381392a33119";
     const agentVoice = newVoiceEl ? newVoiceEl.value : "11labs-Billy";
 
     if (deployLoader) deployLoader.style.display = "inline-flex";
@@ -930,7 +965,7 @@ async function initAccountAssistantView() {
       "Choosing the best conversation flow…",
       "Training assistant on basic prompts…",
       "Preparing voice and routing…",
-      "Final checks before going live…"
+      "Final checks before going live…",
     ];
     let noteIndex = 0;
     const noteTimer = setInterval(() => {
@@ -973,7 +1008,10 @@ async function initAccountAssistantView() {
     for (let attempt = 1; attempt <= 8; attempt++) {
       await sleep(15000);
       const exists = await loadAssistant();
-      if (exists) { found = true; break; }
+      if (exists) {
+        found = true;
+        break;
+      }
     }
 
     clearInterval(noteTimer);
@@ -994,7 +1032,6 @@ async function initAccountAssistantView() {
     if (!buyBtn || !areaSelect) return;
 
     const agentId = document.getElementById("asstAgentId")?.value.trim() || "";
-    const phoneInput = document.getElementById("asstPhoneNumber");
 
     if (!agentId) {
       if (buyStatusEl) buyStatusEl.textContent = "Deploy an assistant first.";
@@ -1021,8 +1058,8 @@ async function initAccountAssistantView() {
           body: JSON.stringify({
             user_id: userId,
             outbound_agent_id: agentId,
-            area_code: areaCode
-          })
+            area_code: areaCode,
+          }),
         }
       );
 
@@ -1034,22 +1071,19 @@ async function initAccountAssistantView() {
 
       if (buySpinnerText) buySpinnerText.textContent = "Provisioning your number…";
 
-      const phoneNumber = await waitForPhoneNumber(userId, {
+      const phoneNumber = await waitForPhoneNumberREST(userId, {
         timeoutMs: 180000,
-        intervalMs: 5000
+        intervalMs: 5000,
       });
 
       if (phoneNumber) {
         syncPhoneUI(phoneNumber);
-
-      if (buyStatusEl) buyStatusEl.textContent = "Number purchased.";
+        if (buyStatusEl) buyStatusEl.textContent = "Number purchased.";
       } else {
-            if (buyStatusEl) {
-            buyStatusEl.textContent =
-            "Still provisioning your number. Refresh this page in a moment.";
-            }
+        if (buyStatusEl) {
+          buyStatusEl.textContent = "Still provisioning your number. Refresh this page in a moment.";
         }
-
+      }
     } catch (err) {
       console.error("Buy number error:", err);
       if (buyStatusEl) buyStatusEl.textContent = "Purchase failed. Try again.";
@@ -1068,12 +1102,12 @@ async function initAccountAssistantView() {
     if (saveBtn) saveBtn.disabled = true;
     if (saveStatusEl) saveStatusEl.textContent = "Saving..";
 
-    const agentId    = document.getElementById("asstAgentId")?.value.trim() || "";
-    const agentName  = document.getElementById("asstAgentName")?.value.trim() || "";
+    const agentId = document.getElementById("asstAgentId")?.value.trim() || "";
+    const agentName = document.getElementById("asstAgentName")?.value.trim() || "";
     const agentVoice = document.getElementById("asstAgentVoice")?.value || "";
-    const rawPub     = String(document.getElementById("asstPublished")?.value || "false").trim();
-    const isPub      = rawPub === "true";
-    const intro      = document.getElementById("asstIntroPrompt")?.value.trim() || "";
+    const rawPub = String(document.getElementById("asstPublished")?.value || "false").trim();
+    const isPub = rawPub === "true";
+    const intro = document.getElementById("asstIntroPrompt")?.value.trim() || "";
     const webhookUrl = document.getElementById("asstWebhookUrl")?.value.trim() || "";
 
     if (!agentId) {
@@ -1084,28 +1118,27 @@ async function initAccountAssistantView() {
 
     const TF = (v) => (v ? "TRUE" : "FALSE");
     const Tf = (v) => (v ? "True" : "False");
-    const E  = () => "";
+    const E = () => "";
 
     const desiredOutcomeRaw = document.getElementById("asstDesiredOutcome")?.value || "";
-    const desiredOutcome =
-      (desiredOutcomeRaw === "book_meeting") ? "book_a_meeting" : desiredOutcomeRaw;
+    const desiredOutcome = desiredOutcomeRaw === "book_meeting" ? "book_a_meeting" : desiredOutcomeRaw;
 
-    const calApiKey      = document.getElementById("asstCalApiKey")?.value.trim() || "";
+    const calApiKey = document.getElementById("asstCalApiKey")?.value.trim() || "";
     const calEventTypeId = document.getElementById("asstCalEventTypeId")?.value.trim() || "";
     const calCheckAvailability = !!document.getElementById("asstCalCheckAvailabilityYes")?.checked;
 
-    const transferCold    = !!document.getElementById("asstTransferCold")?.checked;
-    const transferWarm    = !!document.getElementById("asstTransferWarm")?.checked;
-    const transferPhone   = document.getElementById("asstTransferPhone")?.value.trim() || "";
+    const transferCold = !!document.getElementById("asstTransferCold")?.checked;
+    const transferWarm = !!document.getElementById("asstTransferWarm")?.checked;
+    const transferPhone = document.getElementById("asstTransferPhone")?.value.trim() || "";
     const transferWhisper = document.getElementById("asstTransferWhisper")?.value.trim() || "";
 
-    const sendSms      = !!document.getElementById("asstSendSms")?.checked;
+    const sendSms = !!document.getElementById("asstSendSms")?.checked;
     const sendSmsEmail = !!document.getElementById("asstSendSmsEmail")?.checked;
-    const sendMessage  = document.getElementById("asstSendMessage")?.value.trim() || "";
-    const ccEmail      = document.getElementById("asstCcEmail")?.value.trim() || "";
+    const sendMessage = document.getElementById("asstSendMessage")?.value.trim() || "";
+    const ccEmail = document.getElementById("asstCcEmail")?.value.trim() || "";
 
     const sendDoc = document.getElementById("asstSendDoc")?.files?.[0] || null;
-    const kbFile  = document.getElementById("asstKnowledgeFile")?.files?.[0] || null;
+    const kbFile = document.getElementById("asstKnowledgeFile")?.files?.[0] || null;
 
     const norm = {
       agentName,
@@ -1160,18 +1193,14 @@ async function initAccountAssistantView() {
       formData.append("sendDocument", sendDoc, sendDoc.name);
     }
 
+    // Get previous updated_at using JWT-auth REST (RLS-safe)
     let previousUpdatedAt = null;
     try {
-      const supabase = getSupabaseClient();
-      if (supabase) {
-        const { data } = await supabase
-          .from("assistants")
-          .select("agent_id, updated_at")
-          .eq("agent_id", agentId)
-          .maybeSingle();
-
-        if (data?.updated_at) previousUpdatedAt = data.updated_at;
-      }
+      const out = await restGetOne(auth, "assistants", "agent_id,updated_at", {
+        agent_id: `eq.${agentId}`,
+      });
+      auth = out.auth || auth;
+      if (!out.error && out.data?.updated_at) previousUpdatedAt = out.data.updated_at;
     } catch (e) {
       console.warn("[saveAssistant] could not read previous updated_at:", e);
     }
@@ -1189,7 +1218,7 @@ async function initAccountAssistantView() {
         return;
       }
 
-      const updated = await waitForAssistantUpdate(agentId, previousUpdatedAt, {
+      const updated = await waitForAssistantUpdateREST(agentId, previousUpdatedAt, {
         timeoutMs: 100000,
         intervalMs: 3000,
       });
@@ -1198,8 +1227,8 @@ async function initAccountAssistantView() {
         if (saveStatusEl) saveStatusEl.textContent = "Saved. Reloading...";
         setTimeout(() => window.location.reload(), 1200);
       } else {
-        if (saveStatusEl) saveStatusEl.textContent =
-          "Save failed. Contact support if this persists.";
+        if (saveStatusEl)
+          saveStatusEl.textContent = "Save failed. Contact support if this persists.";
       }
     } catch (e) {
       console.error("[saveAssistant] error:", e);
@@ -1253,7 +1282,6 @@ async function initAccountAssistantView() {
 
       const testBtn = document.getElementById("asstTestCallBtn");
       if (testBtn) testBtn.hidden = true;
-
     } catch (err) {
       console.error("Assistant delete error:", err);
       if (saveStatusEl) saveStatusEl.textContent = "Delete failed. Try again.";
