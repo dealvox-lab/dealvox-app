@@ -74,310 +74,354 @@
           </p>
         </div>
       </div>
-  <div style="margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-  <button type="submit" class="btn-primary" id="asstDeployBtn">
-    Deploy assistant
-  </button>
+      <div style="margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <button type="submit" class="btn-primary" id="asstDeployBtn">
+          Deploy assistant
+        </button>
 
-  <!-- Loader + note, hidden by default -->
-  <span id="asstDeployLoader"
-        style="display:none;align-items:center;gap:8px;">
-    <span class="spinner"></span>
-    <span id="asstDeployNote"
-          class="muted"
-          style="font-size:0.85rem;">
-      Customizing your model…
-    </span>
-  </span>
-</div>
+        <!-- Loader + note, hidden by default -->
+        <span id="asstDeployLoader"
+              style="display:none;align-items:center;gap:8px;">
+          <span class="spinner"></span>
+          <span id="asstDeployNote"
+                class="muted"
+                style="font-size:0.85rem;">
+            Customizing your model…
+          </span>
+        </span>
+      </div>
     </form>
   </section>
-<!-- STEP 2: Manage existing assistant -->
-<section id="assistantManage" class="asst-section" hidden>
-  <form id="assistantForm">
-    <div class="grid-2">
-      <!-- LEFT COLUMN -->
-      <div>
-        <div class="field">
-          <label for="asstAgentId">Assistant ID</label>
-          <input id="asstAgentId" class="input" readonly>
-        </div>
 
-        <div class="field">
-          <label for="asstAgentName">Assistant name (editable)</label>
-          <input id="asstAgentName" class="input">
-        </div>
+  <!-- STEP 2: Manage existing assistant -->
+  <section id="assistantManage" class="asst-section" hidden>
+    <form id="assistantForm">
+      <div class="grid-2">
+        <!-- LEFT COLUMN -->
+        <div>
+          <div class="field">
+            <label for="asstAgentId">Assistant ID</label>
+            <input id="asstAgentId" class="input" readonly>
+          </div>
 
-        <div class="field">
-          <label for="asstAgentType">Assistant type</label>
-          <input id="asstAgentType" class="input" readonly>
-        </div>
+          <div class="field">
+            <label for="asstAgentName">Assistant name (editable)</label>
+            <input id="asstAgentName" class="input">
+          </div>
 
-        <div class="field">
-          <label for="asstPhoneNumber">Assistant phone number</label>
-          <input id="asstPhoneNumber" class="input" readonly>
-          <p id="asstPhoneHint" class="muted" style="font-size:0.8rem;margin-top:4px;" hidden>
-            No phone number yet? Buy a number below first.
-          </p>
-        </div>
+          <div class="field">
+            <label for="asstAgentType">Assistant type</label>
+            <input id="asstAgentType" class="input" readonly>
+          </div>
 
-        <div class="field">
-          <label for="asstAgentVoice">Assistant voice (editable)</label>
-          <select id="asstAgentVoice" class="input">
-            <option value='11labs-Billy'>Billy - male, young</option>
-            <option value='11labs-Lily'>Lily - female, young</option>
-            <option value='11labs-Marissa'>Marissa - female, young</option>
-            <option value='11labs-Bing'>Bing - male, young</option>
-            <option value='11labs-Jenny'>Jenny - female, young</option>
-            <option value='11labs-Lucas'>Lucas - male, middle-aged</option>
-            <option value='11labs-Brian'>Brian - male, young</option>
-            <option value='11labs-Kate'>Kate - female, middle-aged</option>
-            <option value='11labs-Jason'>Jason - male, young</option>
-            <option value='11labs-Ethan'>Ethan - male, young</option>
-            <option value='11labs-Paul'>Paul - male, old</option>
-            <option value='11labs-John'>John - male, middle-aged</option>
-            <option value='11labs-Adrian'>Adrian - male, young</option>
-            <option value='11labs-Gilfoy'>Gilfoy - male, middle-aged</option>
-            <option value='11labs-Zuri'>Zuri - female, old</option>
-            <option value='11labs-Steve'>Steve - male, old</option>
-            <option value='11labs-Grace'>Grace - female, middle-aged</option>
-            <option value='11labs-Chloe'>Chloe - female, young</option>
-            <option value='11labs-Max'>Max - male, middle-aged</option>
-            <option value='11labs-Anna'>Anna - female, young</option>
-            <option value='11labs-Julia'>Julia - female, middle-aged</option>
-            <option value='11labs-victoria'>Victoria - female, young</option>
-            <option value='11labs-Susan'>Susan - female, middle-aged</option>
-            <option value='11labs-Emily'>Emily - female, middle-aged</option>
-            <option value='11labs-Kathrine'>Kathrine - female, middle-aged</option>
-            <option value='11labs-Andrew'>Andrew - male, young</option>
-            <option value='11labs-Nina'>Nina - female, middle-aged</option>
-            <option value='11labs-Myra'>Myra - female, young</option>
-            <option value='11labs-Evie'>Evie - female, young</option>
-            <option value='11labs-James'>James - male, old</option>
-            <option value='11labs-Cimo'>Cimo - female, middle-aged</option>
-            <option value='11labs-Ryan'>Ryan - male, young</option>
-            <option value='11labs-Mia'>Mia - female, middle-aged</option>
-          </select>
-        </div>
-                <div class="field">
-          <label for="asstKnowledgeFile">Knowledge base (editable)</label>
-          <div
+          <div class="field">
+            <label for="asstPhoneNumber">Assistant phone number</label>
+            <input id="asstPhoneNumber" class="input" readonly>
+            <p id="asstPhoneHint" class="muted" style="font-size:0.8rem;margin-top:4px;" hidden>
+              No phone number yet? Buy a number below first.
+            </p>
+          </div>
+
+          <div class="field">
+            <label for="asstAgentVoice">Assistant voice (editable)</label>
+            <select id="asstAgentVoice" class="input">
+              <option value='11labs-Billy'>Billy - male, young</option>
+              <option value='11labs-Lily'>Lily - female, young</option>
+              <option value='11labs-Marissa'>Marissa - female, young</option>
+              <option value='11labs-Bing'>Bing - male, young</option>
+              <option value='11labs-Jenny'>Jenny - female, young</option>
+              <option value='11labs-Lucas'>Lucas - male, middle-aged</option>
+              <option value='11labs-Brian'>Brian - male, young</option>
+              <option value='11labs-Kate'>Kate - female, middle-aged</option>
+              <option value='11labs-Jason'>Jason - male, young</option>
+              <option value='11labs-Ethan'>Ethan - male, young</option>
+              <option value='11labs-Paul'>Paul - male, old</option>
+              <option value='11labs-John'>John - male, middle-aged</option>
+              <option value='11labs-Adrian'>Adrian - male, young</option>
+              <option value='11labs-Gilfoy'>Gilfoy - male, middle-aged</option>
+              <option value='11labs-Zuri'>Zuri - female, old</option>
+              <option value='11labs-Steve'>Steve - male, old</option>
+              <option value='11labs-Grace'>Grace - female, middle-aged</option>
+              <option value='11labs-Chloe'>Chloe - female, young</option>
+              <option value='11labs-Max'>Max - male, middle-aged</option>
+              <option value='11labs-Anna'>Anna - female, young</option>
+              <option value='11labs-Julia'>Julia - female, middle-aged</option>
+              <option value='11labs-victoria'>Victoria - female, young</option>
+              <option value='11labs-Susan'>Susan - female, middle-aged</option>
+              <option value='11labs-Emily'>Emily - female, middle-aged</option>
+              <option value='11labs-Kathrine'>Kathrine - female, middle-aged</option>
+              <option value='11labs-Andrew'>Andrew - male, young</option>
+              <option value='11labs-Nina'>Nina - female, middle-aged</option>
+              <option value='11labs-Myra'>Myra - female, young</option>
+              <option value='11labs-Evie'>Evie - female, young</option>
+              <option value='11labs-James'>James - male, old</option>
+              <option value='11labs-Cimo'>Cimo - female, middle-aged</option>
+              <option value='11labs-Ryan'>Ryan - male, young</option>
+              <option value='11labs-Mia'>Mia - female, middle-aged</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="asstKnowledgeFile">Knowledge base (editable)</label>
+            <div
               id="asstKbSavedName"
               style="margin:6px 0 8px; color:#0B6B2E; font-weight:400; font-size: .85rem; display:none;"
-          ></div>
-          <input id="asstKnowledgeFile" type="file" class="input">
+            ></div>
+
+            <input id="asstKnowledgeFile" type="file" class="input">
+
+            <!-- ✅ NEW: Test document download links (inline) -->
+            <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+              <a class="btn-kb-doc" href="https://app.dealvox.online/docs/logistics_business.txt" target="_blank" rel="noopener">
+                logistics_business.txt
+              </a>
+              <a class="btn-kb-doc" href="https://app.dealvox.online/docs/pc_repair_business.txt" target="_blank" rel="noopener">
+                pc_repair_business.txt
+              </a>
+              <a class="btn-kb-doc" href="https://app.dealvox.online/docs/property_repair_business.txt" target="_blank" rel="noopener">
+                property_repair_business.txt
+              </a>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="asstWebhookUrl">
+              Webhook URL (editable)
+              <span class="muted" style="display:block;font-size:0.8rem;margin-top:2px;">
+                To get phone call results to your systems.
+              </span>
+            </label>
+            <input id="asstWebhookUrl" class="input">
+          </div>
+
+          <div class="field">
+            <label for="asstPublished">Is assistant published</label>
+            <input id="asstPublished" class="input" readonly>
+          </div>
         </div>
 
-        <div class="field">
-          <label for="asstWebhookUrl">
-            Webhook URL (editable)
-            <span class="muted" style="display:block;font-size:0.8rem;margin-top:2px;">
-              To get phone call results to your systems.
-            </span>
-          </label>
-          <input id="asstWebhookUrl" class="input">
+        <!-- RIGHT COLUMN -->
+        <div>
+
+          <!-- Intro -->
+          <div class="field">
+            <label for="asstIntroPrompt">Intro (editable)</label>
+            <textarea id="asstIntroPrompt" class="input" rows="8"></textarea>
+          </div>
+
+          <div class="field">
+            <p>You could use following variables: {{firstName}}, {{lastName}}, {{company}}, {{industry}} in your Intro</p>
+            <p>Example: Hi {{firstName}} {{lastName}}, this is Jane from Acme Company. We design tailored solutions for the {{industry}} sector.</p>
+            <p>Additionally, since the {{industry}} variable is used in the AI presentation, it’s beneficial to include it in the hook.</p>
+
+            <!-- Desired outcome -->
+            <div class="field" style="margin-top:16px;">
+              <label for="asstDesiredOutcome">Desired outcome (editable)</label>
+              <select id="asstDesiredOutcome" class="input">
+                <option value="book_a_meeting">Book a meeting</option>
+                <option value="transfer_call">Transfer call</option>
+                <option value="send_information">Send information</option>
+              </select>
+            </div>
+
+            <!-- BOOK A MEETING -->
+            <div id="outcomeBookMeeting" style="margin-top:14px;">
+              <div class="field">
+                <label for="asstCalApiKey">
+                  Cal.com API key
+                  <span class="muted" style="display:inline;font-size:0.8rem;margin-top:2px;">
+                    <a href="https://cal.com/docs/api-reference/v2/introduction#authentication" target="_blank">
+                      (?)
+                    </a>
+                  </span>
+                </label>
+                <input id="asstCalApiKey" class="input" placeholder="cal_live_xxx">
+              </div>
+
+              <div class="field">
+                <label for="asstCalEventTypeId">
+                  Cal.com Event Type ID
+                  <span class="muted" style="display:inline;font-size:0.8rem;margin-top:2px;">
+                    <a href="https://cal.com/help/event-types/eventtype-id" target="_blank">
+                      (?)
+                    </a>
+                  </span>
+                </label>
+                <input id="asstCalEventTypeId" class="input" placeholder="123456">
+              </div>
+
+              <div class="field">
+                <label>Check time availability before booking</label>
+                <div style="display:flex;gap:16px;margin-top:6px;">
+                  <label style="display:flex;align-items:center;gap:8px;">
+                    <input type="checkbox" id="asstCalCheckAvailabilityYes">
+                    Yes
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;">
+                    <input type="checkbox" id="asstCalCheckAvailabilityNo">
+                    No
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- TRANSFER CALL -->
+            <div id="outcomeTransferCall" style="margin-top:14px;" hidden>
+              <!-- Phone ALWAYS visible when Transfer call is chosen -->
+              <div class="field">
+                <label for="asstTransferPhone">Receiving agent phone number</label>
+                <input id="asstTransferPhone" class="input" placeholder="+1 555 123 4567">
+              </div>
+
+              <div class="field">
+                <label>Transfer type</label>
+                <div style="display:flex;gap:16px;margin-top:6px;">
+                  <label style="display:flex;align-items:center;gap:8px;">
+                    <input type="checkbox" id="asstTransferCold"> Cold transfer
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;">
+                    <input type="checkbox" id="asstTransferWarm"> Warm transfer
+                  </label>
+                </div>
+              </div>
+
+              <!-- Whisper ONLY if Warm transfer -->
+              <div id="outcomeWarmDetails" hidden>
+                <div class="field">
+                  <label for="asstTransferWhisper">Whisper message</label>
+                  <textarea id="asstTransferWhisper" class="input" rows="4"
+                    placeholder="Short briefing for the receiving agent."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- SEND INFORMATION -->
+            <div id="outcomeSendInfo" style="margin-top:14px;" hidden>
+              <div class="field">
+                <label>Send via</label>
+                <div style="display:flex;gap:16px;margin-top:6px;">
+                  <label style="display:flex;align-items:center;gap:8px;">
+                    <input type="checkbox" id="asstSendSms"> SMS
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;">
+                    <input type="checkbox" id="asstSendSmsEmail"> SMS + email
+                  </label>
+                </div>
+              </div>
+
+              <!-- Message ALWAYS visible when Send information is chosen -->
+              <div class="field">
+                <label for="asstSendMessage">Message</label>
+                <textarea id="asstSendMessage" class="input" rows="4"></textarea>
+              </div>
+
+              <!-- Upload + CC ONLY for SMS + email -->
+              <div id="outcomeSendSmsEmailDetails" hidden>
+                <div class="field">
+                  <label for="asstSendDoc">Document upload</label>
+                  <input id="asstSendDoc" type="file" class="input">
+                </div>
+
+                <div class="field" id="asstCcWrap">
+                  <label for="asstCcEmail">CC email address</label>
+                  <input id="asstCcEmail" class="input">
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <button type="submit" class="btn-primary" id="asstSaveBtn">Save and Publish</button>
+
+        <button type="button" class="btn-primary-2" id="asstTestCallBtn" hidden>
+          Test call
+        </button>
+
+        <button type="button" class="btn-secondary" id="asstDeleteBtn">
+          <span style="color:#FF0000;">Delete assistant</span>
+        </button>
+
+        <span id="asstStatus" class="muted"></span>
+      </div>
+    </form>
+
+    <!-- TEST CALL MODAL -->
+    <div id="asstTestCallModal" class="modal-overlay" hidden>
+      <div class="modal-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <h3 style="margin:0;">Get a test call</h3>
+          <button type="button" id="asstTestCallClose" class="btn-secondary">Close</button>
         </div>
 
-        <div class="field">
-          <label for="asstPublished">Is assistant published</label>
-          <input id="asstPublished" class="input" readonly>
+        <p class="muted" style="margin-top:8px;">
+          We’ll call your number using your assistant’s purchased phone number.
+        </p>
+        <p class="muted" style="margin-top:10px;">
+          From number: <span id="asstTestFromNumber">—</span>
+        </p>
+        <div class="field" style="margin-top:14px;">
+          <label for="asstTestToNumber">Destination phone number</label>
+          <input id="asstTestToNumber" class="input" placeholder="+12137774445">
+        </div>
+
+        <div class="grid-2" style="margin-top:10px;">
+          <div class="field">
+            <label for="asstVarFirstName">First name</label>
+            <input id="asstVarFirstName" class="input" placeholder="John">
+          </div>
+          <div class="field">
+            <label for="asstVarLastName">Last name</label>
+            <input id="asstVarLastName" class="input" placeholder="Doe">
+          </div>
+          <div class="field">
+            <label for="asstVarCompany">Company</label>
+            <input id="asstVarCompany" class="input" placeholder="Acme Inc.">
+          </div>
+          <div class="field">
+            <label for="asstVarIndustry">Industry</label>
+            <input id="asstVarIndustry" class="input" placeholder="Finance">
+          </div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <button type="button" class="btn-primary" id="asstCallMeBtn">Call me</button>
+          <span id="asstTestCallStatus" class="muted"></span>
         </div>
       </div>
-
-      <!-- RIGHT COLUMN -->
-<div>
-
-  <!-- Intro -->
-  <div class="field">
-    <label for="asstIntroPrompt">Intro (editable)</label>
-    <textarea id="asstIntroPrompt" class="input" rows="8"></textarea>
-  </div>
-
-  <div class="field">
-    <p>You could use following variables: {{firstName}}, {{lastName}}, {{company}}, {{industry}} in your Intro</p>
-    <p>Example: Hi {{firstName}} {{lastName}}, this is Jane from Acme Company. We design tailored solutions for the {{industry}} sector.</p>
-    <p>Additionally, since the {{industry}} variable is used in the AI presentation, it’s beneficial to include it in the hook.</p>
-
-  <!-- Desired outcome -->
-  <div class="field" style="margin-top:16px;">
-    <label for="asstDesiredOutcome">Desired outcome (editable)</label>
-    <select id="asstDesiredOutcome" class="input">
-      <option value="book_a_meeting">Book a meeting</option>
-      <option value="transfer_call">Transfer call</option>
-      <option value="send_information">Send information</option>
-    </select>
-  </div>
-
-  <!-- BOOK A MEETING -->
-  <div id="outcomeBookMeeting" style="margin-top:14px;">
-    <div class="field">
-      <label for="asstCalApiKey">
-        Cal.com API key
-        <span class="muted" style="display:inline;font-size:0.8rem;margin-top:2px;">
-          <a href="https://cal.com/docs/api-reference/v2/introduction#authentication" target="_blank">
-            (?)
-          </a>
-        </span>
-      </label>
-      <input id="asstCalApiKey" class="input" placeholder="cal_live_xxx">
     </div>
-
-    <div class="field">
-      <label for="asstCalEventTypeId">
-        Cal.com Event Type ID
-        <span class="muted" style="display:inline;font-size:0.8rem;margin-top:2px;">
-          <a href="https://cal.com/help/event-types/eventtype-id" target="_blank">
-            (?)
-          </a>
-        </span>
-      </label>
-      <input id="asstCalEventTypeId" class="input" placeholder="123456">
-    </div>
-
-    <div class="field">
-      <label>Check time availability before booking</label>
-      <div style="display:flex;gap:16px;margin-top:6px;">
-        <label style="display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" id="asstCalCheckAvailabilityYes">
-          Yes
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" id="asstCalCheckAvailabilityNo">
-          No
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <!-- TRANSFER CALL -->
-<div id="outcomeTransferCall" style="margin-top:14px;" hidden>
-  <!-- Phone ALWAYS visible when Transfer call is chosen -->
-  <div class="field">
-    <label for="asstTransferPhone">Receiving agent phone number</label>
-    <input id="asstTransferPhone" class="input" placeholder="+1 555 123 4567">
-  </div>
-
-  <div class="field">
-    <label>Transfer type</label>
-    <div style="display:flex;gap:16px;margin-top:6px;">
-      <label style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="asstTransferCold"> Cold transfer
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="asstTransferWarm"> Warm transfer
-      </label>
-    </div>
-  </div>
-
-  <!-- Whisper ONLY if Warm transfer -->
-  <div id="outcomeWarmDetails" hidden>
-    <div class="field">
-      <label for="asstTransferWhisper">Whisper message</label>
-      <textarea id="asstTransferWhisper" class="input" rows="4"
-        placeholder="Short briefing for the receiving agent."></textarea>
-    </div>
-  </div>
-</div>
-    
-    <!-- SEND INFORMATION -->
-<div id="outcomeSendInfo" style="margin-top:14px;" hidden>
-  <div class="field">
-    <label>Send via</label>
-    <div style="display:flex;gap:16px;margin-top:6px;">
-      <label style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="asstSendSms"> SMS
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="asstSendSmsEmail"> SMS + email
-      </label>
-    </div>
-  </div>
-
-  <!-- Message ALWAYS visible when Send information is chosen -->
-  <div class="field">
-    <label for="asstSendMessage">Message</label>
-    <textarea id="asstSendMessage" class="input" rows="4"></textarea>
-  </div>
-
-  <!-- Upload + CC ONLY for SMS + email -->
-  <div id="outcomeSendSmsEmailDetails" hidden>
-    <div class="field">
-      <label for="asstSendDoc">Document upload</label>
-      <input id="asstSendDoc" type="file" class="input">
-    </div>
-
-    <div class="field" id="asstCcWrap">
-      <label for="asstCcEmail">CC email address</label>
-      <input id="asstCcEmail" class="input">
-    </div>
-  </div>
+  </section>
 </div>
 
-</div>
-      </div>
-    </div>
+<!-- ✅ NEW: minimal button styling (paste once in your CSS) -->
+<style>
+  .btn-kb-doc{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 10px;
+    border-radius:10px;
+    background:rgba(32,117,174,.12); /* light-blue */
+    border:1px solid rgba(32,117,174,.22);
+    color:#0b3a57;
+    font-size:.82rem;
+    font-weight:600;
+    text-decoration:none;
+    line-height:1;
+    transition: transform .08s ease, background .15s ease;
+    white-space:nowrap;
+  }
+  .btn-kb-doc:hover{
+    background:rgba(32,117,174,.18);
+    transform: translateY(-1px);
+  }
+  .btn-kb-doc:active{
+    transform: translateY(0);
+  }
+</style>
 
-    <div style="margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <button type="submit" class="btn-primary" id="asstSaveBtn">Save and Publish</button>
-
-      <button type="button" class="btn-primary-2" id="asstTestCallBtn" hidden>
-        Test call
-      </button>
-
-      <button type="button" class="btn-secondary" id="asstDeleteBtn">
-        <span style="color:#FF0000;">Delete assistant</span>
-      </button>
-
-      <span id="asstStatus" class="muted"></span>
-    </div>
-  </form>
-  
-  <!-- TEST CALL MODAL -->
-  <div id="asstTestCallModal" class="modal-overlay" hidden>
-    <div class="modal-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-      <h3 style="margin:0;">Get a test call</h3>
-      <button type="button" id="asstTestCallClose" class="btn-secondary">Close</button>
-    </div>
-
-    <p class="muted" style="margin-top:8px;">
-      We’ll call your number using your assistant’s purchased phone number.
-    </p>
-    <p class="muted" style="margin-top:10px;">
-      From number: <span id="asstTestFromNumber">—</span>
-    </p>
-    <div class="field" style="margin-top:14px;">
-      <label for="asstTestToNumber">Destination phone number</label>
-      <input id="asstTestToNumber" class="input" placeholder="+12137774445">
-    </div>
-
-    <div class="grid-2" style="margin-top:10px;">
-      <div class="field">
-        <label for="asstVarFirstName">First name</label>
-        <input id="asstVarFirstName" class="input" placeholder="John">
-      </div>
-      <div class="field">
-        <label for="asstVarLastName">Last name</label>
-        <input id="asstVarLastName" class="input" placeholder="Doe">
-      </div>
-      <div class="field">
-        <label for="asstVarCompany">Company</label>
-        <input id="asstVarCompany" class="input" placeholder="Acme Inc.">
-      </div>
-      <div class="field">
-        <label for="asstVarIndustry">Industry</label>
-        <input id="asstVarIndustry" class="input" placeholder="Finance">
-      </div>
-    </div>
-
-    <div style="margin-top:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <button type="button" class="btn-primary" id="asstCallMeBtn">Call me</button>
-      <span id="asstTestCallStatus" class="muted"></span>
-    </div>
-    </div>
-  </div>
-</section>
-</div>
 <!-- Buy number card -->
 <div class="card" id="asstBuyCard" style="margin-top:32px" hidden>
   <h3>Buy a phone number</h3>
