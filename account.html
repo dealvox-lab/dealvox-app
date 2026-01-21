@@ -129,6 +129,36 @@
     });
   })();
 </script>
+<script>
+  (function () {
+    const btn = document.getElementById("asstKbHelpBtn");
+    const modal = document.getElementById("asstKbHelpModal");
+    const close = document.getElementById("asstKbHelpClose");
+
+    if (!btn || !modal || !close) return;
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      modal.hidden = false;
+    });
+
+    close.addEventListener("click", () => {
+      modal.hidden = true;
+    });
+
+    // Close on overlay click
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.hidden = true;
+    });
+
+    // Close on ESC
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal.hidden === false) {
+        modal.hidden = true;
+      }
+    });
+  })();
+</script>
 <!-- Retell Chat Widget -->
 <script
   id="retell-widget"
