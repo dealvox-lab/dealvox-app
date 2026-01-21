@@ -170,20 +170,40 @@
 
             <input id="asstKnowledgeFile" type="file" class="input">
 
-            <!-- ✅ NEW: Test document download links (inline) -->
-            <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-              <a class="btn-kb-doc" href="https://app.dealvox.online/docs/logistics_business.txt" target="_blank" rel="noopener">
-                logistics_business.txt
-              </a>
-              <a class="btn-kb-doc" href="https://app.dealvox.online/docs/pc_repair_business.txt" target="_blank" rel="noopener">
-                pc_repair_business.txt
-              </a>
-              <a class="btn-kb-doc" href="https://app.dealvox.online/docs/property_repair_business.txt" target="_blank" rel="noopener">
-                property_repair_business.txt
-              </a>
-            </div>
-          </div>
+          <!-- Replace ONLY this block (the one I added under #asstKnowledgeFile) -->
 
+          <!-- ✅ NEW: Knowledge base file templates (inline) -->
+            <div style="margin-top:10px;">
+              <div class="muted" style="font-size:.82rem; margin-bottom:6px;">
+                Knowledge base file templates:
+              </div>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+              <a
+                  class="btn-kb-doc"
+                  href="https://app.dealvox.online/docs/logistics_business.txt"
+                  download="logistics_business.txt"
+                >
+                  logistics_business.txt
+                </a>
+
+                <a
+                  class="btn-kb-doc"
+                  href="https://app.dealvox.online/docs/pc_repair_business.txt"
+                  download="pc_repair_business.txt"
+                >
+                  pc_repair_business.txt
+                </a>
+
+                <a
+                  class="btn-kb-doc"
+                  href="https://app.dealvox.online/docs/property_repair_business.txt"
+                  download="property_repair_business.txt"
+                >
+                  property_repair_business.txt
+                </a>
+              </div>
+            </div>
           <div class="field">
             <label for="asstWebhookUrl">
               Webhook URL (editable)
