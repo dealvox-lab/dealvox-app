@@ -129,53 +129,6 @@
     });
   })();
 </script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const btn   = document.getElementById("asstKbHelpBtn");
-  const modal = document.getElementById("asstKbHelpModal");
-  const close = document.getElementById("asstKbHelpClose");
-
-  if (!modal) return;
-
-  // FORCE it closed on load, no matter what
-  modal.hidden = true;
-
-  function openModal() {
-    modal.hidden = false;
-  }
-
-  function closeModal() {
-    modal.hidden = true;
-  }
-
-  if (btn) {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      openModal();
-    });
-  }
-
-  if (close) {
-    close.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      closeModal();
-    });
-  }
-
-  // Click outside modal-card closes it
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeModal();
-  });
-
-  // ESC closes it
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.hidden === false) closeModal();
-  });
-});
-</script>
-
 <!-- Retell Chat Widget -->
 <script
   id="retell-widget"
