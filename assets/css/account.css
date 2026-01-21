@@ -711,6 +711,11 @@ input:checked + .slider:before {
   z-index: 9999;
 }
 
+.modal-overlay[hidden] {
+  display: none !important;
+}
+
+
 .modal-card {
   width: 100%;
   max-width: 720px;
